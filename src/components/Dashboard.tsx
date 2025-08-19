@@ -47,7 +47,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
             
             <div className="flex items-center gap-x-4">
-              {/* ===== BOUTON NOUVEAU KAIZEN DÉPLACÉ ICI ===== */}
               <button
                 onClick={() => setShowCreateModal(true)}
                 className="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
@@ -75,7 +74,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 </button>
                 {isMenuOpen && (
                   <div 
-                    // ===== TRANSPARENCE ENLEVÉE =====
                     className="absolute right-0 mt-2 w-56 bg-gray-800 border border-white/10 rounded-lg shadow-2xl py-2 z-50 animate-fade-in-down"
                     onMouseLeave={() => setIsMenuOpen(false)}
                   >
@@ -117,7 +115,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             <p className="text-gray-300">Gérez vos projets d'amélioration continue</p>
         </div>
         
-        {/* ===== GRILLE DES 4 COLONNES AVEC SCROLL ===== */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
           
           <div className="bg-gray-900/40 backdrop-blur-md rounded-xl shadow-lg border border-white/10 flex flex-col max-h-[70vh]">
@@ -165,7 +162,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </div>
           
           <div className="bg-gray-900/40 backdrop-blur-md rounded-xl shadow-lg border border-white/10 flex flex-col max-h-[70vh]">
-            <div className="p-5 border-b border-white/10 flex-shrink-0"><h2 className="text-lg font-semibold flex items-center"><Plus className="w-5 h-5 mr-3 text-purple-400" />Actions créées</h2><p className="text-gray-400 text-sm mt-1">Actions initiées par vous</s p></div>
+            <div className="p-5 border-b border-white/10 flex-shrink-0"><h2 className="text-lg font-semibold flex items-center"><Plus className="w-5 h-5 mr-3 text-purple-400" />Actions créées</h2><p className="text-gray-400 text-sm mt-1">Actions initiées par vous</p></div>
             <div className="p-5 overflow-y-auto"><div className="text-center py-8 text-gray-400"><Plus className="w-12 h-12 mx-auto mb-2" /><p>Aucune action créée.</p></div></div>
           </div>
 
