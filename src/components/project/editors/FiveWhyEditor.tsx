@@ -447,23 +447,8 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
                     <p className="text-gray-600 leading-relaxed">
                       La méthode des 5 Pourquoi est un outil d'analyse des causes racines qui permet 
                       d'identifier la cause profonde d'un problème en se demandant "Pourquoi ?" de manière successive.
+                    </p>
                   </div>
-            </div>
-            
-            <div className="p-6 border-t border-gray-200/50 bg-gradient-to-r from-gray-50 to-white">
-              <button
-                onClick={() => setShowHelp(false)}
-                className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
-              >
-                Compris !
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};    </div>
                   
                   <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
                     <h4 className="text-lg font-semibold text-gray-900 mb-3">Objectifs</h4>
@@ -536,3 +521,15 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
                   <strong>Note :</strong> Le nombre "5" est indicatif. Vous pouvez avoir besoin de 3 à 7 questions selon la complexité du problème.
                   L'important est d'arriver à une cause racine que vous pouvez traiter efficacement.
                 </p>
+              </div>
+            </div>
+            
+            <div className="p-6 border-t border-gray-200/50 bg-gradient-to-r from-gray-50 to-white">
+              <button
+                onClick={() => setShowHelp(false)}
+                className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
+              >
+                Compris !
+              </button>
+            </div>
+          </div>
