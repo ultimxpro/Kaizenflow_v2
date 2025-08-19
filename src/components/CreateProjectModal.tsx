@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useDatabase } from '../contexts/DatabaseContext';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../Lib/supabase'; // Import direct de Supabase
 import { X, Loader2 } from 'lucide-react';
 
 interface CreateProjectModalProps {
@@ -8,37 +8,59 @@ interface CreateProjectModalProps {
   onNavigate: (page: string, projectId: string) => void;
 }
 
+// Données par défaut pour un nouveau projet, comme dans votre code original
+const defaultProjectData = {
+  statut: 'En cours',
+  pdca_step: 'PLAN',
+  modules: [
+    { id: 'module-plan-1', type: '5-why', title: '5 Pourquoi', content: null, quadrant: 'PLAN' },
+    { id: 'module-plan-2', type: 'ishikawa', title: 'Ishikawa', content: null, quadrant: 'PLAN' },
+    { id: 'module-do-1', type: 'plan-actions', title: 'Plan d\'actions', content: null, quadrant: 'DO' },
+  ],
+};
+
 export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose, onNavigate }) => {
   const [titre, setTitre] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { createProject } = useDatabase();
   const { currentUser } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) {
-      setError("Vous devez être connecté pour créer un projet.");
+      setError("Session expirée. Veuillez vous reconnecter.");
       return;
     }
     setLoading(true);
     setError('');
 
     try {
-      // La logique de création est conservée de votre fichier original
-      const newProject = await createProject({
-        titre: titre,
-        pilote: currentUser.id,
-        statut: 'En cours',
-        pdca_step: 'PLAN',
-        // Ajoutez d'autres champs par défaut si nécessaire
-      });
+      // On utilise la logique de création directe de votre code original
+      const { data, error: insertError } = await supabase
+        .from('projects')
+        .insert([{ 
+          titre: titre, // Assure que 'titre' est bien une chaîne de caractères
+          pilote: currentUser.id, 
+          ...defaultProjectData 
+        }])
+        .select()
+        .single();
 
-      if (newProject) {
-        onNavigate('project', newProject.id); // Redirige vers le nouveau projet
+      if (insertError) {
+        throw insertError;
       }
-      onClose(); // Ferme la modale dans tous les cas
+
+      if (data) {
+        // La navigation utilise l'ID du projet créé, comme dans votre code original
+        onNavigate('project', data.id);
+      } else {
+        throw new Error("La création a échoué : aucune donnée retournée.");
+      }
+      
+      onClose();
+
     } catch (err: any) {
+      console.error("Erreur de création du projet:", err);
       setError(err.message || "Une erreur est survenue lors de la création.");
       setLoading(false);
     }
