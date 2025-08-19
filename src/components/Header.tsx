@@ -2,7 +2,8 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { LogOut, User, Settings } from 'lucide-react';
-import newLogo from '../assets/Gemini_Generated_Image_6kdy0q6kdy0q6kdy.jpg';
+// ON N'IMPORTE PLUS LE LOGO
+// import newLogo from '../assets/Gemini_Generated_Image_6kdy0q6kdy0q6kdy.jpg';
 
 interface HeaderProps {
   onNavigate: (page: string) => void;
@@ -19,7 +20,8 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
   return (
     <header className="bg-gray-800 bg-opacity-30 backdrop-blur-lg p-4 flex justify-between items-center shadow-lg">
       <div className="flex items-center space-x-4 cursor-pointer" onClick={() => onNavigate('dashboard')}>
-        <img src={newLogo} alt="KaizenFlow Logo" className="w-10 h-10 rounded-full border-2 border-gray-600" />
+        {/* ON UTILISE LE CHEMIN DIRECT VERS L'IMAGE DANS PUBLIC */}
+        <img src="/leandeck-symbol.png" alt="KaizenFlow Logo" className="w-10 h-10 rounded-full border-2 border-gray-600" />
         <h1 className="text-xl font-bold text-white tracking-wider">KaizenFlow</h1>
       </div>
       <div className="flex items-center space-x-4">
