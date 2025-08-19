@@ -436,7 +436,6 @@ const KanbanByPersonView = ({ actions, setActions, users, onCardClick }: { actio
                     const isCompleted = status === 'Fait';
                     
                     return (
-                    return (
                         <div
                             key={status}
                             className={`flex flex-col rounded-2xl border-2 transition-all duration-200 shadow-lg ${
@@ -492,48 +491,6 @@ const KanbanByPersonView = ({ actions, setActions, users, onCardClick }: { actio
                         </div>
                     );
                 })}
-            </div> className={`font-bold text-lg ${isCompleted ? 'text-green-800' : 'text-orange-800'}`}>
-                                    {status}
-                                </h3>
-                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                    isCompleted ? 'bg-green-200 text-green-800' : 'bg-orange-200 text-orange-800'
-                                }`}>
-                                    {items.length}
-                                </span>
-                            </div>
-                            
-                            <div className="flex-1 p-4 overflow-y-auto">
-                                {items.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center h-32 text-gray-400">
-                                        <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-3">
-                                            {status === 'À faire' ? '📝' : '🎉'}
-                                        </div>
-                                        <p className={`text-sm font-medium ${
-                                            status === 'À faire' ? 'text-orange-600' : 'text-green-600'
-                                        }`}>
-                                            {status === 'À faire' ? 'Aucune tâche en attente' : 'Aucune tâche terminée'}
-                                        </p>
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            {status === 'À faire' ? 'Les nouvelles tâches apparaîtront ici' : 'Glissez les tâches terminées ici'}
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-3">
-                                        {items.map(item => (
-                                            <ActionCard 
-                                                key={item.id} 
-                                                action={item} 
-                                                users={users} 
-                                                onDragStart={(e, action) => setDraggedItem(action)} 
-                                                onClick={onCardClick} 
-                                            />
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                )}
             </div>
             
             {/* Footer avec progression */}
@@ -1182,19 +1139,19 @@ export const PlanActionsEditor: React.FC<PlanActionsEditorProps> = ({ module, on
                                             <h4 className="text-lg font-semibold text-gray-900 mb-3">Types d'actions</h4>
                                             <div className="space-y-3 text-sm text-gray-600">
                                                 <div className="flex items-start">
-                                                    <div className="w-3 h-3 bg-blue-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
+                                                    <div className="w-3 h-3 bg-emerald-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
                                                     <div>
                                                         <strong className="text-gray-700">Simple :</strong> Action standard
                                                     </div>
                                                 </div>
                                                 <div className="flex items-start">
-                                                    <div className="w-3 h-3 bg-orange-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
+                                                    <div className="w-3 h-3 bg-amber-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
                                                     <div>
                                                         <strong className="text-gray-700">Sécurisation :</strong> Action de sécurisation temporaire
                                                     </div>
                                                 </div>
                                                 <div className="flex items-start">
-                                                    <div className="w-3 h-3 bg-green-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
+                                                    <div className="w-3 h-3 bg-teal-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
                                                     <div>
                                                         <strong className="text-gray-700">Poka-yoke :</strong> Action de détrompeur permanent
                                                     </div>
