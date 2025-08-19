@@ -24,7 +24,6 @@ interface Action {
     gain: number;
 }
 
-// --- PROPS DU COMPOSANT ---
 interface PlanActionsEditorProps {
     module: A3Module;
     onClose: () => void;
@@ -36,7 +35,6 @@ const actionTypeConfig = {
     securisation: { name: 'Sécurisation', icon: '🛡️', color: 'border-red-500', textColor: 'text-red-600', barBg: 'bg-red-500', a3Color: 'bg-red-100 text-red-800', lightBg: 'bg-red-50' },
     'poka-yoke': { name: 'Poka-Yoke', icon: '🧩', color: 'border-yellow-500', textColor: 'text-yellow-600', barBg: 'bg-yellow-500', a3Color: 'bg-yellow-100 text-yellow-800', lightBg: 'bg-yellow-50' },
 };
-
 
 // --- COMPOSANTS UTILITAIRES ---
 const Tooltip = ({ content, children }: { content: string, children: React.ReactNode }) => (
@@ -93,7 +91,6 @@ const AssigneeAvatars = ({ assignee_ids, users }: { assignee_ids: string[], user
     </div>
 );
 
-
 const ActionCard = ({ action, users, onDragStart, onClick }: { action: Action, users: User[], onDragStart: (e: React.DragEvent, action: Action) => void, onClick: (action: Action) => void }) => {
     const config = actionTypeConfig[action.type];
 
@@ -124,8 +121,6 @@ const PDCASection = ({ title, icon, children }: { title: string, icon: React.Rea
     </div>
 );
 
-// --- FORMULAIRE D'ACTION ---
-// Helper pour convertir une string "YYYY-W##" en date du lundi correspondant
 // Helper pour convertir une string "YYYY-W##" en date du lundi correspondant
 const getDateOfISOWeek = (weekString: string): Date => {
     if (!weekString) return new Date();
@@ -178,63 +173,59 @@ const ActionModal = React.memo(({ isOpen, onClose, onSave, action, projectMember
                 setDuration(diffDays / 7);
                 setDurationUnit('weeks');
             } else {
-                setDuration(Math.max(1, diffDays));
+                setDuration(diffDays);
                 setDurationUnit('days');
             }
-        } else {
-            setDuration(7);
-            setDurationUnit('days');
         }
     }, [action]);
 
-    useEffect(() => {
-        if (!formData.start_date) return;
-        const startDate = new Date(formData.start_date + 'T00:00:00');
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+
+    const handleRangeChange = (field: string, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: parseInt(value) }));
+    };
+
+    const formatDateToWeek = (date: Date): string => {
+        const year = date.getFullYear();
+        const startOfYear = new Date(year, 0, 1);
+        const days = Math.floor((date.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
+        const week = Math.ceil((days + startOfYear.getDay() + 1) / 7);
+        return `${year}-W${week.toString().padStart(2, '0')}`;
+    };
+
+    const handleDurationChange = () => {
+        const startDate = new Date(formData.start_date || new Date().toISOString().split('T')[0]);
         let endDate = new Date(startDate);
-        const newDuration = Math.max(1, duration);
 
-        if (durationUnit === 'days') {
-            endDate.setDate(startDate.getDate() + newDuration - 1);
-        } else if (durationUnit === 'weeks') {
-            endDate.setDate(startDate.getDate() + newDuration * 7 - 1);
-        } else if (durationUnit === 'months') {
-            endDate.setMonth(startDate.getMonth() + newDuration);
-            endDate.setDate(endDate.getDate() - 1);
+        switch (durationUnit) {
+            case 'days':
+                endDate.setDate(startDate.getDate() + duration - 1);
+                break;
+            case 'weeks':
+                endDate.setDate(startDate.getDate() + (duration * 7) - 1);
+                break;
+            case 'months':
+                endDate.setMonth(startDate.getMonth() + duration);
+                endDate.setDate(endDate.getDate() - 1);
+                break;
         }
+
         setFormData(prev => ({ ...prev, due_date: endDate.toISOString().split('T')[0] }));
-    }, [formData.start_date, duration, durationUnit]);
+    };
 
-    const handleDateInputChange = (value: string) => {
-        let startDateStr = '';
-        if (durationUnit === 'days') {
-            startDateStr = value;
-        } else if (durationUnit === 'weeks') {
-            setWeekValue(value);
-            if (value) {
-                startDateStr = getDateOfISOWeek(value).toISOString().split('T')[0];
-            }
-        } else if (durationUnit === 'months') {
-            setMonthValue(value);
-            if (value) {
-                startDateStr = `${value}-01`;
-            }
+    useEffect(() => {
+        if (formData.start_date && duration > 0) {
+            handleDurationChange();
         }
-        setFormData(p => ({ ...p, start_date: startDateStr }));
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData(p => ({ ...p, [name]: value }));
-    };
-
-    const handleRangeChange = (name: 'effort' | 'gain', value: string) => {
-        setFormData(p => ({ ...p, [name]: parseInt(value) }));
-    };
+    }, [formData.start_date, duration, durationUnit]);
 
     const toggleAssignee = (userId: string) => {
         setFormData(prev => {
             const currentAssignees = prev.assignee_ids || [];
-            const newAssignees = currentAssignees.includes(userId) ? currentAssignees.filter(id => id !== userId) : [...currentAssignees, userId];
+            const newAssignees = currentAssignees.includes(userId) ? 
+                currentAssignees.filter(id => id !== userId) : [...currentAssignees, userId];
             let newLeaderId = newAssignees.includes(prev.leader_id) ? prev.leader_id : (newAssignees[0] || undefined);
             if(newAssignees.length === 0) newLeaderId = undefined;
             return { ...prev, assignee_ids: newAssignees, leader_id: newLeaderId };
@@ -290,43 +281,31 @@ const ActionModal = React.memo(({ isOpen, onClose, onSave, action, projectMember
                                 <label className="text-sm font-semibold text-gray-600 flex items-center mb-2"><Tag size={14} className="mr-2"/> Type d'action</label>
                                 <div className="grid grid-cols-3 gap-2">
                                     {Object.entries(actionTypeConfig).map(([key, config]) => (
-                                        <button type="button" key={key} onClick={() => setFormData(p => ({...p, type: key as ActionType}))} className={`py-2 px-3 rounded-lg flex items-center justify-center gap-2 ${formData.type === key ? `${config.a3Color} font-bold ring-2 ring-current` : 'bg-white border'}`}>
-                                            {config.icon} {config.name}
+                                        <button type="button" key={key} onClick={() => setFormData(p => ({...p, type: key as ActionType}))} className={`py-2 px-3 rounded-lg flex items-center justify-center gap-2 ${formData.type === key ? config.a3Color : 'bg-white border border-gray-300'}`}>
+                                            <span>{config.icon}</span>
+                                            <span className="text-xs font-medium">{config.name}</span>
                                         </button>
                                     ))}
                                 </div>
                             </div>
+                        </div>
+                    </PDCASection>
+
+                    <PDCASection title="Planification" icon={<Calendar size={20} />}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="text-sm font-semibold text-gray-600 flex items-center mb-2"><Calendar size={14} className="mr-2"/> Échéance</label>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="text-xs text-gray-500">
-                                            {durationUnit === 'days' && "Date de début"}
-                                            {durationUnit === 'weeks' && "Semaine de début"}
-                                            {durationUnit === 'months' && "Mois de début"}
-                                        </label>
-                                        
-                                        {durationUnit === 'days' && (
-                                            <input type="date" value={formData.start_date || ''} onChange={(e) => handleDateInputChange(e.target.value)} className="p-2 border bg-white border-gray-300 rounded w-full" />
-                                        )}
-                                        {durationUnit === 'weeks' && (
-                                            <input type="week" value={weekValue} onChange={(e) => handleDateInputChange(e.target.value)} className="p-2 border bg-white border-gray-300 rounded w-full" />
-                                        )}
-                                        {durationUnit === 'months' && (
-                                            <input type="month" value={monthValue} onChange={(e) => handleDateInputChange(e.target.value)} className="p-2 border bg-white border-gray-300 rounded w-full" />
-                                        )}
-                                    </div>
-                                    <div>
-                                        <label className="text-xs text-gray-500">Durée</label>
-                                        <div className="flex">
-                                            <input type="number" value={duration} onChange={e => setDuration(parseInt(e.target.value) || 1)} min="1" className="p-2 border bg-white border-gray-300 rounded-l w-1/2"/>
-                                            <select value={durationUnit} onChange={e => setDurationUnit(e.target.value as any)} className="p-2 border bg-white border-gray-300 rounded-r w-1/2">
-                                                <option value="days">Jours</option>
-                                                <option value="weeks">Semaines</option>
-                                                <option value="months">Mois</option>
-                                            </select>
-                                        </div>
-                                    </div>
+                                <label className="text-sm font-semibold text-gray-600 mb-2 block">Date de début</label>
+                                <input type="date" name="start_date" value={formData.start_date || ''} onChange={handleChange} className="p-2 w-full border bg-white border-gray-300 rounded" required />
+                            </div>
+                            <div>
+                                <label className="text-sm font-semibold text-gray-600 mb-2 block">Durée</label>
+                                <div className="flex gap-2">
+                                    <input type="number" min="1" value={duration} onChange={(e) => setDuration(parseInt(e.target.value) || 1)} className="p-2 w-20 border bg-white border-gray-300 rounded" />
+                                    <select value={durationUnit} onChange={(e) => setDurationUnit(e.target.value as 'days' | 'weeks' | 'months')} className="p-2 border bg-white border-gray-300 rounded flex-1">
+                                        <option value="days">Jour(s)</option>
+                                        <option value="weeks">Semaine(s)</option>
+                                        <option value="months">Mois</option>
+                                    </select>
                                 </div>
                                 {formData.due_date && formData.start_date && <p className="text-xs text-gray-500 mt-2">Période : <span className="font-semibold">{new Date(formData.start_date + 'T00:00:00').toLocaleDateString('fr-FR')} au {new Date(formData.due_date + 'T00:00:00').toLocaleDateString('fr-FR')}</span></p>}
                             </div>
@@ -416,123 +395,98 @@ const KanbanByPersonView = ({ actions, setActions, users, onCardClick }: { actio
     const selectedUserData = users.find(u => u.id === selectedUser);
 
     return (
-        <div className="flex flex-col h-full bg-gradient-to-br from-slate-50 to-blue-50">
-            {/* Header avec sélecteur utilisateur amélioré */}
-            <div className="mb-6 flex-shrink-0 flex justify-center">
-                <div className="bg-white p-4 rounded-xl shadow-lg border border-blue-100 flex items-center gap-4">
-                    <div className="flex items-center gap-3">
-                        {selectedUserData && (
-                            <img 
-                                src={selectedUserData.avatarUrl || `https://i.pravatar.cc/150?u=${selectedUserData.id}`} 
-                                alt={selectedUserData.nom} 
-                                className="w-10 h-10 rounded-full border-2 border-blue-200"
+        <div className="h-full flex flex-col">
+            {/* Sélecteur d'utilisateur */}
+            <div className="mb-6">
+                <div className="flex flex-wrap gap-2">
+                    {users.map(user => (
+                        <button
+                            key={user.id}
+                            onClick={() => setSelectedUser(user.id)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ${
+                                selectedUser === user.id
+                                    ? 'bg-blue-600 text-white shadow-lg'
+                                    : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-300'
+                            }`}
+                        >
+                            <img
+                                src={user.avatarUrl || `https://i.pravatar.cc/150?u=${user.id}`}
+                                alt={user.nom}
+                                className="w-6 h-6 rounded-full"
                             />
-                        )}
-                        <div>
-                            <label htmlFor="user-select" className="font-semibold text-gray-700 block">Kanban personnel</label>
-                            <p className="text-xs text-gray-500">Sélectionnez un membre de l'équipe</p>
-                        </div>
-                    </div>
-                    <select 
-                        id="user-select" 
-                        onChange={(e) => setSelectedUser(e.target.value)} 
-                        value={selectedUser} 
-                        className="p-3 border bg-white border-gray-300 rounded-lg shadow-sm text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-48"
-                    >
-                        {users.map(u => <option key={u.id} value={u.id}>{u.nom}</option>)}
-                    </select>
-                </div>
-            </div>
-            
-            {/* Statistiques rapides */}
-            <div className="mb-4 flex-shrink-0 flex justify-center gap-4">
-                <div className="bg-orange-100 border border-orange-200 rounded-lg px-4 py-2 flex items-center gap-2">
-                    <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                    <span className="text-sm font-medium text-orange-800">{columns['À faire'].length} à faire</span>
-                </div>
-                <div className="bg-green-100 border border-green-200 rounded-lg px-4 py-2 flex items-center gap-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span className="text-sm font-medium text-green-800">{columns['Fait'].length} terminées</span>
+                            <span className="font-medium">{user.nom}</span>
+                            <span className={`text-xs px-2 py-1 rounded-full ${
+                                selectedUser === user.id ? 'bg-white/20' : 'bg-gray-100'
+                            }`}>
+                                {actions.filter(a => a.assignee_ids.includes(user.id)).length}
+                            </span>
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            {/* Colonnes Kanban */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 min-h-0" onDragEnd={() => setDraggedItem(null)}>
-                {(Object.entries(columns) as [ActionStatus, Action[]][]).map(([status, items]) => (
-                    <div 
-                        key={status} 
-                        className={`flex flex-col rounded-xl transition-all duration-300 h-full overflow-hidden shadow-lg ${
-                            status === 'À faire' 
-                                ? 'bg-gradient-to-b from-orange-50 to-orange-100 border-2 border-orange-200' 
-                                : 'bg-gradient-to-b from-green-50 to-green-100 border-2 border-green-200'
-                        }`}
-                         onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, status)}
-                        onDragEnter={(e) => (e.currentTarget as HTMLDivElement).classList.add('bg-blue-50', 'ring-2', 'ring-blue-400', 'scale-105')}
-                        onDragLeave={(e) => (e.currentTarget as HTMLDivElement).classList.remove('bg-blue-50', 'ring-2', 'ring-blue-400', 'scale-105')}
-                    >
-                        {/* Header de colonne */}
-                        <div className={`p-4 border-b-2 flex-shrink-0 ${
-                            status === 'À faire' 
-                                ? 'border-orange-300 bg-orange-200' 
-                                : 'border-green-300 bg-green-200'
-                        }`}>
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                        status === 'À faire' ? 'bg-orange-500' : 'bg-green-500'
-                                    }`}>
-                                        {status === 'À faire' ? '⏳' : '✅'}
-                                    </div>
-                                    <h2 className={`font-bold text-lg ${
-                                        status === 'À faire' ? 'text-orange-800' : 'text-green-800'
-                                    }`}>
-                                        {status}
-                                    </h2>
-                                </div>
-                                <span className={`text-sm font-bold px-3 py-1 rounded-full ${
-                                    status === 'À faire' 
-                                        ? 'bg-orange-300 text-orange-800' 
-                                        : 'bg-green-300 text-green-800'
+            {/* Kanban columns */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1" onDragEnd={() => setDraggedItem(null)}>
+                {(['À faire', 'Fait'] as ActionStatus[]).map(status => {
+                    const items = columns[status];
+                    const isCompleted = status === 'Fait';
+                    
+                    return (
+                        <div
+                            key={status}
+                            className={`flex flex-col rounded-xl border-2 transition-all duration-200 ${
+                                isCompleted 
+                                    ? 'bg-green-50 border-green-200' 
+                                    : 'bg-orange-50 border-orange-200'
+                            } h-full overflow-hidden`}
+                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={(e) => handleDrop(e, status)}
+                            onDragEnter={(e) => (e.currentTarget as HTMLDivElement).classList.add('bg-blue-50', 'ring-2', 'ring-blue-400', 'scale-105')}
+                            onDragLeave={(e) => (e.currentTarget as HTMLDivElement).classList.remove('bg-blue-50', 'ring-2', 'ring-blue-400', 'scale-105')}
+                        >
+                            <div className={`p-4 ${isCompleted ? 'bg-green-100' : 'bg-orange-100'} flex items-center justify-between`}>
+                                <h3 className={`font-bold text-lg ${isCompleted ? 'text-green-800' : 'text-orange-800'}`}>
+                                    {status}
+                                </h3>
+                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                    isCompleted ? 'bg-green-200 text-green-800' : 'bg-orange-200 text-orange-800'
                                 }`}>
                                     {items.length}
                                 </span>
                             </div>
-                        </div>
-                        
-                        {/* Zone de contenu avec défilement */}
-                        <div className="flex-1 overflow-y-auto p-4 min-h-0">
-                            {items.length === 0 ? (
-                                <div className="text-center py-8">
-                                    <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
-                                        status === 'À faire' ? 'bg-orange-200' : 'bg-green-200'
-                                    }`}>
-                                        {status === 'À faire' ? '📝' : '🎉'}
+                            
+                            <div className="flex-1 p-4 overflow-y-auto">
+                                {items.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center h-32 text-gray-400">
+                                        <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-3">
+                                            {status === 'À faire' ? '📝' : '🎉'}
+                                        </div>
+                                        <p className={`text-sm font-medium ${
+                                            status === 'À faire' ? 'text-orange-600' : 'text-green-600'
+                                        }`}>
+                                            {status === 'À faire' ? 'Aucune tâche en attente' : 'Aucune tâche terminée'}
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            {status === 'À faire' ? 'Les nouvelles tâches apparaîtront ici' : 'Glissez les tâches terminées ici'}
+                                        </p>
                                     </div>
-                                    <p className={`text-sm font-medium ${
-                                        status === 'À faire' ? 'text-orange-600' : 'text-green-600'
-                                    }`}>
-                                        {status === 'À faire' ? 'Aucune tâche en attente' : 'Aucune tâche terminée'}
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        {status === 'À faire' ? 'Les nouvelles tâches apparaîtront ici' : 'Glissez les tâches terminées ici'}
-                                    </p>
-                                </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {items.map(item => (
-                                        <ActionCard 
-                                            key={item.id} 
-                                            action={item} 
-                                            users={users} 
-                                            onDragStart={(e, action) => setDraggedItem(action)} 
-                                            onClick={onCardClick} 
-                                        />
-                                    ))}
-                                </div>
-                            )}
+                                ) : (
+                                    <div className="space-y-3">
+                                        {items.map(item => (
+                                            <ActionCard 
+                                                key={item.id} 
+                                                action={item} 
+                                                users={users} 
+                                                onDragStart={(e, action) => setDraggedItem(action)} 
+                                                onClick={onCardClick} 
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    )}
+                )}
             </div>
             
             {/* Footer avec progression */}
@@ -579,26 +533,22 @@ const MatrixView = ({ actions, setActions, users, onCardClick }: { actions: Acti
             'fill-ins': { gain: 3, effort: 3 },
             'thankless-tasks': { gain: 3, effort: 8 }
         }[quadrant] || { gain: 5, effort: 5 };
-        setActions(actions.map(a => a.id === draggedItem.id ? {...a, ...newValues} : a), {...draggedItem, ...newValues});
+        setActions(actions.map(a => a.id === draggedItem.id ? { ...a, ...newValues } : a), { ...draggedItem, ...newValues });
     };
 
     const Quadrant = ({ title, emoji, items, bgColor, quadrantName }: { title: string, emoji: string, items: Action[], bgColor: string, quadrantName: string }) => (
-        <div className={`rounded-lg p-2 flex flex-col ${bgColor}`}
-             onDragOver={(e) => e.preventDefault()}
-             onDrop={(e) => handleDrop(e, quadrantName)}
+        <div className={`${bgColor} rounded-lg border-2 border-dashed border-gray-300 p-4 h-64 overflow-y-auto transition-all`}
+             onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, quadrantName)}
              onDragEnter={(e) => (e.currentTarget as HTMLDivElement).classList.add('ring-2', 'ring-blue-400')}
              onDragLeave={(e) => (e.currentTarget as HTMLDivElement).classList.remove('ring-2', 'ring-blue-400')}>
-            <h3 className="font-bold text-center mb-2 text-slate-800 text-sm">{title} <span className="text-lg">{emoji}</span></h3>
-            <div className="matrix-quadrant bg-white bg-opacity-40 rounded p-2 overflow-y-auto flex-grow min-h-0">
-                {items.map(action => <ActionCard key={action.id} action={action} users={users} onDragStart={(e, act) => setDraggedItem(act)} onClick={onCardClick} />)}
-            </div>
+            <h3 className="font-bold text-center mb-4 text-gray-800">{emoji} {title} ({items.length})</h3>
+            {items.map(item => <ActionCard key={item.id} action={item} users={users} onDragStart={(e, action) => setDraggedItem(action)} onClick={onCardClick} />)}
         </div>
     );
+
     return (
-        <div className="relative p-8 bg-white border border-gray-200 rounded-lg shadow-inner h-full flex flex-col overflow-hidden" onDragEnd={() => setDraggedItem(null)}>
-            <div className="absolute top-1/2 left-0 -translate-y-1/2 -rotate-90 font-bold text-gray-500 tracking-wider">GAIN</div>
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 font-bold text-gray-500 tracking-wider">EFFORT</div>
-            <div className="grid grid-cols-2 grid-rows-2 gap-4 flex-1 pl-6 pt-6 min-h-0">
+        <div className="h-full" onDragEnd={() => setDraggedItem(null)}>
+            <div className="grid grid-cols-2 gap-6 h-full">
                 <Quadrant title="Quick Win" emoji="🔥" items={matrix['quick-wins']} bgColor="bg-green-200" quadrantName="quick-wins" />
                 <Quadrant title="Gros projet" emoji="🗓️" items={matrix['major-projects']} bgColor="bg-blue-200" quadrantName="major-projects" />
                 <Quadrant title="Tâche de fond" emoji="👌" items={matrix['fill-ins']} bgColor="bg-yellow-200" quadrantName="fill-ins" />
@@ -607,16 +557,6 @@ const MatrixView = ({ actions, setActions, users, onCardClick }: { actions: Acti
         </div>
     );
 };
-
-// Remplace complètement l'ancien GanttView dans src/components/project/editors/PlanActionsEditor.tsx
-
-// Remplacez votre GanttView par celui-ci
-
-// Remplacez votre GanttView par cette version finale avec aimantation
-
-// Remplacez votre GanttView par cette version finale et complète
-
-// Remplacez votre GanttView par cette version finale et complète
 
 const GanttView = ({ actions, users, onUpdateAction, onCardClick }: { actions: Action[], users: User[], onUpdateAction: (id: string, updates: Partial<Action>) => void, onCardClick: (action: Action) => void }) => {
   const [ganttScale, setGanttScale] = useState<'day' | 'week' | 'month'>('week');
@@ -734,42 +674,36 @@ const GanttView = ({ actions, users, onUpdateAction, onCardClick }: { actions: A
     return newDate;
   };
 
-  const handleMouseDown = (e: React.MouseEvent, actionId: string, mode: 'move' | 'resize-right') => {
-    e.preventDefault();
-    e.stopPropagation();
-    const action = validActions.find(a => a.id === actionId);
-    if (!action) return;
-    setDragState({
-      actionId,
-      mode,
-      startX: e.clientX,
-      originalStartDate: new Date(action.start_date),
-      originalEndDate: new Date(action.due_date),
-      scale: ganttScale,
-    });
-  };
-
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!dragState || !ganttRef.current) return;
+      
       const rect = ganttRef.current.getBoundingClientRect();
-      if (rect.width === 0) return;
-      const totalTime = ganttEndDate.getTime() - ganttStartDate.getTime();
-      const pixelToTime = totalTime / rect.width;
-      const deltaX = e.clientX - dragState.startX;
-      const deltaTime = deltaX * pixelToTime;
-      let newStartDate = new Date(dragState.originalStartDate);
+      const currentX = e.clientX;
+      const deltaX = currentX - dragState.startX;
+      const timelineWidth = rect.width;
+      const totalDuration = ganttEndDate.getTime() - ganttStartDate.getTime();
+      const timeDelta = (deltaX / timelineWidth) * totalDuration;
+      
+      let newStartDate = new Date(dragState.originalStartDate.getTime() + timeDelta);
       let newEndDate = new Date(dragState.originalEndDate);
+      
       if (dragState.mode === 'move') {
-        newStartDate = new Date(dragState.originalStartDate.getTime() + deltaTime);
-        newEndDate = new Date(dragState.originalEndDate.getTime() + deltaTime);
+        const actionDuration = dragState.originalEndDate.getTime() - dragState.originalStartDate.getTime();
+        newEndDate = new Date(newStartDate.getTime() + actionDuration);
       } else if (dragState.mode === 'resize-right') {
-        newEndDate = new Date(dragState.originalEndDate.getTime() + deltaTime);
+        newEndDate = new Date(dragState.originalEndDate.getTime() + timeDelta);
+        const minDuration = dragState.scale === 'day' ? 1 : dragState.scale === 'week' ? 7 : 30;
+        const minEndDate = new Date(newStartDate);
+        minEndDate.setDate(newStartDate.getDate() + minDuration);
+        if (newEndDate < minEndDate) newEndDate = minEndDate;
       }
+      
       newStartDate = snapDateToScale(newStartDate, dragState.scale);
       newEndDate = snapDateToScale(newEndDate, dragState.scale);
-      if (newEndDate <= newStartDate) {
-          const minDuration = dragState.scale === 'week' ? 7 : 1;
+      
+      if (dragState.mode === 'resize-right') {
+          const minDuration = dragState.scale === 'day' ? 1 : dragState.scale === 'week' ? 7 : 30;
           newEndDate.setDate(newStartDate.getDate() + minDuration);
       }
       onUpdateAction(dragState.actionId, {
@@ -845,72 +779,93 @@ const GanttView = ({ actions, users, onUpdateAction, onCardClick }: { actions: A
                 <button onClick={() => setGanttScale('month')} className={`px-3 py-1 text-sm rounded ${ganttScale === 'month' ? 'bg-blue-600 text-white' : 'hover:bg-gray-100'}`}>Mois</button>
             </div>
         </div>
-
+        
         <div className="flex-1 overflow-auto">
-            <div className="grid" style={{ gridTemplateColumns: '250px 1fr' }}>
-                <div className="sticky top-0 bg-gray-100 border-r border-b border-gray-200 z-20">
-                    <div className="h-12 flex items-center px-4 font-semibold text-gray-700">Action</div>
-                </div>
-                <div className="sticky top-0 bg-gray-100 border-b border-gray-200 z-20">
-                    <div className="relative flex" style={{ width: `${totalWidth}px` }}>
-                        {timelineColumns.map((col, index) => (
-                            <div key={index} className="flex-shrink-0 text-center py-3 border-r border-gray-200" style={{ width: `${col.width}px` }}>
-                                <span className="text-xs font-medium text-gray-600">{col.label}</span>
-                            </div>
-                        ))}
+            <div className="min-w-full">
+                {/* Timeline header */}
+                <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
+                    <div className="flex">
+                        <div className="w-64 p-3 border-r bg-gray-50 font-semibold text-gray-700 flex-shrink-0">Actions</div>
+                        <div className="flex" style={{ width: `${totalWidth}px` }}>
+                            {timelineColumns.map((col, idx) => (
+                                <div key={idx} className="border-r border-gray-200 p-3 text-center bg-gray-50 text-xs font-medium text-gray-600 flex-shrink-0" 
+                                     style={{ width: `${col.width}px` }}>
+                                    {col.label}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
-                <div className="border-r border-gray-200">
-                    {validActions.map(action => {
-                         const config = actionTypeConfig[action.type];
-                         return(
-                            <div key={action.id} className={`h-12 flex items-center px-4 border-b border-gray-100 border-l-4 ${config.color}`}>
-                                <p className="text-sm font-medium text-gray-800 truncate" title={action.title}>{action.title}</p>
-                            </div>
-                         )
-                    })}
-                </div>
-                
-                <div ref={ganttRef} className="relative overflow-hidden" style={{ width: `${totalWidth}px` }}>
-                    {timelineColumns.map((col, index, arr) => (
-                        <div key={index} className="absolute top-0 bottom-0 border-r border-gray-100" style={{ left: `${arr.slice(0, index).reduce((acc, c) => acc + c.width, 0) + col.width}px`, zIndex: 1 }}></div>
-                    ))}
-                    
-                    {validActions.map((action, index) => {
+                {/* Gantt rows */}
+                <div ref={ganttRef} className="relative">
+                    {validActions.map((action, rowIdx) => {
                         const { left, width } = calculateBarPosition(action);
                         const config = actionTypeConfig[action.type];
-                        const startDate = new Date(action.start_date);
-                        const endDate = new Date(action.due_date);
-                        const duration = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-
+                        
                         return (
-                            <div key={action.id} className="absolute h-8 flex items-center group" style={{ top: `${index * 48 + 8}px`, left: `${left}%`, width: `${width}%`, zIndex: 10 }}>
-                                <div
-                                    className={`w-full h-full ${config.barBg} rounded shadow-sm cursor-move flex items-center justify-between px-2 relative transition-all group-hover:opacity-90`}
-                                    onMouseDown={(e) => handleMouseDown(e, action.id, 'move')}
-                                    onClick={() => onCardClick(action)}
-                                >
-                                    <p className="text-xs font-semibold text-white truncate">{action.title}</p>
-                                    <span className="text-xs text-white/80 font-mono ml-2">{duration}j</span>
+                            <div key={action.id} className={`flex border-b border-gray-100 ${rowIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors`}>
+                                <div className="w-64 p-3 border-r flex-shrink-0 flex items-center">
+                                    <div className="flex items-center space-x-2 min-w-0 flex-1">
+                                        <span className="text-lg flex-shrink-0">{config.icon}</span>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="font-medium text-gray-900 truncate text-sm">{action.title}</div>
+                                            <AssigneeAvatars assignee_ids={action.assignee_ids} users={users} />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="relative flex items-center" style={{ width: `${totalWidth}px`, height: '60px' }}>
+                                    {timelineColumns.map((_, idx) => (
+                                        <div key={idx} className="border-r border-gray-200 h-full flex-shrink-0" style={{ width: `${timelineColumns[idx].width}px` }}></div>
+                                    ))}
+                                    
                                     <div 
-                                      className="absolute right-0 top-0 h-full w-2 cursor-col-resize bg-black bg-opacity-10 hover:bg-opacity-30 rounded-r-md"
-                                      onMouseDown={(e) => handleMouseDown(e, action.id, 'resize-right')}
-                                    />
+                                        className={`absolute top-1/2 transform -translate-y-1/2 h-6 ${config.barBg} rounded cursor-move flex items-center justify-between shadow-sm hover:shadow-md transition-shadow`}
+                                        style={{ left: `${left}%`, width: `${width}%`, minWidth: '20px' }}
+                                        onMouseDown={(e) => setDragState({
+                                            actionId: action.id,
+                                            mode: 'move',
+                                            startX: e.clientX,
+                                            originalStartDate: new Date(action.start_date),
+                                            originalEndDate: new Date(action.due_date),
+                                            scale: ganttScale
+                                        })}
+                                        onClick={(e) => { e.stopPropagation(); onCardClick(action); }}
+                                    >
+                                        <div className="flex-1 text-white text-xs font-medium px-2 truncate">
+                                            {action.title}
+                                        </div>
+                                        <div 
+                                            className="w-2 h-full bg-white bg-opacity-30 cursor-e-resize flex-shrink-0"
+                                            onMouseDown={(e) => {
+                                                e.stopPropagation();
+                                                setDragState({
+                                                    actionId: action.id,
+                                                    mode: 'resize-right',
+                                                    startX: e.clientX,
+                                                    originalStartDate: new Date(action.start_date),
+                                                    originalEndDate: new Date(action.due_date),
+                                                    scale: ganttScale
+                                                });
+                                            }}
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        )
+                        );
                     })}
                 </div>
             </div>
         </div>
-
+        
+        {/* Modal de confirmation */}
         {confirmationModal && (
-          <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-              <h3 className="text-lg font-bold text-gray-800">Confirmer le changement ?</h3>
-              <p className="text-sm text-gray-600 mt-2">
-                L'échéance de l'action <strong className="text-blue-600">{confirmationModal.action.title}</strong> va être modifiée.
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Confirmer la modification</h3>
+              <p className="text-gray-600 mb-4">
+                Voulez-vous modifier les dates de l'action "<strong>{confirmationModal.action.title}</strong>" ?
               </p>
               <div className="text-xs mt-4 space-y-1">
                   <p>Date d'origine : {new Date(confirmationModal.originalStartDate + 'T00:00:00').toLocaleDateString('fr-FR')} → {new Date(confirmationModal.originalEndDate + 'T00:00:00').toLocaleDateString('fr-FR')}</p>
@@ -932,8 +887,12 @@ const GanttView = ({ actions, users, onUpdateAction, onCardClick }: { actions: A
 };
 
 // --- COMPOSANT PRINCIPAL ---
-const TabButton = ({ active, onClick, children, icon }: { active: boolean, onClick: () => void, children: React.ReactNode, icon: React.ReactNode }) => (
-    <button onClick={onClick} className={`py-2 px-4 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${active ? 'bg-blue-600 text-white shadow' : 'text-gray-600 hover:bg-gray-100'}`}>
+const ViewButton: React.FC<{ children: React.ReactNode; icon: React.ReactNode; isActive: boolean; onClick: () => void }> = 
+    ({ children, icon, isActive, onClick }) => (
+    <button 
+        onClick={onClick}
+        className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium shadow-lg ${
+            isActive ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-green-200' : 'bg-white/80 backdrop-blur-sm text-gray-600 hover:bg-white/90 border border-gray-200'}`}>
         {icon} {children}
     </button>
 );
@@ -998,40 +957,114 @@ export const PlanActionsEditor: React.FC<PlanActionsEditorProps> = ({ module, on
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 sm:p-8 z-50">
-            <div className="bg-white rounded-2xl shadow-xl flex flex-col w-full h-full overflow-hidden">
-                <header className="flex items-center justify-between p-4 sm:p-6 border-b bg-white flex-shrink-0">
-                    <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-green-100 text-green-600 rounded-lg flex items-center justify-center">
-                            <GanttChartSquare className="w-6 h-6" />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-8 z-50">
+            <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl shadow-2xl flex flex-col w-full h-full overflow-hidden">
+                {/* Header avec dégradé moderne */}
+                <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 p-6 border-b border-white/10">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                                <GanttChartSquare className="w-7 h-7 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-bold text-white">Plan d'Actions</h1>
+                                <p className="text-white/80 text-sm">Gestion des actions et matrice Gain/Effort</p>
+                            </div>
                         </div>
-                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Plan d'Actions</h1>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                        <button onClick={() => setShowHelp(true)} className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center" title="Aide">
-                            <HelpCircle className="w-5 h-5 text-gray-600" />
-                        </button>
-                        <button onClick={onClose} className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center" title="Fermer">
-                            <X className="w-5 h-5 text-gray-600" />
-                        </button>
-                    </div>
-                </header>
-
-                <div className="flex-1 bg-gray-50 flex flex-col overflow-hidden p-4 sm:p-6">
-                    <div className="flex flex-wrap justify-between items-center mb-6 gap-4 flex-shrink-0">
-                        <div className="flex items-center gap-2 bg-white border border-gray-200 p-1 rounded-lg shadow-sm">
-                            <TabButton active={view === 'home'} onClick={() => setView('home')} icon={<Layers size={16} />}>Par Type</TabButton>
-                            <TabButton active={view === 'kanban'} onClick={() => setView('kanban')} icon={<UserIcon size={16} />}>Par Personne</TabButton>
-                            <TabButton active={view === 'matrix'} onClick={() => setView('matrix')} icon={<Table size={16} />}>Matrice</TabButton>
-                            <TabButton active={view === 'gantt'} onClick={() => setView('gantt')} icon={<GanttChartSquare size={16} />}>Gantt</TabButton>
+                        <div className="flex items-center space-x-3">
+                            <button
+                                onClick={() => setShowHelp(true)}
+                                className="w-10 h-10 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl"
+                                title="Aide"
+                            >
+                                <HelpCircle className="w-5 h-5 text-white" />
+                            </button>
+                            <button
+                                onClick={onClose}
+                                className="w-10 h-10 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl"
+                                title="Fermer"
+                            >
+                                <X className="w-5 h-5 text-white" />
+                            </button>
                         </div>
-                        <button onClick={() => openActionModal()} className="py-2 px-4 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 flex items-center gap-2">
-                            <Plus size={16} /> Nouvelle Action
-                        </button>
+                    </div>
+                </div>
+
+                {/* Zone de contenu avec dégradé subtle */}
+                <div className="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-white via-slate-50 to-blue-50">
+                    {/* Barre d'outils moderne */}
+                    <div className="p-6 border-b border-gray-200/50 flex-shrink-0">
+                        <div className="flex flex-wrap justify-between items-center gap-4">
+                            <div className="flex items-center gap-3 bg-white/70 backdrop-blur-sm border border-gray-200/50 p-2 rounded-xl shadow-lg">
+                                <ViewButton
+                                    icon={<Layers className="w-4 h-4" />}
+                                    isActive={view === 'home'}
+                                    onClick={() => setView('home')}
+                                >
+                                    Vue d'ensemble
+                                </ViewButton>
+                                <ViewButton
+                                    icon={<UserIcon className="w-4 h-4" />}
+                                    isActive={view === 'kanban'}
+                                    onClick={() => setView('kanban')}
+                                >
+                                    Par personne
+                                </ViewButton>
+                                <ViewButton
+                                    icon={<Table className="w-4 h-4" />}
+                                    isActive={view === 'matrix'}
+                                    onClick={() => setView('matrix')}
+                                >
+                                    Matrice
+                                </ViewButton>
+                                <ViewButton
+                                    icon={<GanttChartSquare className="w-4 h-4" />}
+                                    isActive={view === 'gantt'}
+                                    onClick={() => setView('gantt')}
+                                >
+                                    Gantt
+                                </ViewButton>
+                            </div>
+                            
+                            <button
+                                onClick={() => openActionModal()}
+                                className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                            >
+                                <Plus className="w-5 h-5" />
+                                <span className="font-medium">Nouvelle action</span>
+                            </button>
+                        </div>
                     </div>
 
-                    <main className="flex-1 overflow-y-auto min-h-0">
-                        {loading || !currentProjectMembers ? <div className="text-center p-8">Chargement...</div> : (
+                    {/* Contenu principal avec scroll */}
+                    <div className="flex-1 overflow-y-auto p-6" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+                        {loading ? (
+                            <div className="flex items-center justify-center h-64">
+                                <div className="text-center">
+                                    <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                        <Activity className="w-8 h-8 text-gray-400 animate-pulse" />
+                                    </div>
+                                    <p className="text-gray-500">Chargement des actions...</p>
+                                </div>
+                            </div>
+                        ) : actions.length === 0 ? (
+                            <div className="flex items-center justify-center h-64">
+                                <div className="text-center max-w-md mx-auto">
+                                    <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                                        <GanttChartSquare className="w-10 h-10 text-green-600" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Aucune action créée</h3>
+                                    <p className="text-gray-600 mb-6">Commencez par créer votre première action pour organiser votre plan.</p>
+                                    <button
+                                        onClick={() => openActionModal()}
+                                        className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                                    >
+                                        <Plus className="w-5 h-5" />
+                                        <span>Créer ma première action</span>
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
                             <>
                                 {view === 'home' && <HomeView actions={actions} setActions={handleSetActions} users={currentProjectMembers} onCardClick={openActionModal} />}
                                 {view === 'kanban' && <KanbanByPersonView actions={actions} setActions={handleSetActions} users={currentProjectMembers} onCardClick={openActionModal} />}
@@ -1041,48 +1074,136 @@ export const PlanActionsEditor: React.FC<PlanActionsEditorProps> = ({ module, on
                                     users={currentProjectMembers} 
                                     onUpdateAction={handleUpdateAction} 
                                     onCardClick={openActionModal}
-                                    ganttScale={ganttScale}
-                                    setGanttScale={setGanttScale}
                                 />}
                             </>
                         )}
-                    </main>
+                    </div>
                 </div>
 
-                {isActionModalOpen && <ActionModal
-                    isOpen={isActionModalOpen}
-                    onClose={() => { setIsActionModalOpen(false); setEditingAction(null); }}
-                    onSave={handleSaveAction}
-                    action={editingAction}
-                    projectMembers={currentProjectMembers}
-                    ganttScale={ganttScale} 
-                />}
-                
+                {/* Modal d'aide avec style moderne */}
                 {showHelp && (
-                    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]">
-                        <div className="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 p-6">
-                            <div className="flex items-start">
-                                <div className="p-2 bg-blue-100 rounded-full mr-4">
-                                    <HelpCircle className="w-6 h-6 text-blue-600" />
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Aide : Le Plan d'Actions</h3>
-                                    <div className="text-sm text-gray-600 space-y-3">
-                                        <p>Le Plan d'Actions est le cœur de votre projet Kaizen. Il vous permet de transformer les idées en tâches concrètes et de suivre leur progression.</p>
-                                        <ul className="list-disc list-inside space-y-2 pl-2">
-                                            <li><strong className="text-blue-600">Par Type :</strong> Organisez vos actions en catégories (<span className="px-1.5 py-0.5 rounded text-xs bg-blue-100 text-blue-800">Simple 💡</span>, <span className="px-1.5 py-0.5 rounded text-xs bg-red-100 text-red-800">Sécurisation 🛡️</span>, <span className="px-1.5 py-0.5 rounded text-xs bg-yellow-100 text-yellow-800">Poka-Yoke 🧩</span>).</li>
-                                            <li><strong className="text-blue-600">Par Personne :</strong> Suivez l'avancement des tâches pour chaque membre de l'équipe avec un Kanban.</li>
-                                            <li><strong className="text-blue-600">Matrice :</strong> Priorisez les actions en évaluant leur Gain et leur Effort.</li>
-                                            <li><strong className="text-blue-600">Gantt :</strong> Visualisez le planning complet de vos actions dans le temps.</li>
-                                        </ul>
-                                    </div>
+                    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[60]">
+                        <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
+                            <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 p-6 border-b border-white/10">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-2xl font-bold text-white">Plan d'Actions - Guide d'utilisation</h3>
+                                    <button
+                                        onClick={() => setShowHelp(false)}
+                                        className="w-10 h-10 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl flex items-center justify-center transition-all duration-200"
+                                    >
+                                        <X className="w-6 h-6 text-white" />
+                                    </button>
                                 </div>
                             </div>
-                            <div className="flex justify-end mt-6">
-                                <button onClick={() => setShowHelp(false)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Compris</button>
+                            
+                            <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(95vh - 180px)' }}>
+                                <div className="grid md:grid-cols-2 gap-8">
+                                    <div className="space-y-6">
+                                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200">
+                                            <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                                                <GanttChartSquare className="w-5 h-5 mr-2 text-green-600" />
+                                                Principe
+                                            </h4>
+                                            <p className="text-gray-600 leading-relaxed">
+                                                Le Plan d'Actions est le cœur de votre projet Kaizen. Il permet de planifier, 
+                                                organiser et suivre toutes les actions nécessaires à la résolution du problème 
+                                                identifié dans la phase PLAN.
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+                                            <h4 className="text-lg font-semibold text-gray-900 mb-3">Vues disponibles</h4>
+                                            <div className="space-y-3 text-sm text-gray-600">
+                                                <div>
+                                                    <strong className="text-gray-700">Vue d'ensemble :</strong> Vision globale de toutes les actions
+                                                </div>
+                                                <div>
+                                                    <strong className="text-gray-700">Par personne :</strong> Kanban organisé par assigné
+                                                </div>
+                                                <div>
+                                                    <strong className="text-gray-700">Matrice :</strong> Matrice Gain/Effort pour prioriser
+                                                </div>
+                                                <div>
+                                                    <strong className="text-gray-700">Gantt :</strong> Planning temporel des actions
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="space-y-6">
+                                        <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
+                                            <h4 className="text-lg font-semibold text-gray-900 mb-3">Types d'actions</h4>
+                                            <div className="space-y-3 text-sm text-gray-600">
+                                                <div className="flex items-start">
+                                                    <div className="w-3 h-3 bg-blue-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
+                                                    <div>
+                                                        <strong className="text-gray-700">Simple :</strong> Action standard
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-start">
+                                                    <div className="w-3 h-3 bg-orange-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
+                                                    <div>
+                                                        <strong className="text-gray-700">Sécurisation :</strong> Action de sécurisation temporaire
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-start">
+                                                    <div className="w-3 h-3 bg-green-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
+                                                    <div>
+                                                        <strong className="text-gray-700">Poka-yoke :</strong> Action de détrompeur permanent
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-200">
+                                            <h4 className="text-lg font-semibold text-gray-900 mb-3">Conseils d'utilisation</h4>
+                                            <ul className="text-gray-600 space-y-2">
+                                                <li className="flex items-start">
+                                                    <span className="w-2 h-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                                    Définissez des actions SMART (Spécifiques, Mesurables, Atteignables, Réalistes, Temporelles)
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <span className="w-2 h-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                                    Assignez un responsable et une échéance à chaque action
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <span className="w-2 h-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                                    Utilisez la matrice Gain/Effort pour prioriser vos actions
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <span className="w-2 h-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                                    Suivez régulièrement l'avancement dans la vue Gantt
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                                    <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                                        <Users className="w-5 h-5 mr-2 text-green-600" />
+                                        Travail en équipe
+                                    </h4>
+                                    <p className="text-gray-600 leading-relaxed">
+                                        Le Plan d'Actions favorise la collaboration en permettant d'assigner plusieurs personnes 
+                                        à une action, de désigner un responsable principal, et de suivre l'avancement en temps réel. 
+                                        Chaque membre de l'équipe peut visualiser ses actions et leur priorité.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
+                )}
+
+                {/* Modal d'action */}
+                {isActionModalOpen && (
+                    <ActionModal
+                        isOpen={isActionModalOpen}
+                        onClose={() => { setIsActionModalOpen(false); setEditingAction(null); }}
+                        onSave={handleSaveAction}
+                        action={editingAction}
+                        projectMembers={currentProjectMembers}
+                    />
                 )}
             </div>
         </div>
