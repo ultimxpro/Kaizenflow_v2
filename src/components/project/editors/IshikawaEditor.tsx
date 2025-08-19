@@ -5,7 +5,7 @@ import {
   GitBranch, Plus, X, HelpCircle, Settings, ChevronRight, 
   Trash2, Edit2, Save, Download, Upload, ZoomIn, ZoomOut,
   Maximize2, Copy, Users, Factory, DollarSign, Package,
-  Gauge, Clock, Shield, Briefcase, Eye
+  Gauge, Clock, Shield, Briefcase, Eye, Network
 } from 'lucide-react';
 
 // Types
@@ -103,879 +103,726 @@ export const IshikawaEditor: React.FC<{ module: A3Module; onClose: () => void }>
     if (module.content?.diagrams && Array.isArray(module.content.diagrams)) {
       return module.content.diagrams;
     }
-    
-    const defaultDiagram: IshikawaDiagram = {
-      id: `diag-${Date.now()}`,
-      name: 'Analyse Ishikawa #1',
-      problem: '',
-      mType: '5M',
-      branches: M_CONFIGS['5M'].map(config => ({
-        ...config,
-        causes: []
-      })),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    
-    return [defaultDiagram];
+    return [];
   };
 
-  const [diagrams, setDiagrams] = useState<IshikawaDiagram[]>(initializeData);
-  const selectedDiagram = diagrams.find(d => d.id === selectedDiagramId) || diagrams[0];
+  const [diagrams, setDiagrams] = useState<IshikawaDiagram[]>(initializeData());
 
-  useEffect(() => {
-    if (diagrams.length > 0 && !selectedDiagramId) {
-      setSelectedDiagramId(diagrams[0].id);
-    }
-  }, [diagrams, selectedDiagramId]);
+  // Sauvegarde
+  const saveDiagrams = async (newDiagrams: IshikawaDiagram[]) => {
+    setDiagrams(newDiagrams);
+    await updateA3Module(module.id, {
+      content: { ...module.content, diagrams: newDiagrams }
+    });
+  };
 
-  // Sauvegarde automatique
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      updateA3Module(module.id, { content: { diagrams } });
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [diagrams, module.id, updateA3Module]);
-
-  // Gestion des diagrammes
-  const addDiagram = () => {
+  // Créer un nouveau diagramme
+  const createDiagram = (mType: '4M' | '5M' | '6M' | '7M' | '8M' | '9M' = '5M') => {
+    const config = M_CONFIGS[mType];
     const newDiagram: IshikawaDiagram = {
-      id: `diag-${Date.now()}`,
-      name: `Analyse Ishikawa #${diagrams.length + 1}`,
+      id: `diagram-${Date.now()}`,
+      name: `Diagramme ${mType} - ${diagrams.length + 1}`,
       problem: '',
-      mType: '5M',
-      branches: M_CONFIGS['5M'].map(config => ({
-        ...config,
+      mType,
+      branches: config.map(branch => ({
+        ...branch,
         causes: []
       })),
       createdAt: new Date(),
       updatedAt: new Date()
     };
-    setDiagrams([...diagrams, newDiagram]);
+
+    const newDiagrams = [...diagrams, newDiagram];
+    saveDiagrams(newDiagrams);
     setSelectedDiagramId(newDiagram.id);
   };
 
-  const updateDiagram = (updates: Partial<IshikawaDiagram>) => {
-    setDiagrams(diagrams.map(d => 
-      d.id === selectedDiagram.id 
-        ? { ...d, ...updates, updatedAt: new Date() }
-        : d
-    ));
-  };
+  // Ajouter une cause
+  const addCause = (diagramId: string, branchId: string, parentId?: string) => {
+    const newDiagrams = diagrams.map(diagram => {
+      if (diagram.id === diagramId) {
+        const updatedBranches = diagram.branches.map(branch => {
+          if (branch.id === branchId) {
+            const parentCause = parentId ? branch.causes.find(c => c.id === parentId) : null;
+            const level = parentCause ? parentCause.level + 1 : 0;
+            
+            const newCause: Cause = {
+              id: `cause-${Date.now()}`,
+              text: '',
+              level,
+              parentId
+            };
 
-  const deleteDiagram = (id: string) => {
-    if (diagrams.length === 1) {
-      alert('Vous devez conserver au moins un diagramme');
-      return;
-    }
-    setDiagrams(diagrams.filter(d => d.id !== id));
-    if (selectedDiagramId === id) {
-      setSelectedDiagramId(diagrams[0].id);
-    }
-  };
+            return {
+              ...branch,
+              causes: [...branch.causes, newCause]
+            };
+          }
+          return branch;
+        });
 
-  // Changement du type de M
-  const changeMType = (newType: IshikawaDiagram['mType']) => {
-    const newBranches = M_CONFIGS[newType].map(config => {
-      const existingBranch = selectedDiagram.branches.find(b => b.id === config.id);
-      return existingBranch || { ...config, causes: [] };
-    });
-    updateDiagram({ mType: newType, branches: newBranches });
-  };
-
-  // Gestion des causes
-  const addCause = (branchId: string, parentId?: string) => {
-    const newCause: Cause = {
-      id: `cause-${Date.now()}`,
-      text: '',
-      level: parentId ? 1 : 0,
-      parentId
-    };
-
-    const updatedBranches = selectedDiagram.branches.map(branch => {
-      if (branch.id === branchId) {
-        return { ...branch, causes: [...branch.causes, newCause] };
-      }
-      return branch;
-    });
-
-    updateDiagram({ branches: updatedBranches });
-    setEditingCause(newCause.id);
-  };
-
-  const updateCause = (branchId: string, causeId: string, text: string) => {
-    const updatedBranches = selectedDiagram.branches.map(branch => {
-      if (branch.id === branchId) {
         return {
-          ...branch,
-          causes: branch.causes.map(cause =>
-            cause.id === causeId ? { ...cause, text } : cause
-          )
+          ...diagram,
+          branches: updatedBranches,
+          updatedAt: new Date()
         };
       }
-      return branch;
+      return diagram;
     });
-    updateDiagram({ branches: updatedBranches });
+
+    saveDiagrams(newDiagrams);
   };
 
-  const deleteCause = (branchId: string, causeId: string) => {
-    const updatedBranches = selectedDiagram.branches.map(branch => {
-      if (branch.id === branchId) {
-        // Supprimer la cause et ses sous-causes
-        const causesToDelete = new Set([causeId]);
-        const findChildren = (parentId: string) => {
-          branch.causes.forEach(c => {
-            if (c.parentId === parentId) {
-              causesToDelete.add(c.id);
-              findChildren(c.id);
-            }
-          });
-        };
-        findChildren(causeId);
-        
+  // Supprimer une cause
+  const deleteCause = (diagramId: string, branchId: string, causeId: string) => {
+    const newDiagrams = diagrams.map(diagram => {
+      if (diagram.id === diagramId) {
+        const updatedBranches = diagram.branches.map(branch => {
+          if (branch.id === branchId) {
+            // Supprimer la cause et toutes ses sous-causes
+            const causesToDelete = new Set([causeId]);
+            const findChildCauses = (parentId: string) => {
+              branch.causes.forEach(cause => {
+                if (cause.parentId === parentId) {
+                  causesToDelete.add(cause.id);
+                  findChildCauses(cause.id);
+                }
+              });
+            };
+            findChildCauses(causeId);
+
+            return {
+              ...branch,
+              causes: branch.causes.filter(cause => !causesToDelete.has(cause.id))
+            };
+          }
+          return branch;
+        });
+
         return {
-          ...branch,
-          causes: branch.causes.filter(c => !causesToDelete.has(c.id))
+          ...diagram,
+          branches: updatedBranches,
+          updatedAt: new Date()
         };
       }
-      return branch;
+      return diagram;
     });
-    updateDiagram({ branches: updatedBranches });
+
+    saveDiagrams(newDiagrams);
   };
 
-  // Export
-  const exportDiagram = () => {
-    const dataStr = JSON.stringify(selectedDiagram, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    const exportName = `ishikawa_${selectedDiagram.name}_${new Date().toISOString().split('T')[0]}.json`;
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportName);
-    linkElement.click();
+  // Mettre à jour une cause
+  const updateCause = (diagramId: string, branchId: string, causeId: string, text: string) => {
+    const newDiagrams = diagrams.map(diagram => {
+      if (diagram.id === diagramId) {
+        const updatedBranches = diagram.branches.map(branch => {
+          if (branch.id === branchId) {
+            return {
+              ...branch,
+              causes: branch.causes.map(cause =>
+                cause.id === causeId ? { ...cause, text } : cause
+              )
+            };
+          }
+          return branch;
+        });
+
+        return {
+          ...diagram,
+          branches: updatedBranches,
+          updatedAt: new Date()
+        };
+      }
+      return diagram;
+    });
+
+    saveDiagrams(newDiagrams);
   };
 
-  // Calcul des statistiques
-  const stats = useMemo(() => {
-    const totalCauses = selectedDiagram.branches.reduce((sum, branch) => 
-      sum + branch.causes.length, 0
-    );
-    const branchesWithCauses = selectedDiagram.branches.filter(b => b.causes.length > 0).length;
-    const avgCausesPerBranch = branchesWithCauses > 0 
-      ? (totalCauses / branchesWithCauses).toFixed(1)
-      : '0';
-    
-    return { totalCauses, branchesWithCauses, avgCausesPerBranch };
-  }, [selectedDiagram]);
+  // Supprimer un diagramme
+  const deleteDiagram = async (diagramId: string) => {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce diagramme ?')) {
+      const newDiagrams = diagrams.filter(d => d.id !== diagramId);
+      await saveDiagrams(newDiagrams);
+      if (selectedDiagramId === diagramId) {
+        setSelectedDiagramId(null);
+      }
+    }
+  };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl shadow-xl flex flex-col w-full h-full max-w-[95vw] max-h-[95vh] overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-red-50 to-orange-50">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-500 rounded-lg flex items-center justify-center shadow-lg">
-              <GitBranch className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Diagramme d'Ishikawa</h1>
-              <p className="text-sm text-gray-600">Analyse des causes et effets - {selectedDiagram.mType}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setShowSettings(true)}
-              className="p-2 bg-white hover:bg-gray-100 rounded-lg transition-colors shadow-sm"
-              title="Paramètres"
-            >
-              <Settings className="w-5 h-5 text-gray-600" />
-            </button>
-            <button
-              onClick={exportDiagram}
-              className="p-2 bg-white hover:bg-gray-100 rounded-lg transition-colors shadow-sm"
-              title="Exporter"
-            >
-              <Download className="w-5 h-5 text-gray-600" />
-            </button>
-            <button
-              onClick={() => setShowHelp(true)}
-              className="p-2 bg-white hover:bg-gray-100 rounded-lg transition-colors shadow-sm"
-              title="Aide"
-            >
-              <HelpCircle className="w-5 h-5 text-gray-600" />
-            </button>
-            <button
-              onClick={onClose}
-              className="p-2 bg-white hover:bg-red-100 rounded-lg transition-colors shadow-sm"
-              title="Fermer"
-            >
-              <X className="w-5 h-5 text-gray-600" />
-            </button>
-          </div>
-        </div>
+  // Rendu du diagramme SVG
+  const renderDiagram = (diagram: IshikawaDiagram) => {
+    const width = 1200 * zoom;
+    const height = 800 * zoom;
+    const centerX = width * 0.8;
+    const centerY = height / 2;
+    const branchLength = 200 * zoom;
 
-        {/* Main Content */}
-        <div className="flex-1 flex overflow-hidden">
-          {/* Sidebar */}
-          <div className="w-64 bg-gray-50 border-r p-4 overflow-y-auto">
-            <div className="space-y-4">
-              {/* Liste des diagrammes */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-gray-700">Diagrammes</h3>
-                  <button
-                    onClick={addDiagram}
-                    className="p-1 hover:bg-white rounded transition-colors"
-                    title="Nouveau diagramme"
-                  >
-                    <Plus className="w-4 h-4 text-gray-600" />
-                  </button>
-                </div>
-                <div className="space-y-1">
-                  {diagrams.map(diag => (
-                    <div
-                      key={diag.id}
-                      className={`p-2 rounded-lg cursor-pointer transition-colors ${
-                        diag.id === selectedDiagramId
-                          ? 'bg-white shadow-sm border border-orange-200'
-                          : 'hover:bg-white'
-                      }`}
-                      onClick={() => setSelectedDiagramId(diag.id)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700 truncate">
-                          {diag.name}
-                        </span>
-                        {diagrams.length > 1 && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteDiagram(diag.id);
-                            }}
-                            className="p-1 hover:bg-red-100 rounded transition-colors"
-                          >
-                            <Trash2 className="w-3 h-3 text-red-500" />
-                          </button>
-                        )}
-                      </div>
-                      <span className="text-xs text-gray-500">{diag.mType}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+    const branches = diagram.branches;
+    const branchAngles = branches.map((_, index) => {
+      const totalBranches = branches.length;
+      const angleStep = (Math.PI * 1.2) / (totalBranches - 1);
+      return -Math.PI * 0.6 + (index * angleStep);
+    });
 
-              {/* Statistiques */}
-              <div className="bg-white rounded-lg p-3 shadow-sm">
-                <h3 className="font-semibold text-gray-700 mb-2">Statistiques</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Total causes:</span>
-                    <span className="font-semibold">{stats.totalCauses}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Branches actives:</span>
-                    <span className="font-semibold">{stats.branchesWithCauses}/{selectedDiagram.branches.length}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Moy. par branche:</span>
-                    <span className="font-semibold">{stats.avgCausesPerBranch}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Contrôles de zoom */}
-              <div className="bg-white rounded-lg p-3 shadow-sm">
-                <h3 className="font-semibold text-gray-700 mb-2">Affichage</h3>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => setZoom(Math.max(0.5, zoom - 0.1))}
-                    className="p-1 hover:bg-gray-100 rounded"
-                  >
-                    <ZoomOut className="w-4 h-4" />
-                  </button>
-                  <span className="text-sm flex-1 text-center">{Math.round(zoom * 100)}%</span>
-                  <button
-                    onClick={() => setZoom(Math.min(2, zoom + 0.1))}
-                    className="p-1 hover:bg-gray-100 rounded"
-                  >
-                    <ZoomIn className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setZoom(1)}
-                    className="p-1 hover:bg-gray-100 rounded"
-                    title="Réinitialiser"
-                  >
-                    <Maximize2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Canvas Area */}
-          <div className="flex-1 bg-gradient-to-br from-gray-50 to-gray-100 overflow-auto p-8">
-            {/* Problem Definition */}
-            <div className="mb-6 max-w-2xl mx-auto">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Problème / Effet à analyser
-              </label>
-              <textarea
-                value={selectedDiagram.problem}
-                onChange={(e) => updateDiagram({ problem: e.target.value })}
-                className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-colors resize-none"
-                rows={2}
-                placeholder="Décrivez le problème ou l'effet que vous souhaitez analyser..."
-              />
-            </div>
-
-            {/* Ishikawa Diagram */}
-            <div 
-              ref={canvasRef}
-              className="relative bg-white rounded-xl shadow-lg p-8 min-h-[600px] overflow-auto"
-              style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}
-            >
-              <FishboneDiagram
-                diagram={selectedDiagram}
-                onAddCause={addCause}
-                onUpdateCause={updateCause}
-                onDeleteCause={deleteCause}
-                editingCause={editingCause}
-                setEditingCause={setEditingCause}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Modals */}
-        {showSettings && (
-          <SettingsModal
-            diagram={selectedDiagram}
-            onChangeMType={changeMType}
-            onUpdateDiagram={updateDiagram}
-            onClose={() => setShowSettings(false)}
+    return (
+      <div className="relative w-full h-full overflow-auto bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl border border-gray-200">
+        <svg width={width} height={height} className="min-w-full min-h-full">
+          {/* Ligne principale (épine dorsale) */}
+          <line
+            x1={50 * zoom}
+            y1={centerY}
+            x2={centerX}
+            y2={centerY}
+            stroke="#374151"
+            strokeWidth={4 * zoom}
+            markerEnd="url(#arrowhead)"
           />
-        )}
-
-        {showHelp && (
-          <HelpModal onClose={() => setShowHelp(false)} />
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Composant du diagramme en arêtes de poisson
-const FishboneDiagram: React.FC<{
-  diagram: IshikawaDiagram;
-  onAddCause: (branchId: string, parentId?: string) => void;
-  onUpdateCause: (branchId: string, causeId: string, text: string) => void;
-  onDeleteCause: (branchId: string, causeId: string) => void;
-  editingCause: string | null;
-  setEditingCause: (id: string | null) => void;
-}> = ({ diagram, onAddCause, onUpdateCause, onDeleteCause, editingCause, setEditingCause }) => {
-  const totalBranches = diagram.branches.length;
-  const topBranches = diagram.branches.slice(0, Math.ceil(totalBranches / 2));
-  const bottomBranches = diagram.branches.slice(Math.ceil(totalBranches / 2));
-
-  return (
-    <div className="relative w-full">
-      {/* Diagramme visuel simplifié */}
-      <div className="mb-8">
-        <svg className="w-full h-48" viewBox="0 0 800 200" preserveAspectRatio="xMidYMid meet">
-          {/* Arête centrale */}
-          <line x1="50" y1="100" x2="700" y2="100" stroke="#374151" strokeWidth="3" />
           
-          {/* Flèche */}
-          <polygon points="700,100 680,90 680,110" fill="#EF4444" />
-          
-          {/* Branches supérieures */}
-          {topBranches.map((branch, index) => {
-            const x = 150 + (index * 120);
+          {/* Définition de la flèche */}
+          <defs>
+            <marker
+              id="arrowhead"
+              markerWidth="10"
+              markerHeight="7"
+              refX="9"
+              refY="3.5"
+              orient="auto"
+            >
+              <polygon
+                points="0 0, 10 3.5, 0 7"
+                fill="#374151"
+              />
+            </marker>
+          </defs>
+
+          {/* Boîte du problème */}
+          <foreignObject
+            x={centerX + 20 * zoom}
+            y={centerY - 30 * zoom}
+            width={300 * zoom}
+            height={60 * zoom}
+          >
+            <div className="bg-gradient-to-r from-red-500 to-pink-600 text-white p-3 rounded-lg shadow-lg">
+              <textarea
+                value={diagram.problem}
+                onChange={(e) => {
+                  const newDiagrams = diagrams.map(d =>
+                    d.id === diagram.id ? { ...d, problem: e.target.value, updatedAt: new Date() } : d
+                  );
+                  saveDiagrams(newDiagrams);
+                }}
+                placeholder="Décrivez le problème ici..."
+                className="w-full h-full bg-transparent text-white placeholder-white/70 resize-none border-none outline-none text-sm font-medium"
+                style={{ fontSize: `${12 * zoom}px` }}
+              />
+            </div>
+          </foreignObject>
+
+          {/* Branches principales */}
+          {branches.map((branch, index) => {
+            const angle = branchAngles[index];
+            const endX = centerX + Math.cos(angle) * branchLength;
+            const endY = centerY + Math.sin(angle) * branchLength;
+            
             return (
               <g key={branch.id}>
-                <line 
-                  x1={x} 
-                  y1="100" 
-                  x2={x - 40} 
-                  y2="40" 
-                  stroke={branch.color} 
-                  strokeWidth="2"
-                  opacity="0.7"
+                {/* Ligne de branche */}
+                <line
+                  x1={centerX}
+                  y1={centerY}
+                  x2={endX}
+                  y2={endY}
+                  stroke={branch.color}
+                  strokeWidth={3 * zoom}
                 />
-                <circle cx={x - 40} cy="40" r="20" fill={branch.color} opacity="0.2" />
-                <text 
-                  x={x - 40} 
-                  y="20" 
-                  textAnchor="middle" 
-                  className="text-xs font-semibold"
-                  fill={branch.color}
+                
+                {/* Label de branche */}
+                <foreignObject
+                  x={endX - 80 * zoom}
+                  y={endY - 25 * zoom}
+                  width={160 * zoom}
+                  height={50 * zoom}
                 >
-                  {branch.name.substring(0, 10)}
-                </text>
+                  <div 
+                    className="p-2 rounded-lg shadow-lg text-white font-semibold text-center"
+                    style={{ 
+                      backgroundColor: branch.color,
+                      fontSize: `${12 * zoom}px`
+                    }}
+                  >
+                    <div className="flex items-center justify-center space-x-1">
+                      {branch.icon}
+                      <span>{branch.name}</span>
+                    </div>
+                  </div>
+                </foreignObject>
+
+                {/* Causes de cette branche */}
+                {branch.causes
+                  .filter(cause => !cause.parentId)
+                  .map((cause, causeIndex) => {
+                    const causeAngle = angle + (causeIndex - branch.causes.filter(c => !c.parentId).length / 2 + 0.5) * 0.3;
+                    const causeX = endX + Math.cos(causeAngle) * 150 * zoom;
+                    const causeY = endY + Math.sin(causeAngle) * 150 * zoom;
+
+                    return (
+                      <g key={cause.id}>
+                        {/* Ligne vers la cause */}
+                        <line
+                          x1={endX}
+                          y1={endY}
+                          x2={causeX}
+                          y2={causeY}
+                          stroke={branch.color}
+                          strokeWidth={2 * zoom}
+                          opacity={0.7}
+                        />
+                        
+                        {/* Boîte de cause */}
+                        <foreignObject
+                          x={causeX - 60 * zoom}
+                          y={causeY - 15 * zoom}
+                          width={120 * zoom}
+                          height={30 * zoom}
+                        >
+                          <div className="relative group">
+                            {editingCause === cause.id ? (
+                              <input
+                                type="text"
+                                value={cause.text}
+                                onChange={(e) => updateCause(diagram.id, branch.id, cause.id, e.target.value)}
+                                onBlur={() => setEditingCause(null)}
+                                onKeyPress={(e) => e.key === 'Enter' && setEditingCause(null)}
+                                className="w-full p-1 text-xs border border-gray-300 rounded"
+                                style={{ fontSize: `${10 * zoom}px` }}
+                                autoFocus
+                              />
+                            ) : (
+                              <div
+                                className="bg-white p-1 rounded shadow border cursor-pointer hover:bg-gray-50"
+                                onClick={() => setEditingCause(cause.id)}
+                                style={{ fontSize: `${10 * zoom}px` }}
+                              >
+                                {cause.text || 'Cliquez pour éditer'}
+                              </div>
+                            )}
+                            
+                            {/* Boutons d'action */}
+                            <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => addCause(diagram.id, branch.id, cause.id)}
+                                className="w-4 h-4 bg-green-500 text-white rounded-full flex items-center justify-center text-xs mr-1"
+                                title="Ajouter une sous-cause"
+                              >
+                                <Plus size={8} />
+                              </button>
+                              <button
+                                onClick={() => deleteCause(diagram.id, branch.id, cause.id)}
+                                className="w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-xs"
+                                title="Supprimer"
+                              >
+                                <X size={8} />
+                              </button>
+                            </div>
+                          </div>
+                        </foreignObject>
+
+                        {/* Sous-causes */}
+                        {branch.causes
+                          .filter(subCause => subCause.parentId === cause.id)
+                          .map((subCause, subIndex) => {
+                            const subAngle = causeAngle + (subIndex - 1) * 0.2;
+                            const subX = causeX + Math.cos(subAngle) * 100 * zoom;
+                            const subY = causeY + Math.sin(subAngle) * 100 * zoom;
+
+                            return (
+                              <g key={subCause.id}>
+                                <line
+                                  x1={causeX}
+                                  y1={causeY}
+                                  x2={subX}
+                                  y2={subY}
+                                  stroke={branch.color}
+                                  strokeWidth={1 * zoom}
+                                  opacity={0.5}
+                                />
+                                
+                                <foreignObject
+                                  x={subX - 40 * zoom}
+                                  y={subY - 10 * zoom}
+                                  width={80 * zoom}
+                                  height={20 * zoom}
+                                >
+                                  <div className="relative group">
+                                    {editingCause === subCause.id ? (
+                                      <input
+                                        type="text"
+                                        value={subCause.text}
+                                        onChange={(e) => updateCause(diagram.id, branch.id, subCause.id, e.target.value)}
+                                        onBlur={() => setEditingCause(null)}
+                                        onKeyPress={(e) => e.key === 'Enter' && setEditingCause(null)}
+                                        className="w-full p-0.5 text-xs border border-gray-300 rounded"
+                                        style={{ fontSize: `${8 * zoom}px` }}
+                                        autoFocus
+                                      />
+                                    ) : (
+                                      <div
+                                        className="bg-white p-0.5 rounded shadow border cursor-pointer hover:bg-gray-50 text-xs"
+                                        onClick={() => setEditingCause(subCause.id)}
+                                        style={{ fontSize: `${8 * zoom}px` }}
+                                      >
+                                        {subCause.text || 'Sous-cause'}
+                                      </div>
+                                    )}
+                                    
+                                    <div className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <button
+                                        onClick={() => deleteCause(diagram.id, branch.id, subCause.id)}
+                                        className="w-3 h-3 bg-red-500 text-white rounded-full flex items-center justify-center"
+                                        title="Supprimer"
+                                      >
+                                        <X size={6} />
+                                      </button>
+                                    </div>
+                                  </div>
+                                </foreignObject>
+                              </g>
+                            );
+                          })}
+                      </g>
+                    );
+                  })}
+
+                {/* Bouton d'ajout de cause sur la branche */}
+                <foreignObject
+                  x={endX + 20 * zoom}
+                  y={endY + 30 * zoom}
+                  width={30 * zoom}
+                  height={30 * zoom}
+                >
+                  <button
+                    onClick={() => addCause(diagram.id, branch.id)}
+                    className="w-full h-full bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition-colors shadow-lg"
+                    title={`Ajouter une cause ${branch.name}`}
+                  >
+                    <Plus size={12 * zoom} />
+                  </button>
+                </foreignObject>
               </g>
             );
           })}
-          
-          {/* Branches inférieures */}
-          {bottomBranches.map((branch, index) => {
-            const x = 150 + (index * 120);
-            return (
-              <g key={branch.id}>
-                <line 
-                  x1={x} 
-                  y1="100" 
-                  x2={x - 40} 
-                  y2="160" 
-                  stroke={branch.color} 
-                  strokeWidth="2"
-                  opacity="0.7"
-                />
-                <circle cx={x - 40} cy="160" r="20" fill={branch.color} opacity="0.2" />
-                <text 
-                  x={x - 40} 
-                  y="180" 
-                  textAnchor="middle" 
-                  className="text-xs font-semibold"
-                  fill={branch.color}
-                >
-                  {branch.name.substring(0, 10)}
-                </text>
-              </g>
-            );
-          })}
-          
-          {/* Effet/Problème */}
-          <rect x="710" y="85" width="80" height="30" rx="5" fill="#FEE2E2" stroke="#EF4444" strokeWidth="2" />
-          <text x="750" y="104" textAnchor="middle" className="text-sm font-bold" fill="#991B1B">
-            EFFET
-          </text>
         </svg>
       </div>
-
-      {/* Cartes des branches M */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {diagram.branches.map((branch) => (
-          <BranchCard
-            key={branch.id}
-            branch={branch}
-            onAddCause={onAddCause}
-            onUpdateCause={onUpdateCause}
-            onDeleteCause={onDeleteCause}
-            editingCause={editingCause}
-            setEditingCause={setEditingCause}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// Composant carte pour une branche
-const BranchCard: React.FC<{
-  branch: Branch;
-  onAddCause: (branchId: string, parentId?: string) => void;
-  onUpdateCause: (branchId: string, causeId: string, text: string) => void;
-  onDeleteCause: (branchId: string, causeId: string) => void;
-  editingCause: string | null;
-  setEditingCause: (id: string | null) => void;
-}> = ({ branch, onAddCause, onUpdateCause, onDeleteCause, editingCause, setEditingCause }) => {
-  const mainCauses = branch.causes.filter(c => c.level === 0);
-  
-  return (
-    <div 
-      className="bg-white rounded-xl shadow-lg overflow-hidden border-2 hover:shadow-xl transition-shadow"
-      style={{ borderColor: `${branch.color}30` }}
-    >
-      {/* En-tête de la carte */}
-      <div 
-        className="px-4 py-3 flex items-center justify-between"
-        style={{ backgroundColor: `${branch.color}10`, borderBottom: `3px solid ${branch.color}` }}
-      >
-        <div className="flex items-center space-x-2">
-          <div 
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ backgroundColor: branch.color }}
-          >
-            <span className="text-white">{branch.icon}</span>
-          </div>
-          <h3 className="font-bold text-gray-800">{branch.name}</h3>
-        </div>
-        <span 
-          className="px-2 py-1 rounded-full text-xs font-semibold bg-white"
-          style={{ color: branch.color }}
-        >
-          {mainCauses.length} cause{mainCauses.length > 1 ? 's' : ''}
-        </span>
-      </div>
-
-      {/* Liste des causes avec scroll */}
-      <div className="p-4 max-h-64 overflow-y-auto">
-        <div className="space-y-2">
-          {mainCauses.length === 0 ? (
-            <p className="text-center text-gray-400 italic py-4">
-              Aucune cause identifiée
-            </p>
-          ) : (
-            mainCauses.map((cause, index) => (
-              <CauseItemCard
-                key={cause.id}
-                cause={cause}
-                branchId={branch.id}
-                branchColor={branch.color}
-                onUpdate={onUpdateCause}
-                onDelete={onDeleteCause}
-                onAddSubCause={onAddCause}
-                isEditing={editingCause === cause.id}
-                setEditing={setEditingCause}
-                allCauses={branch.causes}
-                index={index}
-              />
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* Bouton d'ajout */}
-      <div className="px-4 pb-4">
-        <button
-          onClick={() => onAddCause(branch.id)}
-          className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm font-medium bg-white hover:bg-gray-50 border-2 border-dashed rounded-lg transition-colors"
-          style={{ borderColor: `${branch.color}50`, color: branch.color }}
-        >
-          <Plus className="w-4 h-4" />
-          <span>Ajouter une cause</span>
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// Composant pour une cause dans la carte
-const CauseItemCard: React.FC<{
-  cause: Cause;
-  branchId: string;
-  branchColor: string;
-  onUpdate: (branchId: string, causeId: string, text: string) => void;
-  onDelete: (branchId: string, causeId: string) => void;
-  onAddSubCause: (branchId: string, parentId: string) => void;
-  isEditing: boolean;
-  setEditing: (id: string | null) => void;
-  allCauses: Cause[];
-  index: number;
-  level?: number;
-}> = ({ cause, branchId, branchColor, onUpdate, onDelete, onAddSubCause, isEditing, setEditing, allCauses, index, level = 0 }) => {
-  const [localText, setLocalText] = useState(cause.text);
-  const subCauses = allCauses.filter(c => c.parentId === cause.id);
-
-  useEffect(() => {
-    setLocalText(cause.text);
-  }, [cause.text]);
-
-  const handleSave = () => {
-    onUpdate(branchId, cause.id, localText);
-    setEditing(null);
+    );
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSave();
-    }
-    if (e.key === 'Escape') {
-      setLocalText(cause.text);
-      setEditing(null);
-    }
-  };
+  const selectedDiagram = diagrams.find(d => d.id === selectedDiagramId);
 
   return (
-    <div className={`${level > 0 ? 'ml-6' : ''}`}>
-      <div className="group relative">
-        {/* Indicateur de niveau */}
-        {level > 0 && (
-          <div className="absolute -left-4 top-3 w-3 h-0.5" style={{ backgroundColor: `${branchColor}50` }} />
-        )}
-        
-        {isEditing ? (
-          <div className="flex items-center space-x-2">
-            <span className="text-sm font-semibold text-gray-500 w-6">
-              {index + 1}.
-            </span>
-            <input
-              type="text"
-              value={localText}
-              onChange={(e) => setLocalText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onBlur={handleSave}
-              className="flex-1 px-3 py-2 text-sm border-2 rounded-lg focus:outline-none focus:ring-2"
-              style={{ 
-                borderColor: branchColor,
-                focusBorderColor: branchColor
-              }}
-              placeholder="Entrez une cause..."
-              autoFocus
-            />
-            <button
-              onClick={handleSave}
-              className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-            >
-              <Save className="w-4 h-4" />
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-start space-x-2">
-            <span className="text-sm font-semibold text-gray-500 w-6 pt-2">
-              {level === 0 ? `${index + 1}.` : `${index + 1}.`}
-            </span>
-            <div 
-              className="flex-1 px-3 py-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-              onClick={() => setEditing(cause.id)}
-            >
-              <p className="text-sm text-gray-800">
-                {cause.text || <span className="text-gray-400 italic">Cliquez pour ajouter une cause</span>}
-              </p>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-8 z-50">
+      <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl shadow-2xl flex flex-col w-full h-full overflow-hidden">
+        {/* Header avec dégradé moderne */}
+        <div className="bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 p-6 border-b border-white/10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                <GitBranch className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Diagramme d'Ishikawa (4M)</h1>
+                <p className="text-white/80 text-sm">Analyse des causes et effets</p>
+              </div>
             </div>
-            
-            {/* Actions */}
-            {cause.text && (
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
-                {level === 0 && (
-                  <button
-                    onClick={() => onAddSubCause(branchId, cause.id)}
-                    className="p-1.5 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    title="Ajouter une sous-cause"
-                  >
-                    <Plus className="w-3 h-3" />
-                  </button>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => setShowHelp(true)}
+                className="w-10 h-10 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl"
+                title="Aide"
+              >
+                <HelpCircle className="w-5 h-5 text-white" />
+              </button>
+              <button
+                onClick={onClose}
+                className="w-10 h-10 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl"
+                title="Fermer"
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Zone de contenu avec dégradé subtle */}
+        <div className="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-white via-slate-50 to-blue-50">
+          {/* Barre d'outils */}
+          <div className="p-6 border-b border-gray-200/50 flex-shrink-0">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                {/* Boutons pour créer des diagrammes */}
+                <div className="flex items-center space-x-2">
+                  {Object.keys(M_CONFIGS).map((mType) => (
+                    <button
+                      key={mType}
+                      onClick={() => createDiagram(mType as any)}
+                      className="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg hover:from-red-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm font-medium"
+                    >
+                      Nouveau {mType}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Contrôles de zoom */}
+                {selectedDiagram && (
+                  <div className="flex items-center space-x-2 ml-6">
+                    <button
+                      onClick={() => setZoom(Math.max(0.5, zoom - 0.1))}
+                      className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                    >
+                      <ZoomOut className="w-4 h-4" />
+                    </button>
+                    <span className="text-sm font-medium px-2">{Math.round(zoom * 100)}%</span>
+                    <button
+                      onClick={() => setZoom(Math.min(2, zoom + 0.1))}
+                      className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                    >
+                      <ZoomIn className="w-4 h-4" />
+                    </button>
+                  </div>
                 )}
-                <button
-                  onClick={() => onDelete(branchId, cause.id)}
-                  className="p-1.5 bg-red-500 text-white rounded hover:bg-red-600"
-                  title="Supprimer"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </button>
+              </div>
+
+              {/* Liste des diagrammes */}
+              {diagrams.length > 0 && (
+                <div className="flex items-center space-x-2">
+                  <select
+                    value={selectedDiagramId || ''}
+                    onChange={(e) => setSelectedDiagramId(e.target.value || null)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  >
+                    <option value="">Sélectionner un diagramme</option>
+                    {diagrams.map((diagram) => (
+                      <option key={diagram.id} value={diagram.id}>
+                        {diagram.name} ({diagram.mType})
+                      </option>
+                    ))}
+                  </select>
+                  
+                  {selectedDiagramId && (
+                    <button
+                      onClick={() => deleteDiagram(selectedDiagramId)}
+                      className="p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors"
+                      title="Supprimer le diagramme"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Contenu principal */}
+          <div className="flex-1 overflow-hidden">
+            {diagrams.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center py-12">
+                  <div className="w-24 h-24 bg-gradient-to-br from-red-100 to-pink-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <GitBranch className="w-12 h-12 text-red-500" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Aucun diagramme</h3>
+                  <p className="text-gray-600 mb-6">Créez votre premier diagramme d'Ishikawa pour analyser les causes d'un problème</p>
+                  <button
+                    onClick={() => createDiagram('5M')}
+                    className="px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl hover:from-red-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
+                  >
+                    <Plus className="w-5 h-5 inline mr-2" />
+                    Créer un diagramme 5M
+                  </button>
+                </div>
+              </div>
+            ) : selectedDiagram ? (
+              <div className="h-full p-6">
+                <div className="bg-white rounded-2xl shadow-lg h-full overflow-hidden">
+                  {/* En-tête du diagramme */}
+                  <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#EF4444' }}>
+                          <GitBranch className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            value={selectedDiagram.name}
+                            onChange={(e) => {
+                              const newDiagrams = diagrams.map(d =>
+                                d.id === selectedDiagram.id ? { ...d, name: e.target.value, updatedAt: new Date() } : d
+                              );
+                              saveDiagrams(newDiagrams);
+                            }}
+                            className="font-semibold text-lg bg-transparent border-none outline-none focus:bg-white focus:border focus:border-red-300 focus:rounded px-2 py-1"
+                          />
+                          <p className="text-sm text-gray-500">
+                            Type: {selectedDiagram.mType} • 
+                            Modifié: {selectedDiagram.updatedAt.toLocaleString('fr-FR', { 
+                              day: '2-digit', 
+                              month: '2-digit', 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Zone de rendu du diagramme */}
+                  <div ref={canvasRef} className="flex-1 h-full">
+                    {renderDiagram(selectedDiagram)}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Eye className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Sélectionner un diagramme</h3>
+                  <p className="text-gray-600">Choisissez un diagramme dans la liste déroulante ci-dessus</p>
+                </div>
               </div>
             )}
           </div>
-        )}
-      </div>
-
-      {/* Sous-causes */}
-      {subCauses.length > 0 && (
-        <div className="mt-2 space-y-2 pl-2 border-l-2" style={{ borderColor: `${branchColor}20` }}>
-          {subCauses.map((subCause, i) => (
-            <CauseItemCard
-              key={subCause.id}
-              cause={subCause}
-              branchId={branchId}
-              branchColor={branchColor}
-              onUpdate={onUpdate}
-              onDelete={onDelete}
-              onAddSubCause={onAddSubCause}
-              isEditing={false}
-              setEditing={setEditing}
-              allCauses={allCauses}
-              index={i}
-              level={level + 1}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Modal des paramètres
-const SettingsModal: React.FC<{
-  diagram: IshikawaDiagram;
-  onChangeMType: (type: IshikawaDiagram['mType']) => void;
-  onUpdateDiagram: (updates: Partial<IshikawaDiagram>) => void;
-  onClose: () => void;
-}> = ({ diagram, onChangeMType, onUpdateDiagram, onClose }) => {
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-bold text-gray-900">Paramètres du diagramme</h3>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
-            <X className="w-5 h-5" />
-          </button>
         </div>
 
-        <div className="space-y-4">
-          {/* Nom du diagramme */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nom du diagramme
-            </label>
-            <input
-              type="text"
-              value={diagram.name}
-              onChange={(e) => onUpdateDiagram({ name: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            />
-          </div>
-
-          {/* Type de M */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Type d'analyse (nombre de M)
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {Object.keys(M_CONFIGS).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => onChangeMType(type as IshikawaDiagram['mType'])}
-                  className={`px-3 py-2 rounded-lg border-2 transition-colors ${
-                    diagram.mType === type
-                      ? 'border-orange-500 bg-orange-50 text-orange-700 font-semibold'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
-            
-            {/* Description du type sélectionné */}
-            <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm font-medium text-gray-700 mb-2">
-                Branches du {diagram.mType} :
-              </p>
-              <ul className="text-xs text-gray-600 space-y-1">
-                {M_CONFIGS[diagram.mType].map(config => (
-                  <li key={config.id} className="flex items-center space-x-2">
-                    <span style={{ color: config.color }}>{config.icon}</span>
-                    <span>{config.name}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-end mt-6">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-          >
-            Fermer
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Modal d'aide
-const HelpModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
-        <div className="p-6 border-b">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-gray-900">
-              Guide d'utilisation - Diagramme d'Ishikawa
-            </h3>
-            <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        <div className="p-6 overflow-y-auto max-h-[60vh]">
-          <div className="space-y-6">
-            {/* Introduction */}
-            <section>
-              <h4 className="font-semibold text-gray-800 mb-2">
-                Qu'est-ce que le diagramme d'Ishikawa ?
-              </h4>
-              <p className="text-sm text-gray-600">
-                Le diagramme d'Ishikawa (ou diagramme en arêtes de poisson) est un outil 
-                d'analyse des causes et effets. Il permet d'identifier et de visualiser 
-                toutes les causes possibles d'un problème ou d'un effet observé.
-              </p>
-            </section>
-
-            {/* Types de M */}
-            <section>
-              <h4 className="font-semibold text-gray-800 mb-2">Les différents types de M</h4>
-              <div className="space-y-3 text-sm text-gray-600">
-                <div>
-                  <strong className="text-gray-700">4M :</strong> Main d'œuvre, Méthode, Matériel, Matière
-                  <p className="text-xs mt-1">Utilisé principalement en production industrielle</p>
-                </div>
-                <div>
-                  <strong className="text-gray-700">5M :</strong> + Milieu (environnement)
-                  <p className="text-xs mt-1">Le plus couramment utilisé, intègre l'environnement de travail</p>
-                </div>
-                <div>
-                  <strong className="text-gray-700">6M :</strong> + Mesure
-                  <p className="text-xs mt-1">Pour les processus nécessitant des contrôles qualité</p>
-                </div>
-                <div>
-                  <strong className="text-gray-700">7M :</strong> + Management
-                  <p className="text-xs mt-1">Intègre les aspects organisationnels et de gestion</p>
-                </div>
-                <div>
-                  <strong className="text-gray-700">8M :</strong> + Moyens financiers
-                  <p className="text-xs mt-1">Pour les analyses incluant les contraintes budgétaires</p>
-                </div>
-                <div>
-                  <strong className="text-gray-700">9M :</strong> + Maintenance
-                  <p className="text-xs mt-1">Pour les environnements industriels complexes</p>
+        {/* Modal d'aide avec style moderne */}
+        {showHelp && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[60]">
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
+              <div className="bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 p-6 border-b border-white/10">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-2xl font-bold text-white">Diagramme d'Ishikawa - Guide d'utilisation</h3>
+                  <button
+                    onClick={() => setShowHelp(false)}
+                    className="w-10 h-10 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl flex items-center justify-center transition-all duration-200"
+                  >
+                    <X className="w-6 h-6 text-white" />
+                  </button>
                 </div>
               </div>
-            </section>
+              
+              <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(95vh - 180px)' }}>
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-6">
+                    <div className="bg-gradient-to-br from-red-50 to-rose-50 p-6 rounded-xl border border-red-200">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                        <Network className="w-5 h-5 mr-2 text-red-600" />
+                        Principe
+                      </h4>
+                      <p className="text-gray-600 leading-relaxed">
+                        Le diagramme d'Ishikawa (ou diagramme en arêtes de poisson) est un outil 
+                        d'analyse des causes et effets. Il permet d'identifier et de visualiser 
+                        toutes les causes possibles d'un problème ou d'un effet observé.
+                      </p>
+                    </div>
+                    
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3">Types de diagrammes</h4>
+                      <div className="space-y-3 text-sm text-gray-600">
+                        <div>
+                          <strong className="text-gray-700">4M :</strong> Main d'œuvre, Méthode, Matériel, Matière
+                          <p className="text-xs mt-1">Utilisé principalement en production industrielle</p>
+                        </div>
+                        <div>
+                          <strong className="text-gray-700">5M :</strong> + Milieu (environnement)
+                          <p className="text-xs mt-1">Le plus couramment utilisé</p>
+                        </div>
+                        <div>
+                          <strong className="text-gray-700">6M :</strong> + Mesure
+                          <p className="text-xs mt-1">Pour les processus nécessitant des contrôles qualité</p>
+                        </div>
+                        <div>
+                          <strong className="text-gray-700">7M/8M/9M :</strong> + Management, Moyens financiers, Maintenance
+                          <p className="text-xs mt-1">Analyses plus complètes selon le contexte</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-6">
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3">Comment procéder</h4>
+                      <ol className="text-gray-600 space-y-3">
+                        <li className="flex items-start">
+                          <span className="bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">1</span>
+                          <span><strong>Définir le problème</strong> clairement dans la boîte de droite</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">2</span>
+                          <span><strong>Identifier les catégories</strong> de causes (4M, 5M, etc.)</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">3</span>
+                          <span><strong>Brainstormer les causes</strong> pour chaque catégorie</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">4</span>
+                          <span><strong>Approfondir</strong> en ajoutant des sous-causes</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">5</span>
+                          <span><strong>Analyser et prioriser</strong> les causes identifiées</span>
+                        </li>
+                      </ol>
+                    </div>
 
-            {/* Comment utiliser */}
-            <section>
-              <h4 className="font-semibold text-gray-800 mb-2">Comment utiliser le diagramme ?</h4>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
-                <li>Définissez clairement le problème ou l'effet à analyser</li>
-                <li>Choisissez le type de M adapté à votre contexte</li>
-                <li>Pour chaque branche (M), identifiez les causes principales</li>
-                <li>Ajoutez des sous-causes pour détailler chaque cause principale</li>
-                <li>Analysez l'ensemble pour identifier les causes racines</li>
-                <li>Priorisez les causes sur lesquelles agir</li>
-              </ol>
-            </section>
+                    <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-200">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3">Conseils d'utilisation</h4>
+                      <ul className="text-gray-600 space-y-2">
+                        <li className="flex items-start">
+                          <span className="w-2 h-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                          Travaillez en équipe pour plus de diversité dans les idées
+                        </li>
+                        <li className="flex items-start">
+                          <span className="w-2 h-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                          Posez-vous "Pourquoi ?" pour chaque cause identifiée
+                        </li>
+                        <li className="flex items-start">
+                          <span className="w-2 h-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                          Ne vous limitez pas aux causes évidentes
+                        </li>
+                        <li className="flex items-start">
+                          <span className="w-2 h-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                          Validez les causes par des données si possible
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
 
-            {/* Raccourcis */}
-            <section>
-              <h4 className="font-semibold text-gray-800 mb-2">Actions disponibles</h4>
-              <ul className="space-y-1 text-sm text-gray-600">
-                <li>• <strong>Cliquer sur une cause :</strong> Éditer le texte</li>
-                <li>• <strong>Bouton + sur une cause :</strong> Ajouter une sous-cause</li>
-                <li>• <strong>Bouton poubelle :</strong> Supprimer la cause et ses sous-causes</li>
-                <li>• <strong>Enter :</strong> Valider l'édition</li>
-                <li>• <strong>Escape :</strong> Annuler l'édition</li>
-              </ul>
-            </section>
-
-            {/* Conseils */}
-            <section>
-              <h4 className="font-semibold text-gray-800 mb-2">Conseils d'utilisation</h4>
-              <ul className="space-y-1 text-sm text-gray-600">
-                <li>• Impliquez l'équipe dans l'identification des causes</li>
-                <li>• Soyez spécifique dans la formulation des causes</li>
-                <li>• N'hésitez pas à créer plusieurs niveaux de sous-causes</li>
-                <li>• Utilisez des données factuelles plutôt que des suppositions</li>
-                <li>• Gardez le diagramme lisible en limitant le texte</li>
-              </ul>
-            </section>
+                <div className="mt-8 p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl border border-gray-200">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3">Navigation dans l'interface</h4>
+                  <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-600">
+                    <div>
+                      <strong className="text-gray-800">Créer :</strong>
+                      <p>Utilisez les boutons "Nouveau 4M", "Nouveau 5M", etc.</p>
+                    </div>
+                    <div>
+                      <strong className="text-gray-800">Éditer :</strong>
+                      <p>Cliquez sur les boîtes de texte pour modifier le contenu</p>
+                    </div>
+                    <div>
+                      <strong className="text-gray-800">Ajouter :</strong>
+                      <p>Cliquez sur les boutons + verts pour ajouter des causes</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div className="p-4 border-t bg-gray-50">
-          <button
-            onClick={onClose}
-            className="w-full px-4 py-2 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-lg hover:from-red-600 hover:to-orange-600 transition-colors"
-          >
-            Compris
-          </button>
-        </div>
+        )}
       </div>
     </div>
   );
