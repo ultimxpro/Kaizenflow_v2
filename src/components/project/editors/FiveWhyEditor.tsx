@@ -214,7 +214,7 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-8 z-50">
-      <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl shadow-2xl flex flex-col w-full h-full overflow-hidden border border-white/20">
+      <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl shadow-2xl flex flex-col w-full h-full overflow-hidden">
         {/* Header avec dégradé */}
         <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6 border-b border-white/10">
           <div className="flex items-center justify-between">
@@ -247,9 +247,9 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
         </div>
 
         {/* Zone de contenu avec dégradé subtle */}
-        <div className="flex-1 overflow-hidden bg-gradient-to-br from-white via-slate-50 to-blue-50">
+        <div className="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-white via-slate-50 to-blue-50">
           {/* Bouton d'ajout stylisé */}
-          <div className="p-6 border-b border-gray-200/50">
+          <div className="p-6 border-b border-gray-200/50 flex-shrink-0">
             <button
               onClick={addProblem}
               className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -259,8 +259,8 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
             </button>
           </div>
 
-          {/* Contenu principal */}
-          <div className="flex-1 overflow-y-auto px-6 pb-6">
+          {/* Contenu principal avec scroll */}
+          <div className="flex-1 overflow-y-auto px-6 pb-6" style={{ maxHeight: 'calc(100vh - 280px)' }}>
             {problems.length === 0 ? (
               <div className="text-center py-16">
                 <div className="w-24 h-24 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
@@ -422,8 +422,8 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
 
       {/* Modal d'aide avec style moderne */}
       {showHelp && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-8 z-[60]">
-          <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-white/20">
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[60]">
+          <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
             <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6 border-b border-white/10">
               <div className="flex items-center justify-between">
                 <h3 className="text-2xl font-bold text-white">Méthode des 5 Pourquoi</h3>
@@ -436,7 +436,7 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
               </div>
             </div>
             
-            <div className="p-8 overflow-y-auto max-h-[70vh]">
+            <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(95vh - 180px)' }}>
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-xl border border-indigo-200">
@@ -524,7 +524,7 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
               </div>
             </div>
             
-            <div className="p-6 border-t border-gray-200/50 bg-gradient-to-r from-gray-50 to-white">
+            <div className="p-4 border-t border-gray-200/50 bg-gradient-to-r from-gray-50 to-white">
               <button
                 onClick={() => setShowHelp(false)}
                 className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
