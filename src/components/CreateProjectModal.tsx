@@ -1,23 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../Lib/supabase'; // On importe Supabase directement, comme à l'origine
+import { supabase } from '../Lib/supabase';
 import { X, Loader2 } from 'lucide-react';
 
 interface CreateProjectModalProps {
   onClose: () => void;
   onNavigate: (page: string, projectId: string) => void;
 }
-
-// On définit les données par défaut localement, pour être sûr de ce qui est envoyé
-const defaultProjectData = {
-  statut: 'En cours',
-  pdca_step: 'PLAN',
-  modules: [
-    { id: 'module-plan-1', type: '5-why', title: '5 Pourquoi', content: null, quadrant: 'PLAN' },
-    { id: 'module-plan-2', type: 'ishikawa', title: 'Ishikawa', content: null, quadrant: 'PLAN' },
-    { id: 'module-do-1', type: 'plan-actions', title: 'Plan d\'actions', content: null, quadrant: 'DO' },
-  ],
-};
 
 export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose, onNavigate }) => {
   const [titre, setTitre] = useState('');
@@ -36,14 +25,17 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
     setError('');
 
     try {
-      // On utilise l'appel direct à Supabase, comme dans votre code original qui fonctionnait
+      // On insère uniquement les champs qui existent dans votre table
+      const projectData = {
+        titre: titre,
+        pilote: currentUser.id,
+        statut: 'En cours',
+        pdca_step: 'PLAN',
+      };
+
       const { data, error: insertError } = await supabase
         .from('projects')
-        .insert([{ 
-          titre: titre,
-          pilote: currentUser.id, 
-          ...defaultProjectData 
-        }])
+        .insert([projectData]) // On n'inclut plus les 'modules' ici
         .select()
         .single();
 
@@ -53,14 +45,14 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
 
       if (data && data.id) {
         onNavigate('project', data.id);
-        onClose(); // On ferme seulement si tout a réussi
+        onClose();
       } else {
         throw new Error("Le projet créé n'a pas été retrouvé après l'insertion.");
       }
 
     } catch (err: any) {
       console.error("Erreur détaillée de création du projet:", err);
-      setError(err.message || "Une erreur est survenue. Vérifiez la console pour plus de détails.");
+      setError(err.message || "Une erreur est survenue. Vérifiez la console.");
       setLoading(false);
     }
   };
