@@ -31,9 +31,9 @@ interface PlanActionsEditorProps {
 
 // --- CONFIGURATION VISUELLE ---
 const actionTypeConfig = {
-    simple: { name: 'Action Simple', icon: '💡', color: 'border-blue-500', textColor: 'text-blue-600', barBg: 'bg-blue-500', a3Color: 'bg-blue-100 text-blue-800', lightBg: 'bg-blue-50' },
-    securisation: { name: 'Sécurisation', icon: '🛡️', color: 'border-red-500', textColor: 'text-red-600', barBg: 'bg-red-500', a3Color: 'bg-red-100 text-red-800', lightBg: 'bg-red-50' },
-    'poka-yoke': { name: 'Poka-Yoke', icon: '🧩', color: 'border-yellow-500', textColor: 'text-yellow-600', barBg: 'bg-yellow-500', a3Color: 'bg-yellow-100 text-yellow-800', lightBg: 'bg-yellow-50' },
+    simple: { name: 'Action Simple', icon: '💡', color: 'border-emerald-500', textColor: 'text-emerald-600', barBg: 'bg-emerald-500', a3Color: 'bg-emerald-100 text-emerald-800', lightBg: 'bg-gradient-to-br from-emerald-50 to-green-100' },
+    securisation: { name: 'Sécurisation', icon: '🛡️', color: 'border-amber-500', textColor: 'text-amber-600', barBg: 'bg-amber-500', a3Color: 'bg-amber-100 text-amber-800', lightBg: 'bg-gradient-to-br from-amber-50 to-orange-100' },
+    'poka-yoke': { name: 'Poka-Yoke', icon: '🧩', color: 'border-teal-500', textColor: 'text-teal-600', barBg: 'bg-teal-500', a3Color: 'bg-teal-100 text-teal-800', lightBg: 'bg-gradient-to-br from-teal-50 to-cyan-100' },
 };
 
 // --- COMPOSANTS UTILITAIRES ---
@@ -99,12 +99,15 @@ const ActionCard = ({ action, users, onDragStart, onClick }: { action: Action, u
             draggable="true"
             onDragStart={(e) => onDragStart(e, action)}
             onClick={() => onClick(action)}
-            className={`bg-white border border-gray-200 rounded-lg shadow-sm mb-3 border-l-4 ${config.color} p-3 hover:shadow-md hover:border-gray-300 cursor-pointer transition-all`}
+            className={`bg-white/90 backdrop-blur-sm border-2 border-gray-200/50 rounded-xl shadow-lg mb-3 border-l-4 ${config.color} p-4 hover:shadow-xl hover:border-gray-300/70 cursor-pointer transition-all duration-200 hover:scale-105`}
         >
-            <div className="flex justify-between items-start mb-2">
+            <div className="flex justify-between items-start mb-3">
                 <AssigneeAvatars assignee_ids={action.assignee_ids} users={users} />
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.a3Color}`}>
+                    {config.icon}
+                </span>
             </div>
-            <h3 className="font-bold text-gray-800 text-sm">{action.title}</h3>
+            <h3 className="font-bold text-gray-800 text-sm mb-2">{action.title}</h3>
             <div className="mt-3">
                 <DateIndicator dueDate={action.due_date} status={action.status} />
             </div>
@@ -113,9 +116,9 @@ const ActionCard = ({ action, users, onDragStart, onClick }: { action: Action, u
 };
 
 const PDCASection = ({ title, icon, children }: { title: string, icon: React.ReactNode, children: React.ReactNode }) => (
-    <div className="bg-slate-100 border border-slate-200 rounded-lg p-4">
-        <h3 className="font-bold text-slate-800 mb-4 flex items-center">
-            {icon} <span className="ml-2">{title}</span>
+    <div className="bg-gradient-to-br from-green-50 to-emerald-100 border-2 border-green-200/50 rounded-xl p-6 shadow-lg">
+        <h3 className="font-bold text-green-800 mb-4 flex items-center text-lg">
+            {icon} <span className="ml-3">{title}</span>
         </h3>
         {children}
     </div>
@@ -233,22 +236,22 @@ const ActionModal = React.memo(({ isOpen, onClose, onSave, action, projectMember
     };
 
     const getQuadrant = (gain: number, effort: number) => {
-        if (gain >= 5 && effort < 5) return { name: "Quick Win 🔥", color: "bg-green-200" };
-        if (gain >= 5 && effort >= 5) return { name: "Gros projet 🗓️", color: "bg-blue-200" };
-        if (gain < 5 && effort < 5) return { name: "Tâche de fond 👌", color: "bg-yellow-200" };
-        return { name: "À éviter 🤔", color: "bg-red-200" };
+        if (gain >= 5 && effort < 5) return { name: "Quick Win 🔥", color: "bg-gradient-to-br from-green-200 to-emerald-300 text-green-800" };
+        if (gain >= 5 && effort >= 5) return { name: "Gros projet 🗓️", color: "bg-gradient-to-br from-blue-200 to-cyan-300 text-blue-800" };
+        if (gain < 5 && effort < 5) return { name: "Tâche de fond 👌", color: "bg-gradient-to-br from-yellow-200 to-amber-300 text-yellow-800" };
+        return { name: "À éviter 🤔", color: "bg-gradient-to-br from-red-200 to-rose-300 text-red-800" };
     };
     const currentQuadrant = getQuadrant(formData.gain || 5, formData.effort || 5);
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl p-6 md:p-8 w-full max-w-3xl text-gray-800 max-h-[90vh] overflow-y-auto">
-                <h2 className="text-2xl font-bold mb-6">{action ? "Modifier l'action" : "Créer une action"}</h2>
+            <div className="bg-gradient-to-br from-white to-green-50 rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-3xl text-gray-800 max-h-[90vh] overflow-y-auto border-2 border-green-200/30">
+                <h2 className="text-2xl font-bold mb-6 text-green-800">{action ? "Modifier l'action" : "Créer une action"}</h2>
                 <form onSubmit={(e) => { e.preventDefault(); onSave(formData as Action); }} className="space-y-6">
                     <PDCASection title="Description" icon={<Layers size={20} />}>
                         <div className="space-y-4">
-                            <input name="title" value={formData.title || ''} onChange={handleChange} placeholder="Titre de l'action" className="p-2 w-full border bg-white border-gray-300 rounded" required />
-                            <textarea name="description" value={formData.description || ''} onChange={handleChange} placeholder="Description détaillée de l'action..." className="p-2 w-full border bg-white border-gray-300 rounded h-24"></textarea>
+                            <input name="title" value={formData.title || ''} onChange={handleChange} placeholder="Titre de l'action" className="p-3 w-full border-2 bg-white border-green-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all" required />
+                            <textarea name="description" value={formData.description || ''} onChange={handleChange} placeholder="Description détaillée de l'action..." className="p-3 w-full border-2 bg-white border-green-200 rounded-xl h-24 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all"></textarea>
                         </div>
                     </PDCASection>
 
@@ -258,10 +261,10 @@ const ActionModal = React.memo(({ isOpen, onClose, onSave, action, projectMember
                                 const isSelected = (formData.assignee_ids || []).includes(user.id);
                                 return (
                                     <div key={user.id} className="flex flex-col items-center">
-                                        <div onClick={() => toggleAssignee(user.id)} className={`p-1 rounded-full cursor-pointer transition-all ${isSelected ? 'ring-2 ring-blue-500' : 'hover:bg-gray-200'}`}>
+                                        <div onClick={() => toggleAssignee(user.id)} className={`p-2 rounded-xl cursor-pointer transition-all ${isSelected ? 'ring-4 ring-green-400 bg-green-100' : 'hover:bg-green-50 hover:ring-2 hover:ring-green-200'}`}>
                                             <img src={user.avatarUrl || `https://i.pravatar.cc/150?u=${user.id}`} alt={user.nom} className="w-14 h-14 rounded-full" />
                                         </div>
-                                        <span className="text-xs mt-1 font-semibold text-gray-700">{user.nom}</span>
+                                        <span className="text-xs mt-2 font-semibold text-gray-700">{user.nom}</span>
                                     </div>
                                 );
                             })}
@@ -271,19 +274,19 @@ const ActionModal = React.memo(({ isOpen, onClose, onSave, action, projectMember
                     <PDCASection title="Détails" icon={<Table size={20} />}>
                         <div className="space-y-6">
                             <div>
-                                <label className="text-sm font-semibold text-gray-600 flex items-center mb-2"><Activity size={14} className="mr-2"/> Statut</label>
-                                <div className="flex gap-2">
-                                    <button type="button" onClick={() => setFormData(p => ({...p, status: 'À faire'}))} className={`py-2 px-4 rounded-lg flex-1 ${formData.status === 'À faire' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>À faire</button>
-                                    <button type="button" onClick={() => setFormData(p => ({...p, status: 'Fait'}))} className={`py-2 px-4 rounded-lg flex-1 ${formData.status === 'Fait' ? 'bg-green-600 text-white' : 'bg-white border'}`}>Fait</button>
+                                <label className="text-sm font-semibold text-green-700 flex items-center mb-3"><Activity size={14} className="mr-2"/> Statut</label>
+                                <div className="flex gap-3">
+                                    <button type="button" onClick={() => setFormData(p => ({...p, status: 'À faire'}))} className={`py-3 px-6 rounded-xl flex-1 font-semibold transition-all ${formData.status === 'À faire' ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-lg' : 'bg-white border-2 border-orange-200 text-orange-600 hover:bg-orange-50'}`}>À faire</button>
+                                    <button type="button" onClick={() => setFormData(p => ({...p, status: 'Fait'}))} className={`py-3 px-6 rounded-xl flex-1 font-semibold transition-all ${formData.status === 'Fait' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg' : 'bg-white border-2 border-green-200 text-green-600 hover:bg-green-50'}`}>Fait</button>
                                 </div>
                             </div>
                             <div>
-                                <label className="text-sm font-semibold text-gray-600 flex items-center mb-2"><Tag size={14} className="mr-2"/> Type d'action</label>
-                                <div className="grid grid-cols-3 gap-2">
+                                <label className="text-sm font-semibold text-green-700 flex items-center mb-3"><Tag size={14} className="mr-2"/> Type d'action</label>
+                                <div className="grid grid-cols-3 gap-3">
                                     {Object.entries(actionTypeConfig).map(([key, config]) => (
-                                        <button type="button" key={key} onClick={() => setFormData(p => ({...p, type: key as ActionType}))} className={`py-2 px-3 rounded-lg flex items-center justify-center gap-2 ${formData.type === key ? config.a3Color : 'bg-white border border-gray-300'}`}>
-                                            <span>{config.icon}</span>
-                                            <span className="text-xs font-medium">{config.name}</span>
+                                        <button type="button" key={key} onClick={() => setFormData(p => ({...p, type: key as ActionType}))} className={`py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-medium transition-all ${formData.type === key ? config.a3Color + ' shadow-lg ring-2 ring-offset-2 ring-green-300' : 'bg-white border-2 border-gray-200 text-gray-600 hover:border-green-300'}`}>
+                                            <span className="text-lg">{config.icon}</span>
+                                            <span className="text-xs">{config.name}</span>
                                         </button>
                                     ))}
                                 </div>
@@ -294,40 +297,40 @@ const ActionModal = React.memo(({ isOpen, onClose, onSave, action, projectMember
                     <PDCASection title="Planification" icon={<Calendar size={20} />}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="text-sm font-semibold text-gray-600 mb-2 block">Date de début</label>
-                                <input type="date" name="start_date" value={formData.start_date || ''} onChange={handleChange} className="p-2 w-full border bg-white border-gray-300 rounded" required />
+                                <label className="text-sm font-semibold text-green-700 mb-3 block">Date de début</label>
+                                <input type="date" name="start_date" value={formData.start_date || ''} onChange={handleChange} className="p-3 w-full border-2 bg-white border-green-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all" required />
                             </div>
                             <div>
-                                <label className="text-sm font-semibold text-gray-600 mb-2 block">Durée</label>
-                                <div className="flex gap-2">
-                                    <input type="number" min="1" value={duration} onChange={(e) => setDuration(parseInt(e.target.value) || 1)} className="p-2 w-20 border bg-white border-gray-300 rounded" />
-                                    <select value={durationUnit} onChange={(e) => setDurationUnit(e.target.value as 'days' | 'weeks' | 'months')} className="p-2 border bg-white border-gray-300 rounded flex-1">
+                                <label className="text-sm font-semibold text-green-700 mb-3 block">Durée</label>
+                                <div className="flex gap-3">
+                                    <input type="number" min="1" value={duration} onChange={(e) => setDuration(parseInt(e.target.value) || 1)} className="p-3 w-20 border-2 bg-white border-green-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all" />
+                                    <select value={durationUnit} onChange={(e) => setDurationUnit(e.target.value as 'days' | 'weeks' | 'months')} className="p-3 border-2 bg-white border-green-200 rounded-xl flex-1 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all">
                                         <option value="days">Jour(s)</option>
                                         <option value="weeks">Semaine(s)</option>
                                         <option value="months">Mois</option>
                                     </select>
                                 </div>
-                                {formData.due_date && formData.start_date && <p className="text-xs text-gray-500 mt-2">Période : <span className="font-semibold">{new Date(formData.start_date + 'T00:00:00').toLocaleDateString('fr-FR')} au {new Date(formData.due_date + 'T00:00:00').toLocaleDateString('fr-FR')}</span></p>}
+                                {formData.due_date && formData.start_date && <p className="text-xs text-green-600 mt-3 bg-green-50 p-2 rounded-lg">Période : <span className="font-semibold">{new Date(formData.start_date + 'T00:00:00').toLocaleDateString('fr-FR')} au {new Date(formData.due_date + 'T00:00:00').toLocaleDateString('fr-FR')}</span></p>}
                             </div>
                         </div>
                     </PDCASection>
 
                     <PDCASection title="Priorisation" icon={<GanttChartSquare size={20} />}>
                         <div className="grid grid-cols-2 gap-6 items-center">
-                            <div>
-                                <div><label>Effort (Complexité): {formData.effort || 5}</label><input type="range" name="effort" min="1" max="10" value={formData.effort || 5} onChange={e => handleRangeChange('effort', e.target.value)} className="w-full" /></div>
-                                <div className="mt-2"><label>Gain (Impact): {formData.gain || 5}</label><input type="range" name="gain" min="1" max="10" value={formData.gain || 5} onChange={e => handleRangeChange('gain', e.target.value)} className="w-full" /></div>
+                            <div className="space-y-4">
+                                <div><label className="text-green-700 font-semibold">Effort (Complexité): {formData.effort || 5}</label><input type="range" name="effort" min="1" max="10" value={formData.effort || 5} onChange={e => handleRangeChange('effort', e.target.value)} className="w-full h-2 bg-green-200 rounded-lg appearance-none cursor-pointer slider-thumb" /></div>
+                                <div><label className="text-green-700 font-semibold">Gain (Impact): {formData.gain || 5}</label><input type="range" name="gain" min="1" max="10" value={formData.gain || 5} onChange={e => handleRangeChange('gain', e.target.value)} className="w-full h-2 bg-green-200 rounded-lg appearance-none cursor-pointer slider-thumb" /></div>
                             </div>
                             <div className="text-center">
-                                <p className="text-sm text-gray-500">Position dans la matrice :</p>
-                                <div className={`mt-2 p-2 rounded-lg font-semibold transition-colors ${currentQuadrant.color}`}>{currentQuadrant.name}</div>
+                                <p className="text-sm text-green-600 font-medium mb-2">Position dans la matrice :</p>
+                                <div className={`mt-2 p-4 rounded-xl font-bold transition-colors shadow-lg ${currentQuadrant.color}`}>{currentQuadrant.name}</div>
                             </div>
                         </div>
                     </PDCASection>
 
                     <div className="mt-8 flex justify-end gap-4">
-                        <button type="button" onClick={onClose} className="py-2 px-4 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-semibold">Annuler</button>
-                        <button type="submit" className="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">Sauvegarder l'Action</button>
+                        <button type="button" onClick={onClose} className="py-3 px-6 bg-gray-200 text-gray-800 rounded-xl hover:bg-gray-300 font-semibold transition-all">Annuler</button>
+                        <button type="submit" className="py-3 px-6 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-xl hover:from-green-700 hover:to-emerald-800 font-semibold shadow-lg hover:shadow-xl transition-all">Sauvegarder l'Action</button>
                     </div>
                 </form>
             </div>
@@ -356,15 +359,16 @@ const HomeView = ({ actions, setActions, users, onCardClick }: { actions: Action
             {Object.entries(columns).map(([type, items]) => {
                 const config = actionTypeConfig[type as ActionType];
                 return (
-                    <div key={type} className={`flex flex-col rounded-lg transition-colors ${config.lightBg} h-full overflow-hidden`}
+                    <div key={type} className={`flex flex-col rounded-2xl transition-colors ${config.lightBg} h-full overflow-hidden shadow-lg border-2 border-gray-200/50`}
                          onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, type as ActionType)}
-                         onDragEnter={(e) => (e.currentTarget as HTMLDivElement).classList.add('bg-blue-50', 'border-blue-300')}
-                         onDragLeave={(e) => (e.currentTarget as HTMLDivElement).classList.remove('bg-blue-50', 'border-blue-300')}>
-                        <h2 className={`font-bold p-4 flex items-center gap-2 ${config.textColor}`}>
-                            <span className="text-lg">{config.icon}</span> {config.name}
-                            <span className="text-sm font-normal text-gray-500 ml-auto bg-gray-200 rounded-full px-2">{items.length}</span>
+                         onDragEnter={(e) => (e.currentTarget as HTMLDivElement).classList.add('bg-blue-50', 'border-blue-300', 'scale-105')}
+                         onDragLeave={(e) => (e.currentTarget as HTMLDivElement).classList.remove('bg-blue-50', 'border-blue-300', 'scale-105')}>
+                        <h2 className={`font-bold p-5 flex items-center gap-3 ${config.textColor} bg-white/80 backdrop-blur-sm`}>
+                            <span className="text-2xl">{config.icon}</span> 
+                            <span className="text-lg">{config.name}</span>
+                            <span className="text-sm font-normal text-gray-500 ml-auto bg-white/80 rounded-full px-3 py-1 shadow-sm">{items.length}</span>
                         </h2>
-                        <div className="overflow-y-auto flex-1 px-4 pb-2">
+                        <div className="overflow-y-auto flex-1 px-4 pb-4">
                             {items.map(item => <ActionCard key={item.id} action={item} users={users} onDragStart={(e, action) => setDraggedItem(action)} onClick={onCardClick} />)}
                         </div>
                     </div>
@@ -434,18 +438,60 @@ const KanbanByPersonView = ({ actions, setActions, users, onCardClick }: { actio
                     return (
                         <div
                             key={status}
-                            className={`flex flex-col rounded-xl border-2 transition-all duration-200 ${
+                            className={`flex flex-col rounded-2xl border-2 transition-all duration-200 shadow-lg ${
                                 isCompleted 
-                                    ? 'bg-green-50 border-green-200' 
-                                    : 'bg-orange-50 border-orange-200'
+                                    ? 'bg-gradient-to-br from-green-50 to-emerald-100 border-green-300' 
+                                    : 'bg-gradient-to-br from-orange-50 to-amber-100 border-orange-300'
                             } h-full overflow-hidden`}
                             onDragOver={(e) => e.preventDefault()}
                             onDrop={(e) => handleDrop(e, status)}
                             onDragEnter={(e) => (e.currentTarget as HTMLDivElement).classList.add('bg-blue-50', 'ring-2', 'ring-blue-400', 'scale-105')}
                             onDragLeave={(e) => (e.currentTarget as HTMLDivElement).classList.remove('bg-blue-50', 'ring-2', 'ring-blue-400', 'scale-105')}
                         >
-                            <div className={`p-4 ${isCompleted ? 'bg-green-100' : 'bg-orange-100'} flex items-center justify-between`}>
-                                <h3 className={`font-bold text-lg ${isCompleted ? 'text-green-800' : 'text-orange-800'}`}>
+                            <div className={`p-5 ${isCompleted ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 'bg-gradient-to-r from-orange-500 to-amber-600'} flex items-center justify-between`}>
+                                <h3 className="font-bold text-xl text-white">
+                                    {status}
+                                </h3>
+                                <span className={`px-4 py-2 rounded-full text-sm font-bold ${
+                                    isCompleted ? 'bg-white/20 text-white' : 'bg-white/20 text-white'
+                                }`}>
+                                    {items.length}
+                                </span>
+                            </div>
+                            
+                            <div className="flex-1 p-4 overflow-y-auto">
+                                {items.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center h-32 text-gray-400">
+                                        <div className={`w-16 h-16 ${isCompleted ? 'bg-green-100' : 'bg-orange-100'} rounded-2xl flex items-center justify-center mb-4`}>
+                                            <span className="text-2xl">{status === 'À faire' ? '📝' : '🎉'}</span>
+                                        </div>
+                                        <p className={`text-sm font-medium ${
+                                            status === 'À faire' ? 'text-orange-600' : 'text-green-600'
+                                        }`}>
+                                            {status === 'À faire' ? 'Aucune tâche en attente' : 'Aucune tâche terminée'}
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            {status === 'À faire' ? 'Les nouvelles tâches apparaîtront ici' : 'Glissez les tâches terminées ici'}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {items.map(item => (
+                                            <ActionCard 
+                                                key={item.id} 
+                                                action={item} 
+                                                users={users} 
+                                                onDragStart={(e, action) => setDraggedItem(action)} 
+                                                onClick={onCardClick} 
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                )}
+            </div> className={`font-bold text-lg ${isCompleted ? 'text-green-800' : 'text-orange-800'}`}>
                                     {status}
                                 </h3>
                                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -537,11 +583,11 @@ const MatrixView = ({ actions, setActions, users, onCardClick }: { actions: Acti
     };
 
     const Quadrant = ({ title, emoji, items, bgColor, quadrantName }: { title: string, emoji: string, items: Action[], bgColor: string, quadrantName: string }) => (
-        <div className={`${bgColor} rounded-lg border-2 border-dashed border-gray-300 p-4 h-64 overflow-y-auto transition-all`}
+        <div className={`${bgColor} rounded-2xl border-2 border-dashed border-gray-300 p-6 h-64 overflow-y-auto transition-all shadow-lg hover:shadow-xl`}
              onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, quadrantName)}
-             onDragEnter={(e) => (e.currentTarget as HTMLDivElement).classList.add('ring-2', 'ring-blue-400')}
-             onDragLeave={(e) => (e.currentTarget as HTMLDivElement).classList.remove('ring-2', 'ring-blue-400')}>
-            <h3 className="font-bold text-center mb-4 text-gray-800">{emoji} {title} ({items.length})</h3>
+             onDragEnter={(e) => (e.currentTarget as HTMLDivElement).classList.add('ring-4', 'ring-green-400', 'scale-105')}
+             onDragLeave={(e) => (e.currentTarget as HTMLDivElement).classList.remove('ring-4', 'ring-green-400', 'scale-105')}>
+            <h3 className="font-bold text-center mb-6 text-gray-800 text-lg">{emoji} {title} <span className="bg-white/80 px-3 py-1 rounded-full text-sm ml-2">({items.length})</span></h3>
             {items.map(item => <ActionCard key={item.id} action={item} users={users} onDragStart={(e, action) => setDraggedItem(action)} onClick={onCardClick} />)}
         </div>
     );
@@ -549,10 +595,10 @@ const MatrixView = ({ actions, setActions, users, onCardClick }: { actions: Acti
     return (
         <div className="h-full" onDragEnd={() => setDraggedItem(null)}>
             <div className="grid grid-cols-2 gap-6 h-full">
-                <Quadrant title="Quick Win" emoji="🔥" items={matrix['quick-wins']} bgColor="bg-green-200" quadrantName="quick-wins" />
-                <Quadrant title="Gros projet" emoji="🗓️" items={matrix['major-projects']} bgColor="bg-blue-200" quadrantName="major-projects" />
-                <Quadrant title="Tâche de fond" emoji="👌" items={matrix['fill-ins']} bgColor="bg-yellow-200" quadrantName="fill-ins" />
-                <Quadrant title="À éviter" emoji="🤔" items={matrix['thankless-tasks']} bgColor="bg-red-200" quadrantName="thankless-tasks" />
+                <Quadrant title="Quick Win" emoji="🔥" items={matrix['quick-wins']} bgColor="bg-gradient-to-br from-green-200 to-emerald-300" quadrantName="quick-wins" />
+                <Quadrant title="Gros projet" emoji="🗓️" items={matrix['major-projects']} bgColor="bg-gradient-to-br from-blue-200 to-cyan-300" quadrantName="major-projects" />
+                <Quadrant title="Tâche de fond" emoji="👌" items={matrix['fill-ins']} bgColor="bg-gradient-to-br from-yellow-200 to-amber-300" quadrantName="fill-ins" />
+                <Quadrant title="À éviter" emoji="🤔" items={matrix['thankless-tasks']} bgColor="bg-gradient-to-br from-red-200 to-rose-300" quadrantName="thankless-tasks" />
             </div>
         </div>
     );
@@ -1189,6 +1235,15 @@ export const PlanActionsEditor: React.FC<PlanActionsEditorProps> = ({ module, on
                                         à une action, de désigner un responsable principal, et de suivre l'avancement en temps réel. 
                                         Chaque membre de l'équipe peut visualiser ses actions et leur priorité.
                                     </p>
+                                </div>
+                                
+                                <div className="mt-6 flex justify-end">
+                                    <button 
+                                        onClick={() => setShowHelp(false)} 
+                                        className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-xl hover:from-green-700 hover:to-emerald-800 font-semibold shadow-lg hover:shadow-xl transition-all"
+                                    >
+                                        Compris
+                                    </button>
                                 </div>
                             </div>
                         </div>
