@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useDatabase } from '../contexts/DatabaseContext'; // On utilise le contexte, comme à l'origine
+import { supabase } from '../Lib/supabase'; // On importe Supabase directement, comme à l'origine
 import { X, Loader2 } from 'lucide-react';
 
 interface CreateProjectModalProps {
@@ -8,47 +8,60 @@ interface CreateProjectModalProps {
   onNavigate: (page: string, projectId: string) => void;
 }
 
+// On définit les données par défaut localement, pour être sûr de ce qui est envoyé
+const defaultProjectData = {
+  statut: 'En cours',
+  pdca_step: 'PLAN',
+  modules: [
+    { id: 'module-plan-1', type: '5-why', title: '5 Pourquoi', content: null, quadrant: 'PLAN' },
+    { id: 'module-plan-2', type: 'ishikawa', title: 'Ishikawa', content: null, quadrant: 'PLAN' },
+    { id: 'module-do-1', type: 'plan-actions', title: 'Plan d\'actions', content: null, quadrant: 'DO' },
+  ],
+};
+
 export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose, onNavigate }) => {
   const [titre, setTitre] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
-  // On récupère la fonction createProject du contexte, comme dans votre code original
-  const { createProject } = useDatabase();
   const { currentUser } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) {
       setError("Session expirée. Veuillez vous reconnecter.");
+      setLoading(false);
       return;
     }
     setLoading(true);
     setError('');
 
     try {
-      // On appelle createProject avec l'objet attendu, comme dans votre code original
-      const newProject = await createProject({
-        titre: titre,
-        pilote: currentUser.id,
-        statut: 'En cours',
-        pdca_step: 'PLAN',
-      });
+      // On utilise l'appel direct à Supabase, comme dans votre code original qui fonctionnait
+      const { data, error: insertError } = await supabase
+        .from('projects')
+        .insert([{ 
+          titre: titre,
+          pilote: currentUser.id, 
+          ...defaultProjectData 
+        }])
+        .select()
+        .single();
 
-      if (newProject && newProject.id) {
-        onNavigate('project', newProject.id); // Redirection vers le projet
-      } else {
-        // Si newProject est null ou n'a pas d'ID, c'est une erreur inattendue
-        throw new Error("La création a échoué, le projet n'a pas été retourné.");
+      if (insertError) {
+        throw insertError;
       }
-      
-      // La fermeture se fait uniquement si tout réussit
-      onClose();
+
+      if (data && data.id) {
+        onNavigate('project', data.id);
+        onClose(); // On ferme seulement si tout a réussi
+      } else {
+        throw new Error("Le projet créé n'a pas été retrouvé après l'insertion.");
+      }
 
     } catch (err: any) {
-      console.error("Erreur de création du projet:", err);
-      setError(err.message || "Une erreur est survenue lors de la création.");
-      setLoading(false); // On arrête le chargement en cas d'erreur pour que l'utilisateur puisse voir le message
+      console.error("Erreur détaillée de création du projet:", err);
+      setError(err.message || "Une erreur est survenue. Vérifiez la console pour plus de détails.");
+      setLoading(false);
     }
   };
 
