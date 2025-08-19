@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { A3Module } from '../../../types/database';
 import { useDatabase } from '../../../contexts/DatabaseContext';
 import { Plus, HelpCircle, ChevronRight, X, Network, Flag, RotateCcw } from 'lucide-react';
@@ -20,68 +20,108 @@ interface Problem {
 export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose }) => {
   const { updateA3Module, getFiveWhyAnalyses, createFiveWhyAnalysis, updateFiveWhyAnalysis, deleteFiveWhyAnalysis } = useDatabase();
   const [showHelp, setShowHelp] = useState(false);
-  
   const [problems, setProblems] = useState<Problem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+  
+  // Refs pour le debouncing
+  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const lastSavedDataRef = useRef<string>('');
 
-  // AJOUT: Charger les données depuis la base au montage
+  // CHARGEMENT INITIAL - une seule fois
   useEffect(() => {
-    const loadProblems = () => {
-      const dbAnalyses = getFiveWhyAnalyses(module.id);
-      const convertedProblems: Problem[] = dbAnalyses.map(analysis => ({
-        id: analysis.id,
-        problem: analysis.problem_title,
-        whys: [
-          analysis.why_1 || '',
-          analysis.why_2 || '',
-          analysis.why_3 || '',
-          analysis.why_4 || '',
-          analysis.why_5 || ''
-        ],
-        rootCause: analysis.root_cause || '',
-        expandedLevel: analysis.intermediate_cause_level ? analysis.intermediate_cause_level - 1 : 
-                     analysis.why_5 ? 4 :
-                     analysis.why_4 ? 3 :
-                     analysis.why_3 ? 2 :
-                     analysis.why_2 ? 1 : 0,
-        intermediateCause: analysis.intermediate_cause ? {
-          level: analysis.intermediate_cause_level || 1,
-          text: analysis.intermediate_cause
-        } : null
-      }));
-      setProblems(convertedProblems);
-    };
+    if (!isLoaded) {
+      const loadProblems = () => {
+        const dbAnalyses = getFiveWhyAnalyses(module.id);
+        const convertedProblems: Problem[] = dbAnalyses.map(analysis => ({
+          id: analysis.id,
+          problem: analysis.problem_title,
+          whys: [
+            analysis.why_1 || '',
+            analysis.why_2 || '',
+            analysis.why_3 || '',
+            analysis.why_4 || '',
+            analysis.why_5 || ''
+          ],
+          rootCause: analysis.root_cause || '',
+          expandedLevel: analysis.intermediate_cause_level ? analysis.intermediate_cause_level - 1 : 
+                       analysis.why_5 ? 4 :
+                       analysis.why_4 ? 3 :
+                       analysis.why_3 ? 2 :
+                       analysis.why_2 ? 1 : 0,
+          intermediateCause: analysis.intermediate_cause ? {
+            level: analysis.intermediate_cause_level || 1,
+            text: analysis.intermediate_cause
+          } : null
+        }));
+        setProblems(convertedProblems);
+        setIsLoaded(true);
+      };
 
-    loadProblems();
-  }, [module.id, getFiveWhyAnalyses]);
+      loadProblems();
+    }
+  }, [module.id, getFiveWhyAnalyses, isLoaded]);
 
-  // MODIFICATION: Sauvegarder en base ET dans le module content
-  const updateProblems = async (newProblems: Problem[]) => {
-    setProblems(newProblems);
+  // SAUVEGARDE OPTIMISÉE avec debouncing
+  const debouncedSave = useCallback(async (problemsToSave: Problem[]) => {
+    const currentDataString = JSON.stringify(problemsToSave);
     
-    // Sauvegarder dans le content du module (pour compatibilité)
-    updateA3Module(module.id, {
-      content: { ...module.content, problems: newProblems }
-    });
+    // Ne pas sauvegarder si les données n'ont pas changé
+    if (currentDataString === lastSavedDataRef.current) {
+      return;
+    }
+    
+    // Annuler la sauvegarde précédente
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
 
-    // Sauvegarder chaque problème en base
-    for (const problem of newProblems) {
+    // Programmer une nouvelle sauvegarde dans 1 seconde
+    saveTimeoutRef.current = setTimeout(async () => {
       try {
-        await updateFiveWhyAnalysis(problem.id, {
-          problem_title: problem.problem,
-          why_1: problem.whys[0] || null,
-          why_2: problem.whys[1] || null,
-          why_3: problem.whys[2] || null,
-          why_4: problem.whys[3] || null,
-          why_5: problem.whys[4] || null,
-          root_cause: problem.rootCause || null,
-          intermediate_cause: problem.intermediateCause?.text || null,
-          intermediate_cause_level: problem.intermediateCause?.level || null
+        console.log('Sauvegarde des 5 Pourquoi...');
+        
+        // Sauvegarder dans le content du module (pour compatibilité)
+        updateA3Module(module.id, {
+          content: { ...module.content, problems: problemsToSave }
         });
+
+        // Sauvegarder chaque problème en base
+        for (const problem of problemsToSave) {
+          await updateFiveWhyAnalysis(problem.id, {
+            problem_title: problem.problem,
+            why_1: problem.whys[0] || null,
+            why_2: problem.whys[1] || null,
+            why_3: problem.whys[2] || null,
+            why_4: problem.whys[3] || null,
+            why_5: problem.whys[4] || null,
+            root_cause: problem.rootCause || null,
+            intermediate_cause: problem.intermediateCause?.text || null,
+            intermediate_cause_level: problem.intermediateCause?.level || null
+          });
+        }
+        
+        lastSavedDataRef.current = currentDataString;
+        console.log('Sauvegarde terminée');
       } catch (error) {
         console.error('Erreur lors de la sauvegarde:', error);
       }
-    }
-  };
+    }, 1000); // Attendre 1 seconde après la dernière modification
+  }, [updateA3Module, updateFiveWhyAnalysis, module.content, module.id]);
+
+  // MODIFICATION des problèmes avec sauvegarde optimisée
+  const updateProblems = useCallback((newProblems: Problem[]) => {
+    setProblems(newProblems);
+    debouncedSave(newProblems);
+  }, [debouncedSave]);
+
+  // Nettoyage au démontage
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const addProblem = async () => {
     try {
@@ -95,10 +135,11 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
         expandedLevel: 0,
         intermediateCause: null
       };
+      
       const newProblems = [...problems, newProblem];
       setProblems(newProblems);
       
-      // Sauvegarder dans le content pour compatibilité
+      // Sauvegarder immédiatement pour la création
       updateA3Module(module.id, {
         content: { ...module.content, problems: newProblems }
       });
@@ -107,14 +148,14 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
     }
   };
 
-  const updateProblemField = (problemId: string, field: keyof Problem, value: any) => {
+  const updateProblemField = useCallback((problemId: string, field: keyof Problem, value: any) => {
     const updatedProblems = problems.map(p => 
       p.id === problemId ? { ...p, [field]: value } : p
     );
     updateProblems(updatedProblems);
-  };
+  }, [problems, updateProblems]);
 
-  const updateWhy = (problemId: string, whyIndex: number, value: string) => {
+  const updateWhy = useCallback((problemId: string, whyIndex: number, value: string) => {
     const updatedProblems = problems.map(p => {
       if (p.id === problemId) {
         const newWhys = [...p.whys];
@@ -124,9 +165,9 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
       return p;
     });
     updateProblems(updatedProblems);
-  };
+  }, [problems, updateProblems]);
   
-  const setIntermediateCause = (problemId: string, level: number) => {
+  const setIntermediateCause = useCallback((problemId: string, level: number) => {
     const updatedProblems = problems.map(p => {
       if (p.id === problemId) {
         const causeText = p.whys[level - 1] || '';
@@ -135,38 +176,54 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
       return p;
     });
     updateProblems(updatedProblems);
-  };
+  }, [problems, updateProblems]);
 
-  const updateIntermediateCauseText = (problemId: string, text: string) => {
+  const updateIntermediateCauseText = useCallback((problemId: string, text: string) => {
     const updatedProblems = problems.map(p =>
       p.id === problemId && p.intermediateCause ?
         { ...p, intermediateCause: { ...p.intermediateCause, text } } : p
     );
     updateProblems(updatedProblems);
-  };
+  }, [problems, updateProblems]);
 
-  const clearIntermediateCause = (problemId: string) => {
+  const clearIntermediateCause = useCallback((problemId: string) => {
     updateProblemField(problemId, 'intermediateCause', null);
-  };
+  }, [updateProblemField]);
 
-  const expandToLevel = (problemId: string, level: number) => {
+  const expandToLevel = useCallback((problemId: string, level: number) => {
     updateProblemField(problemId, 'expandedLevel', level);
-  };
+  }, [updateProblemField]);
 
   const deleteProblem = async (problemId: string) => {
-    try {
-      await deleteFiveWhyAnalysis(problemId);
-      const newProblems = problems.filter(p => p.id !== problemId);
-      setProblems(newProblems);
-      
-      // Mettre à jour le content pour compatibilité
-      updateA3Module(module.id, {
-        content: { ...module.content, problems: newProblems }
-      });
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette analyse ?')) {
+      try {
+        await deleteFiveWhyAnalysis(problemId);
+        const newProblems = problems.filter(p => p.id !== problemId);
+        setProblems(newProblems);
+        
+        // Mettre à jour le content immédiatement pour la suppression
+        updateA3Module(module.id, {
+          content: { ...module.content, problems: newProblems }
+        });
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
+      }
     }
   };
+
+  // Affichage du loader pendant le chargement initial
+  if (!isLoaded) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-8 z-50">
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="flex items-center space-x-3">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+            <span className="text-gray-700">Chargement des analyses...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-8 z-50">
