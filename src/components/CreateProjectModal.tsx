@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../Lib/supabase'; // Import direct de Supabase
+import { useDatabase } from '../contexts/DatabaseContext'; // On utilise le contexte, comme à l'origine
 import { X, Loader2 } from 'lucide-react';
 
 interface CreateProjectModalProps {
@@ -8,21 +8,13 @@ interface CreateProjectModalProps {
   onNavigate: (page: string, projectId: string) => void;
 }
 
-// Données par défaut pour un nouveau projet, comme dans votre code original
-const defaultProjectData = {
-  statut: 'En cours',
-  pdca_step: 'PLAN',
-  modules: [
-    { id: 'module-plan-1', type: '5-why', title: '5 Pourquoi', content: null, quadrant: 'PLAN' },
-    { id: 'module-plan-2', type: 'ishikawa', title: 'Ishikawa', content: null, quadrant: 'PLAN' },
-    { id: 'module-do-1', type: 'plan-actions', title: 'Plan d\'actions', content: null, quadrant: 'DO' },
-  ],
-};
-
 export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose, onNavigate }) => {
   const [titre, setTitre] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // On récupère la fonction createProject du contexte, comme dans votre code original
+  const { createProject } = useDatabase();
   const { currentUser } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,34 +27,28 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
     setError('');
 
     try {
-      // On utilise la logique de création directe de votre code original
-      const { data, error: insertError } = await supabase
-        .from('projects')
-        .insert([{ 
-          titre: titre, // Assure que 'titre' est bien une chaîne de caractères
-          pilote: currentUser.id, 
-          ...defaultProjectData 
-        }])
-        .select()
-        .single();
+      // On appelle createProject avec l'objet attendu, comme dans votre code original
+      const newProject = await createProject({
+        titre: titre,
+        pilote: currentUser.id,
+        statut: 'En cours',
+        pdca_step: 'PLAN',
+      });
 
-      if (insertError) {
-        throw insertError;
-      }
-
-      if (data) {
-        // La navigation utilise l'ID du projet créé, comme dans votre code original
-        onNavigate('project', data.id);
+      if (newProject && newProject.id) {
+        onNavigate('project', newProject.id); // Redirection vers le projet
       } else {
-        throw new Error("La création a échoué : aucune donnée retournée.");
+        // Si newProject est null ou n'a pas d'ID, c'est une erreur inattendue
+        throw new Error("La création a échoué, le projet n'a pas été retourné.");
       }
       
+      // La fermeture se fait uniquement si tout réussit
       onClose();
 
     } catch (err: any) {
       console.error("Erreur de création du projet:", err);
       setError(err.message || "Une erreur est survenue lors de la création.");
-      setLoading(false);
+      setLoading(false); // On arrête le chargement en cas d'erreur pour que l'utilisateur puisse voir le message
     }
   };
 
