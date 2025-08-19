@@ -3,6 +3,9 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Lock, Mail, AlertCircle, ArrowRight } from 'lucide-react';
 
+// ON N'IMPORTE PLUS LE LOGO, ON UTILISE LE CHEMIN DIRECT
+// import newLogo from '../assets/Gemini_Generated_Image_6kdy0q6kdy0q6kdy.jpg'; 
+
 interface LoginProps {
   onNavigate: (page: string) => void;
 }
@@ -47,12 +50,14 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
       <div className="max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden">
         <div className="p-8">
           <div className="text-center mb-8">
-            <img src="/Gemini_Generated_Image_6kdy0q6kdy0q6kdy.png" alt="KaizenFlow Logo" className="w-24 h-24 mx-auto rounded-full mb-4 border-4 border-gray-700 shadow-lg"/>
-            <h1 className="text-3xl font-bold tracking-tight">LeanDeck</h1>
+            {/* ON UTILISE LE CHEMIN DIRECT VERS L'IMAGE DANS PUBLIC */}
+            <img src="/leandeck-symbol.png" alt="KaizenFlow Logo" className="w-24 h-24 mx-auto rounded-full mb-4 border-4 border-gray-700 shadow-lg"/>
+            <h1 className="text-3xl font-bold tracking-tight">KaizenFlow</h1>
             <p className="text-gray-300 mt-2">Votre flux vers l'amélioration continue.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Le reste du formulaire ne change pas */}
             {!isLogin && (
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -118,7 +123,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
