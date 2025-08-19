@@ -48,7 +48,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
         <div className="p-8">
           <div className="text-center mb-8">
             <img src="/Gemini_Generated_Image_6kdy0q6kdy0q6kdy.png" alt="KaizenFlow Logo" className="w-24 h-24 mx-auto rounded-full mb-4 border-4 border-gray-700 shadow-lg"/>
-            <h1 className="text-3xl font-bold tracking-tight">KaizenFlow</h1>
+            <h1 className="text-3xl font-bold tracking-tight">LeanDeck</h1>
             <p className="text-gray-300 mt-2">Votre flux vers l'amélioration continue.</p>
           </div>
 
