@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Lock, Mail, AlertCircle, ArrowRight } from 'lucide-react';
-import newLogo from '../assets/Gemini_Generated_Image_6kdy0q6kdy0q6kdy.jpg'; // Assurez-vous que le chemin vers le logo est correct
 
 interface LoginProps {
   onNavigate: (page: string) => void;
@@ -48,7 +47,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
       <div className="max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden">
         <div className="p-8">
           <div className="text-center mb-8">
-            <img src={newLogo} alt="KaizenFlow Logo" className="w-24 h-24 mx-auto rounded-full mb-4 border-4 border-gray-700 shadow-lg"/>
+            <img src="/Gemini_Generated_Image_6kdy0q6kdy0q6kdy.png" alt="KaizenFlow Logo" className="w-24 h-24 mx-auto rounded-full mb-4 border-4 border-gray-700 shadow-lg"/>
             <h1 className="text-3xl font-bold tracking-tight">KaizenFlow</h1>
             <p className="text-gray-300 mt-2">Votre flux vers l'amélioration continue.</p>
           </div>
