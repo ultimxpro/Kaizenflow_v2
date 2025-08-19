@@ -436,6 +436,7 @@ const KanbanByPersonView = ({ actions, setActions, users, onCardClick }: { actio
                     const isCompleted = status === 'Fait';
                     
                     return (
+                    return (
                         <div
                             key={status}
                             className={`flex flex-col rounded-2xl border-2 transition-all duration-200 shadow-lg ${
@@ -489,8 +490,8 @@ const KanbanByPersonView = ({ actions, setActions, users, onCardClick }: { actio
                                 )}
                             </div>
                         </div>
-                    )}
-                )}
+                    );
+                })}
             </div> className={`font-bold text-lg ${isCompleted ? 'text-green-800' : 'text-orange-800'}`}>
                                     {status}
                                 </h3>
