@@ -527,7 +527,7 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
             <div className="p-4 border-t border-gray-200/50 bg-gradient-to-r from-gray-50 to-white">
               <button
                 onClick={() => setShowHelp(false)}
-                className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
+                className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium"
               >
                 Compris !
               </button>
