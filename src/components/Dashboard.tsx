@@ -1,131 +1,190 @@
-// src/components/Dashboard.tsx
-import React, { useState, useEffect } from 'react';
-import { useDatabase } from '../contexts/DatabaseContext';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useDatabase } from '../contexts/DatabaseContext';
+import { Plus, FolderOpen, Users, LogOut, Calendar, Settings, Shield, ChevronDown } from 'lucide-react';
 import { CreateProjectModal } from './CreateProjectModal';
-import { Plus, Folder, ArrowRight, LogOut } from 'lucide-react';
-
-// Définition du type pour un projet/kaizen
-interface KaizenProject {
-  id: string;
-  nom: string;
-  description: string;
-}
 
 interface DashboardProps {
-  onNavigate: (page: string, params?: any) => void;
+  onNavigate: (page: string, projectId?: string) => void;
 }
 
+// Helper pour les couleurs des étapes PDCA
+const getPdcaStepColor = (step: string) => {
+  switch (step) {
+    case 'PLAN': return 'bg-blue-500/20 text-blue-300';
+    case 'DO': return 'bg-green-500/20 text-green-300';
+    case 'CHECK': return 'bg-orange-500/20 text-orange-300';
+    case 'ACT': return 'bg-purple-500/20 text-purple-300';
+    default: return 'bg-gray-500/20 text-gray-300';
+  }
+};
+
 export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
-  const { getProjectsForUser } = useDatabase();
-  const { user, signOut } = useAuth();
-  const [kaizenProjects, setKaizenProjects] = useState<KaizenProject[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const { currentUser, signedAvatarUrl, signOut, isAdmin } = useAuth();
+  const { projects, loading } = useDatabase();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchKaizenProjects = async () => {
-      if (user) {
-        try {
-          // On utilise la fonction existante mais on stocke le résultat dans kaizenProjects
-          const projects = await getProjectsForUser(user.id);
-          setKaizenProjects(projects || []);
-        } catch (error) {
-          console.error("Erreur lors de la récupération des projets Kaizen:", error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-    fetchKaizenProjects();
-  }, [user, getProjectsForUser]);
+  // La logique de filtrage originale est conservée
+  const myProjects = projects.filter(p => p.pilote === currentUser?.id);
+  // Les autres sections sont conservées comme dans votre code
+  const contributingProjects = projects.filter(p => p.pilote !== currentUser?.id && false);
 
-  const handleKaizenCreated = (newKaizen: KaizenProject) => {
-    setKaizenProjects(prevProjects => [...prevProjects, newKaizen]);
-  };
-  
-  const handleSignOut = async () => {
-    await signOut();
+  const handleLogout = () => {
+    signOut();
     onNavigate('login');
   };
 
   return (
-    <div className="min-h-screen w-full bg-gray-900 text-white" style={{
-      background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #9333ea 100%)'
+    <div className="min-h-screen w-full text-white" style={{
+      background: 'linear-gradient(160deg, #0f172a 0%, #1e3a8a 50%, #3b82f6 100%)'
     }}>
-      {/* ===== HEADER RE-INTÉGRÉ ET STYLISÉ ===== */}
-      <header className="bg-gray-800 bg-opacity-30 backdrop-blur-lg p-4 flex justify-between items-center shadow-lg">
-        <div className="flex items-center space-x-4">
-            <img src="/leandeck-symbol.png" alt="KaizenFlow Logo" className="w-10 h-10 rounded-full" />
-            <h1 className="text-xl font-bold text-white tracking-wider">KaizenFlow</h1>
-        </div>
-        <div className="flex items-center space-x-4">
-            <span className="text-gray-300 hidden sm:block">
-            Bonjour, <span className="font-semibold">{user?.user_metadata.nom || user?.email}</span>
-            </span>
-            <button
-                onClick={handleSignOut}
-                className="flex items-center p-2 bg-gray-700 bg-opacity-50 rounded-full hover:bg-red-500/50 transition-colors"
-                title="Déconnexion"
-            >
-                <LogOut className="w-5 h-5 text-white" />
-            </button>
+      {/* ===== HEADER AVEC LE NOUVEAU STYLE ET TOUTES LES FONCTIONNALITÉS ===== */}
+      <header className="bg-gray-900/30 backdrop-blur-lg sticky top-0 z-40 border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-3">
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => onNavigate('dashboard')}>
+              <img src="/leandeck-symbol.png" alt="KaizenFlow Logo" className="w-9 h-9" />
+              <h1 className="text-xl font-bold tracking-wider">KaizenFlow</h1>
+            </div>
+            <div className="relative">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="flex items-center space-x-2 p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
+                  {signedAvatarUrl ? (
+                    <img src={signedAvatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xs font-medium text-gray-200">
+                      {currentUser?.nom?.split(' ').map(n => n.charAt(0)).join('') || '?'}
+                    </span>
+                  )}
+                </div>
+                <span className="text-sm font-medium hidden sm:block">{currentUser?.nom}</span>
+                <ChevronDown className={`w-4 h-4 text-gray-300 transition-transform ${isMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {isMenuOpen && (
+                <div 
+                  className="absolute right-0 mt-2 w-56 bg-gray-800/80 backdrop-blur-xl border border-white/10 rounded-lg shadow-2xl py-2 z-50 animate-fade-in-down"
+                  onMouseLeave={() => setIsMenuOpen(false)}
+                >
+                  <button
+                    onClick={() => { onNavigate('profile'); setIsMenuOpen(false); }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 flex items-center transition-colors"
+                  >
+                    <Settings className="w-4 h-4 mr-3" />
+                    Profil
+                  </button>
+                  {isAdmin && (
+                    <button
+                      onClick={() => { onNavigate('admin'); setIsMenuOpen(false); }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 flex items-center transition-colors"
+                    >
+                      <Shield className="w-4 h-4 mr-3" />
+                      Administration
+                    </button>
+                  )}
+                  <div className="my-1 h-px bg-white/10"></div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/20 flex items-center transition-colors"
+                  >
+                    <LogOut className="w-4 h-4 mr-3" />
+                    Déconnexion
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </header>
 
-      {/* ===== CORPS DU DASHBOARD STYLISÉ ===== */}
-      <main className="p-8">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold">Vos Kaizen</h2>
+      {/* ===== CORPS DU DASHBOARD AVEC LE NOUVEAU STYLE ===== */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-1">Tableau de Bord</h1>
+            <p className="text-gray-300">Gérez vos projets d'amélioration continue</p>
+          </div>
           <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500 transition-all transform hover:scale-105"
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-5 py-2.5 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
           >
-            <Plus className="w-5 h-5 mr-2" />
-            Nouveau Kaizen
+            <Plus className="w-5 h-5" />
+            <span>Nouveau Kaizen</span>
           </button>
         </div>
 
-        {loading ? (
-          <p className="text-center text-gray-300">Chargement de vos projets Kaizen...</p>
-        ) : kaizenProjects.length === 0 ? (
-          <div className="text-center py-16 bg-gray-800 bg-opacity-40 rounded-lg">
-            <Folder className="w-12 h-12 mx-auto text-gray-500" />
-            <h3 className="text-xl font-semibold mt-4">Aucun projet Kaizen pour le moment.</h3>
-            <p className="text-gray-400 mt-2">Cliquez sur "Nouveau Kaizen" pour commencer votre premier projet.</p>
+        {/* ===== GRILLE DES 4 COLONNES AVEC NOUVEAU STYLE ===== */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+          
+          {/* Mes Kaizens */}
+          <div className="bg-gray-900/40 backdrop-blur-md rounded-xl shadow-lg border border-white/10">
+            <div className="p-5 border-b border-white/10">
+              <h2 className="text-lg font-semibold flex items-center">
+                <FolderOpen className="w-5 h-5 mr-3 text-blue-400" />
+                Mes Kaizens
+              </h2>
+              <p className="text-gray-400 text-sm mt-1">Projets que vous pilotez</p>
+            </div>
+            <div className="p-5 space-y-4">
+              {loading ? (
+                 <div className="text-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto"></div></div>
+              ) : myProjects.length === 0 ? (
+                <div className="text-center py-8 text-gray-400"><FolderOpen className="w-12 h-12 mx-auto mb-2" /><p>Aucun projet Kaizen en cours.</p></div>
+              ) : (
+                myProjects.map((project) => (
+                  <div key={project.id} onClick={() => onNavigate('project', project.id)}
+                    className="p-4 bg-white/5 rounded-lg hover:bg-white/10 cursor-pointer transition-all border border-transparent hover:border-blue-500/50"
+                  >
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-medium text-white pr-2">{project.titre}</h3>
+                      <span className={`px-2 py-0.5 text-xs font-semibold rounded-full whitespace-nowrap ${project.statut === 'En cours' ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300'}`}>
+                        {project.statut}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-400 mt-1">{project.kaizen_number}</p>
+                    <div className="flex items-center justify-between mt-4">
+                        <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${getPdcaStepColor(project.pdca_step)}`}>
+                            {project.pdca_step}
+                        </span>
+                        <span className="text-xs text-gray-500">{new Date(project.created_at).toLocaleDateString('fr-FR')}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {kaizenProjects.map((kaizen) => (
-              <div
-                key={kaizen.id}
-                className="bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-xl shadow-lg p-6 flex flex-col justify-between cursor-pointer group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
-                onClick={() => onNavigate('kaizen', { kaizenId: kaizen.id })}
-              >
-                <div>
-                  <h3 className="text-xl font-bold text-white truncate">{kaizen.nom}</h3>
-                  <p className="text-gray-300 text-sm line-clamp-2 mt-2 h-10">
-                    {kaizen.description || "Aucune description pour ce projet."}
-                  </p>
-                </div>
-                <div className="mt-6 flex justify-end items-center">
-                   <div className="flex items-center text-sm text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Ouvrir le Kaizen
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </main>
 
-      {/* Le nom de la prop onProjectCreated correspond à l'ancien code */}
-      <CreateProjectModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onProjectCreated={handleKaizenCreated}
-      />
+          {/* Les Kaizens où j'interviens */}
+          <div className="bg-gray-900/40 backdrop-blur-md rounded-xl shadow-lg border border-white/10">
+            <div className="p-5 border-b border-white/10"><h2 className="text-lg font-semibold flex items-center"><Users className="w-5 h-5 mr-3 text-green-400" />Les Kaizens où j'interviens</h2><p className="text-gray-400 text-sm mt-1">Projets où vous contribuez</p></div>
+            <div className="p-5"><div className="text-center py-8 text-gray-400"><Users className="w-12 h-12 mx-auto mb-2" /><p>Aucune contribution active.</p></div></div>
+          </div>
+
+          {/* Actions qui me sont assignées */}
+          <div className="bg-gray-900/40 backdrop-blur-md rounded-xl shadow-lg border border-white/10">
+            <div className="p-5 border-b border-white/10"><h2 className="text-lg font-semibold flex items-center"><Calendar className="w-5 h-5 mr-3 text-orange-400" />Actions qui me sont assignées</h2><p className="text-gray-400 text-sm mt-1">Tâches à réaliser</p></div>
+            <div className="p-5"><div className="text-center py-8 text-gray-400"><Calendar className="w-12 h-12 mx-auto mb-2" /><p>Aucune action assignée.</p></div></div>
+          </div>
+          
+          {/* Actions que j'ai créées */}
+          <div className="bg-gray-900/40 backdrop-blur-md rounded-xl shadow-lg border border-white/10">
+            <div className="p-5 border-b border-white/10"><h2 className="text-lg font-semibold flex items-center"><Plus className="w-5 h-5 mr-3 text-purple-400" />Actions que j'ai créées</h2><p className="text-gray-400 text-sm mt-1">Actions initiées par vous</p></div>
+            <div className="p-5"><div className="text-center py-8 text-gray-400"><Plus className="w-12 h-12 mx-auto mb-2" /><p>Aucune action créée.</p></div></div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* La modale est conservée telle quelle */}
+      {showCreateModal && (
+        <CreateProjectModal
+          onClose={() => setShowCreateModal(false)}
+          onNavigate={onNavigate}
+        />
+      )}
     </div>
   );
 };
