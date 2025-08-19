@@ -245,6 +245,11 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
             </div>
           </div>
         </div>
+      )}
+    </div>
+  );
+};
+        </div>
 
         {/* Zone de contenu avec dégradé subtle */}
         <div className="flex-1 overflow-hidden bg-gradient-to-br from-white via-slate-50 to-blue-50">
