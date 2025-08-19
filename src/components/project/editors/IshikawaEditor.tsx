@@ -276,7 +276,7 @@ export const IshikawaEditor: React.FC<{ module: A3Module; onClose: () => void }>
                 <GitBranch className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Diagramme d'Ishikawa (4M)</h1>
+                <h1 className="text-2xl font-bold text-white">Diagramme d'Ishikawa</h1>
                 <p className="text-white/80 text-sm">Analyse des causes et effets</p>
               </div>
             </div>
@@ -423,13 +423,7 @@ export const IshikawaEditor: React.FC<{ module: A3Module; onClose: () => void }>
 
               {/* Actions */}
               <div className="flex flex-col space-y-2">
-                <button
-                  onClick={exportDiagram}
-                  className="flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm font-medium"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Exporter</span>
-                </button>
+                {/* Bouton export supprimé */}
               </div>
             </div>
           </div>
@@ -457,7 +451,205 @@ export const IshikawaEditor: React.FC<{ module: A3Module; onClose: () => void }>
                 </div>
 
                 {/* Grille des branches */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-6">
+                  {/* Aperçu du diagramme */}
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6">
+                    <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                      <GitBranch className="w-5 h-5 mr-2" style={{ color: '#EF4444' }} />
+                      Aperçu du diagramme
+                    </h3>
+                    
+                    {/* Diagramme SVG simplifié */}
+                    <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl p-6 border border-gray-200">
+                      <svg className="w-full h-64" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet">
+                        {/* Arête centrale (épine dorsale) */}
+                        <line x1="50" y1="150" x2="800" y2="150" stroke="#374151" strokeWidth="4" />
+                        
+                        {/* Flèche vers le problème */}
+                        <polygon points="800,150 780,140 780,160" fill="#EF4444" />
+                        
+                        {/* Boîte du problème */}
+                        <rect x="810" y="120" width="160" height="60" rx="8" fill="#EF4444" stroke="#DC2626" strokeWidth="2" />
+                        <text x="890" y="145" textAnchor="middle" className="fill-white text-sm font-medium">
+                          {selectedDiagram.problem ? 'PROBLÈME' : 'EFFET'}
+                        </text>
+                        <text x="890" y="165" textAnchor="middle" className="fill-white text-xs">
+                          {selectedDiagram.problem ? selectedDiagram.problem.substring(0, 15) + (selectedDiagram.problem.length > 15 ? '...' : '') : 'À définir'}
+                        </text>
+                        
+                        {/* Branches supérieures */}
+                        {selectedDiagram.branches.slice(0, Math.ceil(selectedDiagram.branches.length / 2)).map((branch, index) => {
+                          const x = 150 + (index * 140);
+                          const mainCauses = branch.causes.filter(c => c.level === 0);
+                          
+                          return (
+                            <g key={`top-${branch.id}`}>
+                              {/* Ligne de branche principale */}
+                              <line 
+                                x1={x} 
+                                y1="150" 
+                                x2={x - 60} 
+                                y2="80" 
+                                stroke={branch.color} 
+                                strokeWidth="3" 
+                              />
+                              
+                              {/* Label de la branche */}
+                              <rect 
+                                x={x - 80} 
+                                y="60" 
+                                width="90" 
+                                height="30" 
+                                rx="6" 
+                                fill={branch.color} 
+                              />
+                              <text 
+                                x={x - 35} 
+                                y="78" 
+                                textAnchor="middle" 
+                                className="fill-white text-xs font-medium"
+                              >
+                                {branch.name}
+                              </text>
+                              
+                              {/* Petites lignes pour les causes */}
+                              {mainCauses.slice(0, 3).map((_, causeIndex) => (
+                                <line
+                                  key={causeIndex}
+                                  x1={x - 20 - (causeIndex * 15)}
+                                  y1="120 - (causeIndex * 10)"
+                                  x2={x - 35 - (causeIndex * 15)}
+                                  y2="105 - (causeIndex * 10)"
+                                  stroke={branch.color}
+                                  strokeWidth="1"
+                                  opacity="0.7"
+                                />
+                              ))}
+                              
+                              {/* Indicateur nombre de causes */}
+                              {mainCauses.length > 0 && (
+                                <circle
+                                  cx={x - 35}
+                                  cy="95"
+                                  r="8"
+                                  fill="white"
+                                  stroke={branch.color}
+                                  strokeWidth="2"
+                                />
+                              )}
+                              {mainCauses.length > 0 && (
+                                <text
+                                  x={x - 35}
+                                  y="99"
+                                  textAnchor="middle"
+                                  className="text-xs font-bold"
+                                  fill={branch.color}
+                                >
+                                  {mainCauses.length}
+                                </text>
+                              )}
+                            </g>
+                          );
+                        })}
+                        
+                        {/* Branches inférieures */}
+                        {selectedDiagram.branches.slice(Math.ceil(selectedDiagram.branches.length / 2)).map((branch, index) => {
+                          const x = 150 + (index * 140);
+                          const mainCauses = branch.causes.filter(c => c.level === 0);
+                          
+                          return (
+                            <g key={`bottom-${branch.id}`}>
+                              {/* Ligne de branche principale */}
+                              <line 
+                                x1={x} 
+                                y1="150" 
+                                x2={x - 60} 
+                                y2="220" 
+                                stroke={branch.color} 
+                                strokeWidth="3" 
+                              />
+                              
+                              {/* Label de la branche */}
+                              <rect 
+                                x={x - 80} 
+                                y="230" 
+                                width="90" 
+                                height="30" 
+                                rx="6" 
+                                fill={branch.color} 
+                              />
+                              <text 
+                                x={x - 35} 
+                                y="248" 
+                                textAnchor="middle" 
+                                className="fill-white text-xs font-medium"
+                              >
+                                {branch.name}
+                              </text>
+                              
+                              {/* Petites lignes pour les causes */}
+                              {mainCauses.slice(0, 3).map((_, causeIndex) => (
+                                <line
+                                  key={causeIndex}
+                                  x1={x - 20 - (causeIndex * 15)}
+                                  y1="180 + (causeIndex * 10)"
+                                  x2={x - 35 - (causeIndex * 15)}
+                                  y2="195 + (causeIndex * 10)"
+                                  stroke={branch.color}
+                                  strokeWidth="1"
+                                  opacity="0.7"
+                                />
+                              ))}
+                              
+                              {/* Indicateur nombre de causes */}
+                              {mainCauses.length > 0 && (
+                                <circle
+                                  cx={x - 35}
+                                  cy="205"
+                                  r="8"
+                                  fill="white"
+                                  stroke={branch.color}
+                                  strokeWidth="2"
+                                />
+                              )}
+                              {mainCauses.length > 0 && (
+                                <text
+                                  x={x - 35}
+                                  y="209"
+                                  textAnchor="middle"
+                                  className="text-xs font-bold"
+                                  fill={branch.color}
+                                >
+                                  {mainCauses.length}
+                                </text>
+                              )}
+                            </g>
+                          );
+                        })}
+                      </svg>
+                      
+                      {/* Légende */}
+                      <div className="mt-4 flex flex-wrap gap-3 justify-center">
+                        {selectedDiagram.branches.map(branch => {
+                          const mainCauses = branch.causes.filter(c => c.level === 0);
+                          return (
+                            <div key={branch.id} className="flex items-center space-x-2 bg-white/80 px-3 py-1 rounded-lg">
+                              <div 
+                                className="w-3 h-3 rounded-full"
+                                style={{ backgroundColor: branch.color }}
+                              />
+                              <span className="text-sm font-medium text-gray-700">
+                                {branch.name} ({mainCauses.length})
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Grille des cartes de branches */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {selectedDiagram.branches.map(branch => (
                     <BranchCard
                       key={branch.id}
@@ -469,6 +661,7 @@ export const IshikawaEditor: React.FC<{ module: A3Module; onClose: () => void }>
                       setEditingCause={setEditingCause}
                     />
                   ))}
+                  </div>
                 </div>
               </div>
             ) : (
@@ -607,6 +800,15 @@ export const IshikawaEditor: React.FC<{ module: A3Module; onClose: () => void }>
                     </div>
                   </div>
                 </div>
+              </div>
+              
+              <div className="p-4 border-t bg-gray-50">
+                <button
+                  onClick={() => setShowHelp(false)}
+                  className="w-full px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg hover:from-red-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium"
+                >
+                  Compris
+                </button>
               </div>
             </div>
           </div>
