@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useDatabase } from '../contexts/DatabaseContext';
 import { 
   Plus, FolderOpen, Users, Calendar, Settings, LogOut, Shield, 
-  ChevronDown, TrendingUp, Activity, Target, Clock, Search, Filter, Bell
+  ChevronDown, TrendingUp, Activity, Target, Clock, Filter, Bell
 } from 'lucide-react';
 import { CreateProjectModal } from './CreateProjectModal';
 
@@ -28,16 +28,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const { currentUser, signedAvatarUrl, signOut, isAdmin } = useAuth();
   const { projects, loading } = useDatabase();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
 
   const myProjects = projects.filter(p => p.pilote === currentUser?.id);
   const contributingProjects = projects.filter(p => p.pilote !== currentUser?.id && false);
-
-  // Filtrage avec la barre de recherche du haut
-  const filteredProjects = myProjects.filter(project =>
-    project.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.kaizen_number.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const handleLogout = () => {
     signOut();
@@ -92,54 +85,32 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 >
                   <div className="w-10 h-10 bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
                     {signedAvatarUrl ? (
-                      <img 
-                        src={signedAvatarUrl} 
-                        alt="Avatar" 
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={signedAvatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-gray-600 font-semibold text-sm">
-                        {currentUser?.user_metadata?.nom?.[0] || currentUser?.email?.[0] || '?'}
-                      </span>
+                      <div className="text-gray-600 font-semibold text-sm">
+                        {currentUser?.email?.charAt(0).toUpperCase()}
+                      </div>
                     )}
                   </div>
-                  <div className="hidden md:block text-left">
-                    <p className="text-sm font-semibold text-gray-900">
-                      {currentUser?.user_metadata?.nom || currentUser?.email?.split('@')[0] || 'Utilisateur'}
-                    </p>
-                    <p className="text-xs text-gray-500">{currentUser?.email}</p>
-                  </div>
-                  <ChevronDown className="w-4 h-4 text-gray-500 group-hover:text-gray-700 transition-colors" />
+                  <ChevronDown className="w-4 h-4 text-gray-500 group-hover:text-gray-700 transition-transform" />
                 </button>
 
-                {/* Dropdown menu */}
+                {/* Menu déroulant */}
                 {isMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/60 py-2 z-50">
-                    <button
-                      onClick={() => {
-                        onNavigate('profile');
-                        setIsMenuOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100/70 flex items-center transition-colors"
-                    >
-                      <Settings className="w-4 h-4 mr-3" />
-                      Paramètres du profil
-                    </button>
+                  <div className="absolute right-0 mt-2 w-56 bg-white/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200/60 py-2 z-50">
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900 truncate">{currentUser?.email}</p>
+                    </div>
                     
                     {isAdmin && (
                       <button
-                        onClick={() => {
-                          onNavigate('admin');
-                          setIsMenuOpen(false);
-                        }}
-                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100/70 flex items-center transition-colors"
+                        onClick={() => onNavigate('admin')}
+                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50/70 flex items-center transition-colors"
                       >
                         <Shield className="w-4 h-4 mr-3" />
                         Administration
                       </button>
                     )}
-
-                    <hr className="my-2 border-gray-200/60" />
                     
                     <button
                       onClick={handleLogout}
@@ -157,25 +128,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        {/* En-tête de la page avec barre de recherche */}
-        <div className="mb-8 flex justify-between items-start">
+        {/* En-tête de la page */}
+        <div className="mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Tableau de Bord</h1>
             <p className="text-gray-600 font-medium">Gérez vos projets d'amélioration continue</p>
-          </div>
-          
-          {/* Barre de recherche alignée */}
-          <div className="relative w-80">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 h-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder="Rechercher un élément..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white/80 backdrop-blur-sm placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-gray-300 focus:border-gray-400 transition-all duration-300 shadow-sm"
-            />
           </div>
         </div>
         
@@ -222,22 +179,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* Barre de recherche */}
-        <div className="mb-6">
-          <div className="relative max-w-md mx-auto">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder="Rechercher un kaizen..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white/80 backdrop-blur-sm placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-gray-300 focus:border-gray-400 transition-all duration-300 shadow-sm"
-            />
-          </div>
-        </div>
-
         {/* Layout 4 colonnes avec compteurs ajoutés */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
           
@@ -252,7 +193,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   Mes Kaizens
                 </div>
                 <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                  {filteredProjects.length}
+                  {myProjects.length}
                 </span>
               </h2>
               <p className="text-gray-400 text-sm mt-1">Projets que vous pilotez</p>
@@ -262,32 +203,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 <div className="flex items-center justify-center py-8">
                   <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin"></div>
                 </div>
-              ) : filteredProjects.length === 0 ? (
-                searchTerm ? (
-                  <div className="text-center py-8 text-gray-400">
-                    <Search className="w-12 h-12 mx-auto mb-2" />
-                    <p>Aucun kaizen trouvé pour "{searchTerm}"</p>
-                    <button
-                      onClick={() => setSearchTerm('')}
-                      className="mt-2 text-blue-600 hover:text-blue-800 font-semibold text-sm"
-                    >
-                      Effacer la recherche
-                    </button>
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-400">
-                    <FolderOpen className="w-12 h-12 mx-auto mb-2" />
-                    <p>Aucun projet en cours.</p>
-                    <button
-                      onClick={() => setShowCreateModal(true)}
-                      className="mt-4 text-blue-600 hover:text-blue-800 font-semibold text-sm"
-                    >
-                      Créer votre premier Kaizen
-                    </button>
-                  </div>
-                )
+              ) : myProjects.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">
+                  <FolderOpen className="w-12 h-12 mx-auto mb-2" />
+                  <p>Aucun projet en cours.</p>
+                  <button
+                    onClick={() => setShowCreateModal(true)}
+                    className="mt-4 text-blue-600 hover:text-blue-800 font-semibold text-sm"
+                  >
+                    Créer votre premier Kaizen
+                  </button>
+                </div>
               ) : (
-                filteredProjects.sort((a, b) => {
+                myProjects.sort((a, b) => {
                   if (a.statut === 'En cours' && b.statut === 'Terminé') return -1;
                   if (a.statut === 'Terminé' && b.statut === 'En cours') return 1;
                   return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -302,7 +230,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                         {project.titre}
                       </h3>
                       <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ml-2 flex-shrink-0 ${
-                        project.statut === 'Terminé' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                        project.statut === 'Terminé' ? 
+                        'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
                       }`}>
                         {project.statut}
                       </span>
@@ -336,15 +265,44 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               </h2>
               <p className="text-gray-400 text-sm mt-1">Projets où vous contribuez</p>
             </div>
-            <div className="p-5 overflow-y-auto">
-              <div className="text-center py-8 text-gray-400">
-                <Users className="w-12 h-12 mx-auto mb-2" />
-                <p>Aucune contribution.</p>
-              </div>
+            <div className="p-5 space-y-4 overflow-y-auto">
+              {contributingProjects.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">
+                  <Users className="w-12 h-12 mx-auto mb-2" />
+                  <p>Aucune contribution active.</p>
+                </div>
+              ) : (
+                contributingProjects.map((project) => (
+                  <div
+                    key={project.id}
+                    onClick={() => onNavigate('project', project.id)}
+                    className="bg-white rounded-xl p-4 border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-start justify-between">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2">
+                        {project.titre}
+                      </h3>
+                      <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ml-2 flex-shrink-0 ${
+                        project.statut === 'Terminé' ? 
+                        'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                      }`}>
+                        {project.statut}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-400 mt-1">{project.kaizen_number}</p>
+                    <div className="flex items-center justify-between mt-4">
+                        <span className={`px-4 py-2 text-xs font-semibold rounded-lg shadow-sm ${getPdcaStepColor(project.pdca_step)}`}>
+                            {project.pdca_step}
+                        </span>
+                        <span className="text-xs text-gray-500">{new Date(project.created_at).toLocaleDateString('fr-FR')}</span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
-          {/* Mes actions avec compteur */}
+          {/* Prochaines échéances avec compteur */}
           <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
             <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
               <h2 className="text-lg font-semibold flex items-center justify-between">
@@ -352,56 +310,54 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
                     <Calendar className="w-4 h-4 text-gray-600" />
                   </div>
-                  Mes actions
+                  Échéances
                 </div>
                 <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
                   0
                 </span>
               </h2>
-              <p className="text-gray-400 text-sm mt-1">Tâches qui vous sont assignées</p>
+              <p className="text-gray-400 text-sm mt-1">Prochaines dates importantes</p>
             </div>
-            <div className="p-5 overflow-y-auto">
+            <div className="p-5 space-y-4 overflow-y-auto">
               <div className="text-center py-8 text-gray-400">
                 <Calendar className="w-12 h-12 mx-auto mb-2" />
-                <p>Aucune action assignée.</p>
+                <p>Aucune échéance proche.</p>
               </div>
             </div>
           </div>
 
-          {/* Notifications avec compteur */}
+          {/* Activité récente avec compteur */}
           <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
             <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
               <h2 className="text-lg font-semibold flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-                    <Bell className="w-4 h-4 text-gray-600" />
+                    <Activity className="w-4 h-4 text-gray-600" />
                   </div>
-                  Notifications
+                  Activité récente
                 </div>
                 <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
                   0
                 </span>
               </h2>
-              <p className="text-gray-400 text-sm mt-1">Alertes et mises à jour</p>
+              <p className="text-gray-400 text-sm mt-1">Dernières modifications</p>
             </div>
-            <div className="p-5 overflow-y-auto">
+            <div className="p-5 space-y-4 overflow-y-auto">
               <div className="text-center py-8 text-gray-400">
-                <Bell className="w-12 h-12 mx-auto mb-2" />
-                <p>Aucune notification.</p>
+                <Activity className="w-12 h-12 mx-auto mb-2" />
+                <p>Aucune activité récente.</p>
               </div>
             </div>
           </div>
-
         </div>
       </div>
 
-      {/* Modal de création de projet */}
-      {showCreateModal && (
-        <CreateProjectModal
-          onClose={() => setShowCreateModal(false)}
-          onNavigate={onNavigate}
-        />
-      )}
+      {/* Modale de création de projet */}
+      <CreateProjectModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onNavigate={onNavigate}
+      />
     </div>
   );
 };
