@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useDatabase } from '../contexts/DatabaseContext';
 import { 
   Plus, FolderOpen, Users, Calendar, Settings, LogOut, Shield, 
-  ChevronDown, TrendingUp, Activity, Target, Clock, Search, Filter, Bell
+  ChevronDown, TrendingUp, Activity, Target, Clock, Search, Filter, Bell, Eye
 } from 'lucide-react';
 import { CreateProjectModal } from './CreateProjectModal';
 
@@ -55,18 +55,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
       {/* Éléments décoratifs de fond */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full opacity-30 blur-3xl"></div>
-        <div className="absolute top-1/3 -left-40 w-80 h-80 bg-gradient-to-br from-green-50 to-blue-50 rounded-full opacity-30 blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full opacity-30 blur-3xl"></div>
+        <div className="absolute top-1/3 -left-40 w-80 h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full opacity-30 blur-3xl"></div>
       </div>
 
-      {/* Header moderne */}
-      <header className="bg-white/80 backdrop-blur-xl sticky top-0 z-40 border-b border-gray-200/50 shadow-sm">
+      {/* Header moderne avec glassmorphism */}
+      <header className="bg-white/70 backdrop-blur-xl sticky top-0 z-40 border-b border-gray-200/50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             {/* Logo et titre */}
             <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => onNavigate('dashboard')}>
               <div className="w-10 h-10 bg-gradient-to-br from-gray-800 to-gray-600 rounded-xl shadow-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-                <img src="/leandeck-symbol.png" alt="Leandeck Logo" className="w-6 h-6 filter brightness-0 invert" />
+                <img src="/Gemini_Generated_Image_6kdy0q6kdy0q6kdy.png" alt="Leandeck Logo" className="w-6 h-6 object-contain filter brightness-0 invert" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 tracking-tight">Leandeck</h1>
@@ -76,7 +76,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             
             <div className="flex items-center gap-x-4">
               {/* Bouton de notification */}
-              <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all">
+              <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100/70 rounded-xl transition-all backdrop-blur-sm">
                 <Bell className="w-5 h-5" />
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></div>
               </button>
@@ -84,7 +84,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               {/* Bouton nouveau kaizen */}
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-gray-800 to-gray-700 text-white px-6 py-3 rounded-xl hover:from-gray-900 hover:to-gray-800 transition-all transform hover:scale-[0.98] shadow-lg hover:shadow-xl font-semibold"
+                className="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-gray-800 to-gray-700 text-white px-6 py-3 rounded-xl hover:from-gray-900 hover:to-gray-800 transition-all transform hover:scale-[0.98] shadow-lg hover:shadow-xl font-semibold backdrop-blur-sm"
               >
                 <Plus className="w-5 h-5" />
                 <span>Nouveau Kaizen</span>
@@ -94,7 +94,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               <div className="relative">
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="flex items-center space-x-3 p-2 rounded-xl hover:bg-gray-100 transition-all group"
+                  className="flex items-center space-x-3 p-2 rounded-xl hover:bg-gray-100/70 transition-all group backdrop-blur-sm"
                 >
                   <div className="w-10 h-10 bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
                     {signedAvatarUrl ? (
@@ -123,7 +123,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     </div>
                     <button
                       onClick={() => { onNavigate('profile'); setIsMenuOpen(false); }}
-                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center transition-colors"
+                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50/70 flex items-center transition-colors"
                     >
                       <Settings className="w-4 h-4 mr-3" />
                       Profil et paramètres
@@ -131,7 +131,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     {isAdmin && (
                       <button
                         onClick={() => { onNavigate('admin'); setIsMenuOpen(false); }}
-                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center transition-colors"
+                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50/70 flex items-center transition-colors"
                       >
                         <Shield className="w-4 h-4 mr-3" />
                         Administration
@@ -140,7 +140,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     <div className="my-1 h-px bg-gray-100"></div>
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 flex items-center transition-colors"
+                      className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50/70 flex items-center transition-colors"
                     >
                       <LogOut className="w-4 h-4 mr-3" />
                       Déconnexion
@@ -168,7 +168,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 <p className="text-sm font-medium text-gray-600">Total Projets</p>
                 <p className="text-3xl font-bold text-gray-900">{stats.totalProjects}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Target className="w-6 h-6 text-blue-600" />
               </div>
             </div>
@@ -180,7 +180,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 <p className="text-sm font-medium text-gray-600">En cours</p>
                 <p className="text-3xl font-bold text-gray-900">{stats.inProgress}</p>
               </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Activity className="w-6 h-6 text-orange-600" />
               </div>
             </div>
@@ -192,7 +192,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 <p className="text-sm font-medium text-gray-600">Terminés</p>
                 <p className="text-3xl font-bold text-gray-900">{stats.completed}</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <TrendingUp className="w-6 h-6 text-green-600" />
               </div>
             </div>
@@ -204,21 +204,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 <p className="text-sm font-medium text-gray-600">Économies</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.totalSavings.toLocaleString('fr-FR')} €</p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <TrendingUp className="w-6 h-6 text-purple-600" />
               </div>
             </div>
           </div>
         </div>
 
+        {/* Layout équilibré : 2 colonnes principales */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Mes Kaizens */}
+          {/* Mes Kaizens - Prend 2 colonnes */}
           <div className="lg:col-span-2">
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 flex flex-col h-[600px]">
-              <div className="p-6 border-b border-gray-100 flex-shrink-0">
+              <div className="p-6 border-b border-gray-100/70 flex-shrink-0">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
                       <FolderOpen className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
@@ -228,7 +229,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   </div>
                   <button
                     onClick={() => setShowCreateModal(true)}
-                    className="sm:hidden w-10 h-10 bg-gray-800 text-white rounded-xl flex items-center justify-center hover:bg-gray-900 transition-colors"
+                    className="sm:hidden w-10 h-10 bg-gradient-to-br from-gray-800 to-gray-700 text-white rounded-xl flex items-center justify-center hover:from-gray-900 hover:to-gray-800 transition-all"
                   >
                     <Plus className="w-5 h-5" />
                   </button>
@@ -242,7 +243,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     placeholder="Rechercher un projet..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300 text-sm"
+                    className="w-full pl-10 pr-4 py-2 bg-gray-50/70 backdrop-blur-sm border border-gray-200/70 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300 text-sm"
                   />
                 </div>
               </div>
@@ -257,7 +258,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   </div>
                 ) : filteredProjects.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
                       <FolderOpen className="w-8 h-8 text-gray-400" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -269,7 +270,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     {!searchTerm && (
                       <button
                         onClick={() => setShowCreateModal(true)}
-                        className="bg-gray-800 text-white px-6 py-3 rounded-xl hover:bg-gray-900 transition-colors font-semibold"
+                        className="bg-gradient-to-br from-gray-800 to-gray-700 text-white px-6 py-3 rounded-xl hover:from-gray-900 hover:to-gray-800 transition-all font-semibold"
                       >
                         Créer un projet
                       </button>
@@ -280,7 +281,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     <div
                       key={project.id}
                       onClick={() => onNavigate('project', project.id)}
-                      className="bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all cursor-pointer group"
+                      className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/70 hover:border-gray-300 hover:shadow-lg transition-all cursor-pointer group hover:bg-white/90"
                     >
                       <div className="flex items-start justify-between mb-3">
                         <h3 className="font-semibold text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-1">
@@ -309,76 +310,81 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          {/* Sidebar avec autres sections */}
+          {/* Sidebar - 1 colonne avec sections empilées */}
           <div className="space-y-6">
-            {/* Où j'interviens */}
+            {/* Actions récentes */}
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50">
-              <div className="p-6 border-b border-gray-100">
+              <div className="p-6 border-b border-gray-100/70">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                    <Users className="w-5 h-5 text-green-600" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-green-600" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-gray-900">Où j'interviens</h2>
-                    <p className="text-sm text-gray-600">Projets où vous contribuez</p>
+                    <h2 className="text-lg font-bold text-gray-900">Actions récentes</h2>
+                    <p className="text-sm text-gray-600">Dernières activités</p>
                   </div>
                 </div>
               </div>
               <div className="p-6">
                 <div className="text-center py-8">
-                  <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <Activity className="w-6 h-6 text-gray-400" />
+                  </div>
+                  <p className="text-gray-600 font-medium">Aucune activité récente</p>
+                  <p className="text-sm text-gray-500 mt-1">Vos dernières actions apparaîtront ici</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Équipe */}
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50">
+              <div className="p-6 border-b border-gray-100/70">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center">
+                    <Users className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-900">Équipe</h2>
+                    <p className="text-sm text-gray-600">Collaborateurs actifs</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6">
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center mx-auto mb-3">
                     <Users className="w-6 h-6 text-gray-400" />
                   </div>
-                  <p className="text-gray-600 font-medium">Aucune contribution</p>
-                  <p className="text-sm text-gray-500 mt-1">Vous ne participez à aucun autre projet</p>
+                  <p className="text-gray-600 font-medium">Équipe en formation</p>
+                  <p className="text-sm text-gray-500 mt-1">Invitez des collaborateurs</p>
                 </div>
               </div>
             </div>
 
-            {/* Mes actions */}
+            {/* Aperçu performance */}
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50">
-              <div className="p-6 border-b border-gray-100">
+              <div className="p-6 border-b border-gray-100/70">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-                    <Calendar className="w-5 h-5 text-orange-600" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center">
+                    <Eye className="w-5 h-5 text-orange-600" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-gray-900">Mes actions</h2>
-                    <p className="text-sm text-gray-600">Tâches qui vous sont assignées</p>
+                    <h2 className="text-lg font-bold text-gray-900">Performance</h2>
+                    <p className="text-sm text-gray-600">Vue d'ensemble</p>
                   </div>
                 </div>
               </div>
-              <div className="p-6">
-                <div className="text-center py-8">
-                  <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                    <Calendar className="w-6 h-6 text-gray-400" />
-                  </div>
-                  <p className="text-gray-600 font-medium">Aucune action assignée</p>
-                  <p className="text-sm text-gray-500 mt-1">Toutes vos tâches sont à jour</p>
+              <div className="p-6 space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Taux de réussite</span>
+                  <span className="text-sm font-bold text-gray-900">
+                    {myProjects.length > 0 ? Math.round((stats.completed / myProjects.length) * 100) : 0}%
+                  </span>
                 </div>
-              </div>
-            </div>
-
-            {/* Actions créées */}
-            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50">
-              <div className="p-6 border-b border-gray-100">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <Plus className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-900">Actions créées</h2>
-                    <p className="text-sm text-gray-600">Actions initiées par vous</p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="text-center py-8">
-                  <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                    <Plus className="w-6 h-6 text-gray-400" />
-                  </div>
-                  <p className="text-gray-600 font-medium">Aucune action créée</p>
-                  <p className="text-sm text-gray-500 mt-1">Commencez par créer un projet</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">ROI moyen</span>
+                  <span className="text-sm font-bold text-green-600">
+                    {myProjects.length > 0 ? Math.round(stats.totalSavings / myProjects.length).toLocaleString('fr-FR') : 0} €
+                  </span>
                 </div>
               </div>
             </div>
