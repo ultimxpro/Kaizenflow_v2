@@ -1,6 +1,6 @@
 // src/components/project/ModuleSelectionModal.tsx
 import React from 'react';
-import { X, HelpCircle, MessageSquareQuote as MessageSquareQuestion, Image, GitBranch, BookOpen, CheckSquare, Workflow, Monitor, PenTool, Activity, FileText } from 'lucide-react';
+import { X, HelpCircle, MessageSquare, Image, GitBranch, BookOpen, CheckSquare, Workflow, Monitor, PenTool, Activity, FileText } from 'lucide-react';
 
 interface ModuleSelectionModalProps {
   quadrant: string;
@@ -12,7 +12,7 @@ interface ModuleSelectionModalProps {
 const toolsConfig = {
   '5Pourquoi': {
     name: '5 Pourquoi',
-    icon: <MessageSquareQuestion className="w-6 h-6" />,
+    icon: <MessageSquare className="w-6 h-6" />,
     description: 'Analyse des causes racines',
     gradient: 'bg-gradient-to-br from-purple-500 to-purple-600',
     lightBg: 'from-purple-50 to-purple-100'
