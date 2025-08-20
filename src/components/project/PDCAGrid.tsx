@@ -18,7 +18,6 @@ const quadrants = [
     id: 'PLAN', 
     title: 'PLAN', 
     subtitle: 'Description du phénomène',
-    icon: <Target className="w-6 h-6" />,
     bgGradient: 'bg-gradient-to-br from-white via-blue-50/30 to-blue-100/50',
     borderColor: 'border-blue-200/60',
     headerGradient: 'bg-gradient-to-r from-blue-500/90 to-blue-600/90',
@@ -29,7 +28,6 @@ const quadrants = [
     id: 'DO', 
     title: 'DO', 
     subtitle: 'Description de la solution',
-    icon: <Play className="w-6 h-6" />,
     bgGradient: 'bg-gradient-to-br from-white via-green-50/30 to-green-100/50',
     borderColor: 'border-green-200/60',
     headerGradient: 'bg-gradient-to-r from-green-500/90 to-green-600/90',
@@ -40,7 +38,6 @@ const quadrants = [
     id: 'CHECK', 
     title: 'CHECK', 
     subtitle: 'Vérification des résultats',
-    icon: <CheckCircle className="w-6 h-6" />,
     bgGradient: 'bg-gradient-to-br from-white via-orange-50/30 to-orange-100/50',
     borderColor: 'border-orange-200/60',
     headerGradient: 'bg-gradient-to-r from-orange-500/90 to-orange-600/90',
@@ -51,7 +48,6 @@ const quadrants = [
     id: 'ACT', 
     title: 'ACT', 
     subtitle: 'Standardisation et expansion',
-    icon: <RefreshCw className="w-6 h-6" />,
     bgGradient: 'bg-gradient-to-br from-white via-purple-50/30 to-purple-100/50',
     borderColor: 'border-purple-200/60',
     headerGradient: 'bg-gradient-to-r from-purple-500/90 to-purple-600/90',
@@ -59,7 +55,7 @@ const quadrants = [
     allowedTools: ['OPL', 'SOP', 'Croquis', 'Iframe']
   }
 ];
-
+"flex items-center space-x-4 relative z-10"
 const uniqueTools = ['5Pourquoi', '4M', 'VSM', '5S', 'PlanActions', 'SOP'];
 
 export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditModule, onMoveModule }) => {
@@ -130,12 +126,15 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
               <div className={`${quadrant.headerGradient} backdrop-blur-xl p-6 rounded-t-2xl border-b border-white/20 flex-shrink-0 relative z-10`}>
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                 <div className="flex items-center space-x-4 relative z-10">
-                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-white/30">
-                    <div className="text-white">
-                      {quadrant.icon}
-                    </div>
-                  </div>
                   <div>
+                    <h3 className="font-bold text-xl text-white tracking-wide group-hover:scale-105 transition-transform duration-300">
+                      {quadrant.title}
+                    </h3>
+                    <p className="text-white/80 text-sm font-medium mt-1">
+                      {quadrant.subtitle}
+                    </p>
+                  </div>
+                </div>
                     <h3 className="font-bold text-xl text-white tracking-wide group-hover:scale-105 transition-transform duration-300">
                       {quadrant.title}
                     </h3>
