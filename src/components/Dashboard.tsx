@@ -164,10 +164,26 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        {/* En-tête de la page */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tableau de Bord</h1>
-          <p className="text-gray-600 font-medium">Gérez vos projets d'amélioration continue</p>
+        {/* En-tête de la page avec barre de recherche */}
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Tableau de Bord</h1>
+            <p className="text-gray-600 font-medium">Gérez vos projets d'amélioration continue</p>
+          </div>
+          
+          {/* Barre de recherche alignée */}
+          <div className="relative w-80">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Rechercher un élément..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white/80 backdrop-blur-sm placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-gray-300 focus:border-gray-400 transition-all duration-300 shadow-sm"
+            />
+          </div>
         </div>
         
         {/* Stats rapides - Version avec couleurs grises élégantes */}
