@@ -249,7 +249,7 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
                 <span className="font-medium">Retour</span>
               </button>
 
-              <div className="flex items-center space-x-4">
+              <div className="border-l border-gray-300 pl-6">
                 {isEditingTitle ? (
                   <div className="flex items-center space-x-2">
                     <input
@@ -280,7 +280,7 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
                 )}
 
                 {isEditingDescription ? (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 mt-1">
                     <input
                       type="text"
                       value={tempDescription}
@@ -298,7 +298,7 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center group">
+                  <div className="flex items-center group mt-1">
                     <span className="text-sm text-gray-600 mr-2">
                       {project.what || 'Cliquez pour ajouter une description...'}
                     </span>
@@ -311,26 +311,43 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
                   </div>
                 )}
               </div>
+            </div>
 
-              {/* Menu projet - VERSION CORRIGÉE */}
-              {canDeleteProject && (
-                <div className="relative ml-4">
+            <div className="flex items-center space-x-4">
+                  {/* Bouton trois points */}
                   <button
                     onClick={(e) => {
                       console.log('🎯 Project menu button clicked!');
                       e.stopPropagation();
                       setShowProjectMenu(!showProjectMenu);
                     }}
-                    className="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition-all"
+                    className="w-10 h-10 rounded-xl bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-all"
                   >
-                    <MoreVertical className="w-5 h-5 text-gray-500" />
+                    <MoreVertical className="w-5 h-5 text-gray-600" />
                   </button>
                   
+                  {/* BOUTON ROUGE DIRECT pour supprimer le projet */}
+                  <button
+                    onClick={(e) => {
+                      console.log('🔥 DIRECT DELETE PROJECT BUTTON CLICKED!');
+                      e.stopPropagation();
+                      if (confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
+                        console.log('🔥 User confirmed project deletion');
+                        setShowDeleteModal(true);
+                      }
+                    }}
+                    className="w-10 h-10 rounded-xl bg-red-500 hover:bg-red-600 flex items-center justify-center transition-all"
+                    title="Supprimer le projet"
+                  >
+                    <Trash2 className="w-5 h-5 text-white" />
+                  </button>
+                  
+                  {/* Menu dropdown SI affiché */}
                   {showProjectMenu && (
                     <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[90]">
                       <button
                         onClick={(e) => {
-                          console.log('🗑️ Delete project button clicked!');
+                          console.log('🗑️ Delete project from menu clicked!');
                           e.stopPropagation();
                           setShowProjectMenu(false);
                           setShowDeleteModal(true);
@@ -338,12 +355,10 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
                         className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
-                        Supprimer le projet
+                        Supprimer depuis menu
                       </button>
                     </div>
                   )}
-                </div>
-              )}
             </div>
           </div>
         </div>
