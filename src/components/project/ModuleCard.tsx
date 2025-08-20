@@ -1,4 +1,4 @@
-// src/components/project/ModuleCard.tsx - VERSION FINALE
+// src/components/project/ModuleCard.tsx
 import React from 'react';
 import { A3Module } from '../../types/database';
 import { 
@@ -85,15 +85,6 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
     if (onMove) onMove(module);
   };
 
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setShowMenu(false);
-    if (onDelete && confirm('Êtes-vous sûr de vouloir supprimer ce module ?')) {
-      onDelete(module.id);
-    }
-  };
-
   return (
     <div className="relative group">
       <div 
@@ -138,7 +129,6 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
                 <Trash2 className="w-4 h-4 text-white" />
               </button>
             )}
-          </div>
             
             {showMenu && (
               <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[60]">
