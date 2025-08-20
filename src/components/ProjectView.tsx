@@ -1,8 +1,8 @@
-// src/components/ProjectView.tsx - CORRECTION DU MENU PROJET
+// src/components/ProjectView.tsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useDatabase } from '../contexts/DatabaseContext';
-import { ArrowLeft, Edit3, Save, X, MoreVertical, Trash2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Edit3, Save, X, Trash2, AlertTriangle } from 'lucide-react';
 import { PDCAGrid } from './project/PDCAGrid';
 import { SidePanel } from './project/SidePanel';
 import { ModuleEditModal } from './project/ModuleEditModal';
@@ -141,7 +141,6 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [tempTitle, setTempTitle] = useState('');
   const [tempDescription, setTempDescription] = useState('');
-  const [showProjectMenu, setShowProjectMenu] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   
   const { currentUser } = useAuth();
@@ -240,125 +239,95 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
       <div className="relative z-30 bg-white/80 backdrop-blur-xl border-b border-gray-200/60 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-6">
-            <div className="flex items-center space-x-6">
-              <button
-                onClick={() => onNavigate('dashboard')}
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-all group"
-              >
-                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                <span className="font-medium">Retour</span>
-              </button>
+            {/* Bouton retour - TOUT À GAUCHE */}
+            <button
+              onClick={() => onNavigate('dashboard')}
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-all group"
+            >
+              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+              <span className="font-medium">Retour</span>
+            </button>
 
-              <div className="border-l border-gray-300 pl-6">
-                {isEditingTitle ? (
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="text"
-                      value={tempTitle}
-                      onChange={(e) => setTempTitle(e.target.value)}
-                      className="text-2xl font-bold bg-transparent border-b-2 border-blue-500 focus:outline-none min-w-0 flex-1"
-                      onKeyPress={(e) => e.key === 'Enter' && handleSaveTitle()}
-                      autoFocus
-                    />
-                    <button onClick={handleSaveTitle} className="p-1 text-green-600 hover:text-green-700">
-                      <Save className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => handleCancelEdit('title')} className="p-1 text-red-600 hover:text-red-700">
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-center group">
-                    <h1 className="text-2xl font-bold text-gray-900 mr-2">{project.titre}</h1>
-                    <button
-                      onClick={() => setIsEditingTitle(true)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-gray-600"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
+            {/* Titre et description - AU CENTRE */}
+            <div className="flex-1 flex flex-col items-center justify-center mx-8">
+              {isEditingTitle ? (
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={tempTitle}
+                    onChange={(e) => setTempTitle(e.target.value)}
+                    className="text-2xl font-bold bg-transparent border-b-2 border-blue-500 focus:outline-none text-center"
+                    onKeyPress={(e) => e.key === 'Enter' && handleSaveTitle()}
+                    autoFocus
+                  />
+                  <button onClick={handleSaveTitle} className="p-1 text-green-600 hover:text-green-700">
+                    <Save className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => handleCancelEdit('title')} className="p-1 text-red-600 hover:text-red-700">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center group">
+                  <h1 className="text-2xl font-bold text-gray-900 mr-2 text-center">{project.titre}</h1>
+                  <button
+                    onClick={() => setIsEditingTitle(true)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-gray-600"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
 
-                {isEditingDescription ? (
-                  <div className="flex items-center space-x-2 mt-1">
-                    <input
-                      type="text"
-                      value={tempDescription}
-                      onChange={(e) => setTempDescription(e.target.value)}
-                      className="text-sm text-gray-600 bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500 min-w-0"
-                      onKeyPress={(e) => e.key === 'Enter' && handleSaveDescription()}
-                      placeholder="Description..."
-                      autoFocus
-                    />
-                    <button onClick={handleSaveDescription} className="p-1 text-green-600 hover:text-green-700">
-                      <Save className="w-3 h-3" />
-                    </button>
-                    <button onClick={() => handleCancelEdit('description')} className="p-1 text-red-600 hover:text-red-700">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-center group mt-1">
-                    <span className="text-sm text-gray-600 mr-2">
-                      {project.what || 'Cliquez pour ajouter une description...'}
-                    </span>
-                    <button
-                      onClick={() => setIsEditingDescription(true)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-gray-600"
-                    >
-                      <Edit3 className="w-3 h-3" />
-                    </button>
-                  </div>
-                )}
-              </div>
+              {isEditingDescription ? (
+                <div className="flex items-center space-x-2 mt-1">
+                  <input
+                    type="text"
+                    value={tempDescription}
+                    onChange={(e) => setTempDescription(e.target.value)}
+                    className="text-sm text-gray-600 bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500 text-center"
+                    onKeyPress={(e) => e.key === 'Enter' && handleSaveDescription()}
+                    placeholder="Description..."
+                    autoFocus
+                  />
+                  <button onClick={handleSaveDescription} className="p-1 text-green-600 hover:text-green-700">
+                    <Save className="w-3 h-3" />
+                  </button>
+                  <button onClick={() => handleCancelEdit('description')} className="p-1 text-red-600 hover:text-red-700">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center group mt-1">
+                  <span className="text-sm text-gray-600 mr-2 text-center">
+                    {project.what || 'Cliquez pour ajouter une description...'}
+                  </span>
+                  <button
+                    onClick={() => setIsEditingDescription(true)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-gray-600"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center space-x-4">
-                  {/* Bouton trois points */}
-                  <button
-                    onClick={(e) => {
-                      console.log('🎯 Project menu button clicked!');
-                      e.stopPropagation();
-                      setShowProjectMenu(!showProjectMenu);
-                    }}
-                    className="w-10 h-10 rounded-xl bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-all"
-                  >
-                    <MoreVertical className="w-5 h-5 text-gray-600" />
-                  </button>
-                  
-                  {/* BOUTON ROUGE DIRECT pour supprimer le projet */}
-                  <button
-                    onClick={(e) => {
-                      console.log('🔥 DIRECT DELETE PROJECT BUTTON CLICKED!');
-                      e.stopPropagation();
-                      if (confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
-                        console.log('🔥 User confirmed project deletion');
-                        setShowDeleteModal(true);
-                      }
-                    }}
-                    className="w-10 h-10 rounded-xl bg-red-500 hover:bg-red-600 flex items-center justify-center transition-all"
-                    title="Supprimer le projet"
-                  >
-                    <Trash2 className="w-5 h-5 text-white" />
-                  </button>
-                  
-                  {/* Menu dropdown SI affiché */}
-                  {showProjectMenu && (
-                    <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[90]">
-                      <button
-                        onClick={(e) => {
-                          console.log('🗑️ Delete project from menu clicked!');
-                          e.stopPropagation();
-                          setShowProjectMenu(false);
-                          setShowDeleteModal(true);
-                        }}
-                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Supprimer depuis menu
-                      </button>
-                    </div>
-                  )}
+            {/* Bouton de suppression rouge - TOUT À DROITE */}
+            <div className="flex items-center space-x-2">
+              {canDeleteProject && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
+                      setShowDeleteModal(true);
+                    }
+                  }}
+                  className="w-12 h-12 rounded-xl bg-red-500 hover:bg-red-600 flex items-center justify-center transition-all shadow-lg hover:shadow-xl"
+                  title="Supprimer le projet"
+                >
+                  <Trash2 className="w-6 h-6 text-white" />
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -386,17 +355,6 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
           />
         </div>
       </div>
-
-      {/* Overlay pour fermer le menu - VERSION CORRIGÉE */}
-      {showProjectMenu && (
-        <div 
-          className="fixed inset-0 z-[85]" 
-          onClick={() => {
-            console.log('🎯 Project menu overlay clicked!');
-            setShowProjectMenu(false);
-          }}
-        />
-      )}
 
       {editingModule && (
         <ModuleEditModal
