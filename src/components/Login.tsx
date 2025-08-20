@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import { User, Lock, Mail, AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 interface LoginProps {
@@ -15,6 +16,8 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
   const [message, setMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  const { signIn, signUp } = useAuth();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -23,12 +26,10 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
     try {
       if (isLogin) {
-        // Simulation de connexion
-        console.log('Connexion avec:', email, password);
+        await signIn(email, password);
         onNavigate('dashboard');
       } else {
-        // Simulation d'inscription
-        console.log('Inscription:', email, password, nom);
+        await signUp(email, password, nom);
         setMessage('Inscription réussie ! Un email de confirmation vous a été envoyé.');
         setIsLogin(true);
       }
@@ -216,7 +217,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
             )}
 
             {/* Formulaire */}
-            <div className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {!isLogin && (
                 <div className="relative group">
                   <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-gray-600 transition-colors" />
@@ -263,8 +264,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
               </div>
 
               <button
-                type="button"
-                onClick={handleSubmit}
+                type="submit"
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-gray-800 to-gray-900 hover:from-blue-600 hover:via-purple-600 hover:to-green-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-500 transform hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-3 group relative overflow-hidden"
               >
@@ -284,7 +284,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                   )}
                 </div>
               </button>
-            </div>
+            </form>
 
             {isLogin && (
               <div className="mt-6 text-center">
