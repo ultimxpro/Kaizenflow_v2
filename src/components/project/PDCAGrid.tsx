@@ -146,7 +146,7 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
               </div>
 
               {/* Contenu avec glassmorphism */}
-              <div className="p-6 flex-1 overflow-y-auto min-h-0 relative z-10">
+              <div className="p-6 flex-1 overflow-y-auto min-h-0 relative z-20">
                 <PDCAGridQuadrant
                   id={quadrant.id}
                   title={quadrant.title}
@@ -176,7 +176,7 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
 
       {/* Overlay de chargement lors de la suppression */}
       {deletingModule && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[80]">
           <div className="bg-white rounded-xl p-6 shadow-xl">
             <div className="flex items-center space-x-3">
               <div className="w-6 h-6 border-2 border-red-300 border-t-red-600 rounded-full animate-spin"></div>
