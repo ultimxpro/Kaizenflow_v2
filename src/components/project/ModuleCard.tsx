@@ -2,7 +2,7 @@
 import React from 'react';
 import { A3Module } from '../../types/database';
 import { 
-  MessageSquareQuestion, GitBranch, BookOpen, CheckSquare, 
+  MessageSquare, GitBranch, BookOpen, CheckSquare, 
   Workflow, Monitor, PenTool, Activity, FileText, MoreVertical, 
   Edit, Trash2, Move 
 } from 'lucide-react';
@@ -16,7 +16,7 @@ interface ModuleCardProps {
 
 const getToolIcon = (toolType: string) => {
   switch (toolType) {
-    case '5Pourquoi': return <MessageSquareQuestion className="w-4 h-4" />;
+    case '5Pourquoi': return <MessageSquare className="w-4 h-4" />;
     case '4M': return <GitBranch className="w-4 h-4" />;
     case 'VSM': return <Workflow className="w-4 h-4" />;
     case 'OPL': return <BookOpen className="w-4 h-4" />;
