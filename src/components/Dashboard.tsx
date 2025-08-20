@@ -92,58 +92,62 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 >
                   <div className="w-10 h-10 bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
                     {signedAvatarUrl ? (
-                      <img src={signedAvatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                      <img 
+                        src={signedAvatarUrl} 
+                        alt="Avatar" 
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
-                      <span className="text-gray-700 font-semibold text-sm">
-                        {currentUser?.user_metadata?.first_name?.[0] || currentUser?.email?.[0]?.toUpperCase() || '?'}
-                        {currentUser?.user_metadata?.last_name?.[0] || ''}
+                      <span className="text-gray-600 font-semibold text-sm">
+                        {currentUser?.user_metadata?.nom?.[0] || currentUser?.email?.[0] || '?'}
                       </span>
                     )}
                   </div>
-                  <div className="text-left min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 truncate">
-                      {currentUser?.user_metadata?.first_name || ''} {currentUser?.user_metadata?.last_name || ''}
-                      {!currentUser?.user_metadata?.first_name && !currentUser?.user_metadata?.last_name && currentUser?.email}
+                  <div className="hidden md:block text-left">
+                    <p className="text-sm font-semibold text-gray-900">
+                      {currentUser?.user_metadata?.nom || currentUser?.email?.split('@')[0] || 'Utilisateur'}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">{currentUser?.email}</p>
+                    <p className="text-xs text-gray-500">{currentUser?.email}</p>
                   </div>
-                  <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                  <ChevronDown className="w-4 h-4 text-gray-500 group-hover:text-gray-700 transition-colors" />
                 </button>
 
+                {/* Dropdown menu */}
                 {isMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/60 z-50">
-                    <div className="py-2">
-                      {isAdmin && (
-                        <button
-                          onClick={() => {
-                            onNavigate('admin');
-                            setIsMenuOpen(false);
-                          }}
-                          className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100/70 flex items-center transition-colors"
-                        >
-                          <Shield className="w-4 h-4 mr-3" />
-                          Administration
-                        </button>
-                      )}
+                  <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/60 py-2 z-50">
+                    <button
+                      onClick={() => {
+                        onNavigate('profile');
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100/70 flex items-center transition-colors"
+                    >
+                      <Settings className="w-4 h-4 mr-3" />
+                      Paramètres du profil
+                    </button>
+                    
+                    {isAdmin && (
                       <button
                         onClick={() => {
-                          onNavigate('settings');
+                          onNavigate('admin');
                           setIsMenuOpen(false);
                         }}
                         className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100/70 flex items-center transition-colors"
                       >
-                        <Settings className="w-4 h-4 mr-3" />
-                        Paramètres
+                        <Shield className="w-4 h-4 mr-3" />
+                        Administration
                       </button>
-                      <div className="border-t border-gray-100 my-1"></div>
-                      <button
-                        onClick={handleLogout}
-                        className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50/70 flex items-center transition-colors"
-                      >
-                        <LogOut className="w-4 h-4 mr-3" />
-                        Déconnexion
-                      </button>
-                    </div>
+                    )}
+
+                    <hr className="my-2 border-gray-200/60" />
+                    
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50/70 flex items-center transition-colors"
+                    >
+                      <LogOut className="w-4 h-4 mr-3" />
+                      Déconnexion
+                    </button>
                   </div>
                 )}
               </div>
@@ -154,13 +158,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         {/* En-tête de la page avec barre de recherche */}
-        <div className="mb-8 flex justify-between items-end">
+        <div className="mb-8 flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Tableau de Bord</h1>
             <p className="text-gray-600 font-medium">Gérez vos projets d'amélioration continue</p>
           </div>
           
-          {/* Barre de recherche alignée avec le texte */}
+          {/* Barre de recherche alignée */}
           <div className="relative w-80">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-5 h-5 text-gray-400" />
@@ -175,74 +179,62 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </div>
         </div>
         
-        {/* Stats rapides - Version avec couleurs originales */}
+        {/* Stats rapides - Version avec couleurs grises élégantes */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Total Kaizens - Bleu */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 backdrop-blur-sm rounded-2xl p-6 border border-blue-400/20 shadow-lg hover:shadow-xl transition-all group text-white">
+          {/* Total Kaizens - Gris foncé */}
+          <div className="bg-gradient-to-br from-gray-700 to-gray-800 backdrop-blur-sm rounded-2xl p-6 border border-gray-600/20 shadow-lg hover:shadow-xl transition-all group text-white">
             <div className="flex items-center justify-between">
               <div>
-                <div className="flex items-center mb-2">
-                  <Target className="w-5 h-5 mr-2 opacity-80" />
-                  <p className="text-sm font-medium text-blue-100">Total Kaizens</p>
-                </div>
+                <p className="text-sm font-medium text-gray-200 opacity-90">Total Kaizens</p>
                 <p className="text-3xl font-bold text-white">{stats.totalProjects}</p>
-                <p className="text-xs text-blue-100 opacity-75 mt-1">Projets créés</p>
-              </div>
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <FolderOpen className="w-6 h-6 text-white" />
               </div>
             </div>
           </div>
 
-          {/* En cours - Vert */}
-          <div className="bg-gradient-to-br from-green-500 to-green-600 backdrop-blur-sm rounded-2xl p-6 border border-green-400/20 shadow-lg hover:shadow-xl transition-all group text-white">
+          {/* En cours - Gris moyen */}
+          <div className="bg-gradient-to-br from-gray-600 to-gray-700 backdrop-blur-sm rounded-2xl p-6 border border-gray-500/20 shadow-lg hover:shadow-xl transition-all group text-white">
             <div className="flex items-center justify-between">
               <div>
-                <div className="flex items-center mb-2">
-                  <Activity className="w-5 h-5 mr-2 opacity-80" />
-                  <p className="text-sm font-medium text-green-100">En cours</p>
-                </div>
+                <p className="text-sm font-medium text-gray-200 opacity-90">En cours</p>
                 <p className="text-3xl font-bold text-white">{stats.inProgress}</p>
-                <p className="text-xs text-green-100 opacity-75 mt-1">Projets actifs</p>
-              </div>
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Clock className="w-6 h-6 text-white" />
               </div>
             </div>
           </div>
 
-          {/* Terminés - Orange */}
-          <div className="bg-gradient-to-br from-orange-500 to-orange-600 backdrop-blur-sm rounded-2xl p-6 border border-orange-400/20 shadow-lg hover:shadow-xl transition-all group text-white">
+          {/* Terminés - Gris acier */}
+          <div className="bg-gradient-to-br from-slate-600 to-slate-700 backdrop-blur-sm rounded-2xl p-6 border border-slate-500/20 shadow-lg hover:shadow-xl transition-all group text-white">
             <div className="flex items-center justify-between">
               <div>
-                <div className="flex items-center mb-2">
-                  <TrendingUp className="w-5 h-5 mr-2 opacity-80" />
-                  <p className="text-sm font-medium text-orange-100">Terminés</p>
-                </div>
+                <p className="text-sm font-medium text-slate-200 opacity-90">Terminés</p>
                 <p className="text-3xl font-bold text-white">{stats.completed}</p>
-                <p className="text-xs text-orange-100 opacity-75 mt-1">Projets finalisés</p>
-              </div>
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <TrendingUp className="w-6 h-6 text-white" />
               </div>
             </div>
           </div>
 
-          {/* Économies - Violet */}
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 backdrop-blur-sm rounded-2xl p-6 border border-purple-400/20 shadow-lg hover:shadow-xl transition-all group text-white">
+          {/* Économies - Gris bleuté */}
+          <div className="bg-gradient-to-br from-gray-600 to-gray-700 backdrop-blur-sm rounded-2xl p-6 border border-gray-500/20 shadow-lg hover:shadow-xl transition-all group text-white">
             <div className="flex items-center justify-between">
               <div>
-                <div className="flex items-center mb-2">
-                  <TrendingUp className="w-5 h-5 mr-2 opacity-80" />
-                  <p className="text-sm font-medium text-purple-100">Économies</p>
-                </div>
+                <p className="text-sm font-medium text-gray-200 opacity-90">Économies</p>
                 <p className="text-2xl font-bold text-white">{stats.totalSavings.toLocaleString('fr-FR')} €</p>
-                <p className="text-xs text-purple-100 opacity-75 mt-1">Gains générés</p>
-              </div>
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <TrendingUp className="w-6 h-6 text-white" />
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Barre de recherche */}
+        <div className="mb-6">
+          <div className="relative max-w-md mx-auto">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Rechercher un kaizen..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white/80 backdrop-blur-sm placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-gray-300 focus:border-gray-400 transition-all duration-300 shadow-sm"
+            />
           </div>
         </div>
 
@@ -310,8 +302,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                         {project.titre}
                       </h3>
                       <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ml-2 flex-shrink-0 ${
-                        project.statut === 'Terminé' ?
-                        'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                        project.statut === 'Terminé' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
                       }`}>
                         {project.statut}
                       </span>
@@ -345,39 +336,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               </h2>
               <p className="text-gray-400 text-sm mt-1">Projets où vous contribuez</p>
             </div>
-            <div className="p-5 space-y-4 overflow-y-auto">
-              {contributingProjects.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">
-                  <Users className="w-12 h-12 mx-auto mb-2" />
-                  <p>Aucun projet où vous intervenez.</p>
-                </div>
-              ) : (
-                contributingProjects.map((project) => (
-                  <div
-                    key={project.id}
-                    onClick={() => onNavigate('project', project.id)}
-                    className="bg-white rounded-xl p-4 border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all cursor-pointer group"
-                  >
-                    <h3 className="font-semibold text-gray-900 group-hover:text-gray-700 transition-colors">
-                      {project.titre}
-                    </h3>
-                    <p className="text-sm text-gray-400 mt-1">{project.kaizen_number}</p>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                        project.statut === 'Terminé' ?
-                        'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
-                      }`}>
-                        {project.statut}
-                      </span>
-                      <span className="text-xs text-gray-500">{new Date(project.created_at).toLocaleDateString('fr-FR')}</span>
-                    </div>
-                  </div>
-                ))
-              )}
+            <div className="p-5 overflow-y-auto">
+              <div className="text-center py-8 text-gray-400">
+                <Users className="w-12 h-12 mx-auto mb-2" />
+                <p>Aucune contribution.</p>
+              </div>
             </div>
           </div>
 
-          {/* Planning avec compteur */}
+          {/* Mes actions avec compteur */}
           <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
             <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
               <h2 className="text-lg font-semibold flex items-center justify-between">
@@ -385,72 +352,43 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
                     <Calendar className="w-4 h-4 text-gray-600" />
                   </div>
-                  Planning
+                  Mes actions
                 </div>
                 <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
                   0
                 </span>
               </h2>
-              <p className="text-gray-400 text-sm mt-1">Échéances à venir</p>
+              <p className="text-gray-400 text-sm mt-1">Tâches qui vous sont assignées</p>
             </div>
-            <div className="p-5 space-y-4 overflow-y-auto">
+            <div className="p-5 overflow-y-auto">
               <div className="text-center py-8 text-gray-400">
                 <Calendar className="w-12 h-12 mx-auto mb-2" />
-                <p>Aucune échéance planifiée.</p>
+                <p>Aucune action assignée.</p>
               </div>
             </div>
           </div>
 
-          {/* Analytics avec compteur */}
+          {/* Notifications avec compteur */}
           <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
             <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
               <h2 className="text-lg font-semibold flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-                    <TrendingUp className="w-4 h-4 text-gray-600" />
+                    <Bell className="w-4 h-4 text-gray-600" />
                   </div>
-                  Analytics
+                  Notifications
                 </div>
                 <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                  {stats.totalProjects}
+                  0
                 </span>
               </h2>
-              <p className="text-gray-400 text-sm mt-1">Données de performance</p>
+              <p className="text-gray-400 text-sm mt-1">Alertes et mises à jour</p>
             </div>
-            <div className="p-5 space-y-4 overflow-y-auto">
-              {stats.totalProjects > 0 ? (
-                <div className="space-y-4">
-                  <div className="bg-white rounded-lg p-4 border border-gray-100">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-gray-600">Taux de réussite</span>
-                      <span className="text-lg font-semibold text-green-600">
-                        {Math.round((stats.completed / stats.totalProjects) * 100)}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-green-500 h-2 rounded-full" 
-                        style={{ width: `${(stats.completed / stats.totalProjects) * 100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white rounded-lg p-4 border border-gray-100">
-                    <div className="text-sm text-gray-600 mb-1">Économies moyennes</div>
-                    <div className="text-xl font-bold text-blue-600">
-                      {stats.totalProjects > 0 ? 
-                        (stats.totalSavings / stats.totalProjects).toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : 
-                        '0'
-                      } €
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-400">
-                  <TrendingUp className="w-12 h-12 mx-auto mb-2" />
-                  <p>Aucune donnée disponible.</p>
-                </div>
-              )}
+            <div className="p-5 overflow-y-auto">
+              <div className="text-center py-8 text-gray-400">
+                <Bell className="w-12 h-12 mx-auto mb-2" />
+                <p>Aucune notification.</p>
+              </div>
             </div>
           </div>
 
