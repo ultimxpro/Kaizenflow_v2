@@ -47,10 +47,10 @@ const quadrants = [
     id: 'ACT', 
     title: 'ACT', 
     subtitle: 'Standardisation et expansion',
-    bgGradient: 'bg-gradient-to-br from-white via-purple-50/30 to-purple-100/50',
-    borderColor: 'border-purple-200/60',
-    headerGradient: 'bg-gradient-to-r from-purple-500/90 to-purple-600/90',
-    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(139,92,246,0.15)]',
+    bgGradient: 'bg-gradient-to-br from-white via-indigo-50/30 to-indigo-100/50',
+    borderColor: 'border-indigo-300/60',
+    headerGradient: 'bg-gradient-to-r from-indigo-600/90 to-indigo-700/90',
+    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(79,70,229,0.15)]',
     allowedTools: ['OPL', 'SOP', 'Croquis', 'Iframe']
   }
 ];
