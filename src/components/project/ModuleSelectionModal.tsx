@@ -103,7 +103,24 @@ export const ModuleSelectionModal: React.FC<ModuleSelectionModalProps> = ({
       <div className="bg-white backdrop-blur-xl rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden">
         {/* Header avec dégradé du quadrant */}
         <div className={`bg-gradient-to-r ${getQuadrantColor(quadrant)} p-6 relative overflow-hidden`}>
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>-r ${getQuadrantColor(quadrant)} p-6 relative overflow-hidden`}>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+          <div className="flex items-center justify-between relative z-10">
+            <div>
+              <h3 className="text-2xl font-bold text-white">
+                Ajouter un module - {quadrant}
+              </h3>
+              <p className="text-white/80 text-sm mt-1">
+                Sélectionnez l'outil que vous souhaitez utiliser
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+        </div>-r ${getQuadrantColor(quadrant)} p-6 relative overflow-hidden`}>
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
           <div className="flex items-center justify-between relative z-10">
             <div>
