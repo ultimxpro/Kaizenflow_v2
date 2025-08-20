@@ -11,7 +11,7 @@ interface ModuleCardProps {
   module: A3Module;
   onClick: () => void;
   onMove?: (module: A3Module) => void;
-  onDelete?: () => void;
+  onDelete?: (moduleId: string) => void;
 }
 
 const getToolIcon = (toolType: string) => {
@@ -64,6 +64,7 @@ const getToolName = (toolType: string) => {
 
 export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove, onDelete }) => {
   const [showMenu, setShowMenu] = React.useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
 
   const handleMenuClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -82,12 +83,23 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
     if (onMove) onMove(module);
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowMenu(false);
-    if (onDelete && confirm('Êtes-vous sûr de vouloir supprimer ce module ?')) {
-      onDelete();
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDeleteConfirm(false);
+    if (onDelete) {
+      onDelete(module.id);
     }
+  };
+
+  const handleCancelDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDeleteConfirm(false);
   };
 
   return (
@@ -137,7 +149,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
                 )}
                 {onDelete && (
                   <button
-                    onClick={handleDelete}
+                    onClick={handleDeleteClick}
                     className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
@@ -162,6 +174,50 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
           className="fixed inset-0 z-40" 
           onClick={() => setShowMenu(false)}
         />
+      )}
+
+      {/* Modal de confirmation de suppression */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="max-w-sm w-full bg-white backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-red-600 to-red-700 p-4">
+              <div className="flex items-center space-x-3">
+                <Trash2 className="w-5 h-5 text-white" />
+                <div>
+                  <h3 className="text-lg font-bold text-white">Supprimer le module</h3>
+                  <p className="text-red-100 text-sm">Cette action est irréversible</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Contenu */}
+            <div className="p-4">
+              <p className="text-sm text-gray-600 mb-4">
+                Êtes-vous sûr de vouloir supprimer le module "{module.titre || getToolName(module.tool_type)}" ?
+              </p>
+              <p className="text-xs text-gray-500 mb-6">
+                Toutes les données associées à ce module seront définitivement perdues.
+              </p>
+
+              <div className="flex justify-end space-x-3">
+                <button 
+                  onClick={handleCancelDelete}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-all text-sm"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg font-medium hover:from-red-700 hover:to-red-800 transition-all text-sm"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Supprimer</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
