@@ -55,6 +55,7 @@ const uniqueTools = ['5Pourquoi', '4M', 'VSM', '5S', 'PlanActions', 'SOP'];
 
 export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditModule, onMoveModule }) => {
   const [showModuleSelection, setShowModuleSelection] = useState<string | null>(null);
+  const [deletingModule, setDeletingModule] = useState<string | null>(null);
   const { createA3Module, deleteA3Module } = useDatabase();
 
   const handleAddModule = (quadrant: string, toolType: string) => {
@@ -71,6 +72,18 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
     });
     
     setShowModuleSelection(null);
+  };
+
+  const handleDeleteModule = async (moduleId: string) => {
+    setDeletingModule(moduleId);
+    try {
+      await deleteA3Module(moduleId);
+    } catch (error) {
+      console.error('Erreur lors de la suppression du module:', error);
+      alert('Erreur lors de la suppression du module');
+    } finally {
+      setDeletingModule(null);
+    }
   };
 
   const getModulesForQuadrant = (quadrant: string) => {
@@ -109,6 +122,7 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
                 rounded-2xl flex flex-col h-full 
                 transition-all duration-500 ease-out 
                 hover:scale-[1.02]
+                border border-white/40 
                 backdrop-blur-sm
                 group relative overflow-hidden
               `}
@@ -142,11 +156,7 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
                   onEditModule={onEditModule}
                   onMoveModule={onMoveModule}
                   onAddModule={() => setShowModuleSelection(quadrant.id)}
-                  onDeleteModule={(moduleId) => {
-                    if(confirm('Êtes-vous sûr de vouloir supprimer ce module ?')) {
-                      deleteA3Module(moduleId);
-                    }
-                  }}
+                  onDeleteModule={handleDeleteModule}
                 />
               </div>
             </div>
@@ -162,6 +172,18 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
           onSelect={(toolType) => handleAddModule(showModuleSelection, toolType)}
           onClose={() => setShowModuleSelection(null)}
         />
+      )}
+
+      {/* Overlay de chargement lors de la suppression */}
+      {deletingModule && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 shadow-xl">
+            <div className="flex items-center space-x-3">
+              <div className="w-6 h-6 border-2 border-red-300 border-t-red-600 rounded-full animate-spin"></div>
+              <span className="text-gray-700 font-medium">Suppression en cours...</span>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
