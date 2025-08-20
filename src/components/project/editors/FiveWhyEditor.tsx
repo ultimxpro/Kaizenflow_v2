@@ -145,14 +145,12 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
     updateProblems(updatedProblems);
   }, [problems, updateProblems]);
 
-  // -- MODIFICATION ICI --
   const updateWhy = useCallback((problemId: string, whyIndex: number, value: string) => {
     const updatedProblems = problems.map(p => {
       if (p.id === problemId) {
         const newWhys = [...p.whys];
         newWhys[whyIndex] = value;
 
-        // Si c'est le 5ème "Pourquoi", on met aussi à jour la cause racine
         if (whyIndex === 4) {
           return { ...p, whys: newWhys, rootCause: value };
         }
@@ -164,9 +162,11 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
     updateProblems(updatedProblems);
   }, [problems, updateProblems]);
   
+  // -- MODIFICATION ICI --
   const setIntermediateCause = useCallback((problemId: string, level: number) => {
     const updatedProblems = problems.map(p => {
       if (p.id === problemId) {
+        // On récupère le texte du "Pourquoi" correspondant pour pré-remplir la cause
         const causeText = p.whys[level - 1] || '';
         return { 
           ...p, 
@@ -190,7 +190,6 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
   const clearIntermediateCause = useCallback((problemId: string) => {
     const updatedProblems = problems.map(p => {
       if (p.id === problemId && p.intermediateCause) {
-        // Revenir au niveau où était définie la cause intermédiaire
         const previousLevel = p.intermediateCause.level - 1;
         return { 
           ...p, 
