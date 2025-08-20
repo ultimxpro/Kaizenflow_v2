@@ -1,5 +1,5 @@
 // src/components/project/ModuleCard.tsx
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { A3Module } from '../../types/database';
 import { 
   MessageSquare, GitBranch, BookOpen, CheckSquare, 
@@ -64,6 +64,19 @@ const getToolName = (toolType: string) => {
 
 export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove, onDelete }) => {
   const [showMenu, setShowMenu] = React.useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [menuPosition, setMenuPosition] = React.useState({ top: 0, left: 0 });
+
+  // Calculer la position du menu
+  useEffect(() => {
+    if (showMenu && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.right + window.scrollX - 160 // 160px = largeur du menu
+      });
+    }
+  }, [showMenu]);
 
   const handleMenuClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -107,6 +120,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
           <div className="flex items-center space-x-2">
             {/* Bouton trois points */}
             <button
+              ref={buttonRef}
               onClick={handleMenuClick}
               className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
             >
@@ -130,25 +144,36 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
               </button>
             )}
             
+            {/* Menu rendu avec un portal pour éviter les problèmes de z-index */}
             {showMenu && (
-              <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[9999]">
-                <button
-                  onClick={handleEdit}
-                  className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+              <>
+                {/* Menu en position fixed pour éviter les conflits */}
+                <div 
+                  className="fixed w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1"
+                  style={{ 
+                    zIndex: 99999, 
+                    top: `${menuPosition.top}px`,
+                    left: `${menuPosition.left}px`
+                  }}
                 >
-                  <Edit className="w-4 h-4 mr-2" />
-                  Modifier
-                </button>
-                {onMove && (
                   <button
-                    onClick={handleMove}
+                    onClick={handleEdit}
                     className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
                   >
-                    <Move className="w-4 h-4 mr-2" />
-                    Déplacer
+                    <Edit className="w-4 h-4 mr-2" />
+                    Modifier
                   </button>
-                )}
-              </div>
+                  {onMove && (
+                    <button
+                      onClick={handleMove}
+                      className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+                    >
+                      <Move className="w-4 h-4 mr-2" />
+                      Déplacer
+                    </button>
+                  )}
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -163,7 +188,8 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
       {/* Overlay pour fermer le menu */}
       {showMenu && (
         <div 
-          className="fixed inset-0 z-[9998]" 
+          className="fixed inset-0"
+          style={{ zIndex: 99998 }}
           onClick={() => setShowMenu(false)}
         />
       )}
