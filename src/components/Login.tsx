@@ -263,6 +263,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
               </div>
 
               <button
+                type="button"
                 onClick={handleSubmit}
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-gray-800 to-gray-900 hover:from-blue-600 hover:via-purple-600 hover:to-green-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-500 transform hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-3 group relative overflow-hidden"
