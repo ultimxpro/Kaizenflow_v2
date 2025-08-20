@@ -42,13 +42,47 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Éléments décoratifs de fond */}
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Fond animé */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full opacity-30 blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-green-100 to-blue-100 rounded-full opacity-30 blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-50 to-pink-50 rounded-full opacity-20 blur-3xl"></div>
+        {/* Particules animées */}
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-gray-300 rounded-full animate-pulse opacity-60"></div>
+        <div className="absolute top-3/4 left-1/3 w-1 h-1 bg-gray-400 rounded-full animate-bounce opacity-40" style={{animationDelay: '1s'}}></div>
+        <div className="absolute top-1/2 right-1/4 w-3 h-3 bg-gray-200 rounded-full animate-pulse opacity-50" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-1/4 left-1/2 w-2 h-2 bg-gray-300 rounded-full animate-bounce opacity-30" style={{animationDelay: '3s'}}></div>
+        <div className="absolute top-1/6 right-1/3 w-1 h-1 bg-gray-400 rounded-full animate-pulse opacity-70" style={{animationDelay: '0.5s'}}></div>
+        
+        {/* Éléments décoratifs animés */}
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full opacity-20 blur-3xl animate-float"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full opacity-15 blur-3xl animate-float-delayed"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full opacity-10 blur-3xl animate-float-slow"></div>
       </div>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) translateX(0px); }
+          33% { transform: translateY(-20px) translateX(10px); }
+          66% { transform: translateY(10px) translateX(-15px); }
+        }
+        @keyframes float-delayed {
+          0%, 100% { transform: translateY(0px) translateX(0px); }
+          33% { transform: translateY(15px) translateX(-10px); }
+          66% { transform: translateY(-25px) translateX(20px); }
+        }
+        @keyframes float-slow {
+          0%, 100% { transform: translateY(0px) translateX(0px) scale(1); }
+          50% { transform: translateY(-30px) translateX(15px) scale(1.05); }
+        }
+        .animate-float {
+          animation: float 8s ease-in-out infinite;
+        }
+        .animate-float-delayed {
+          animation: float-delayed 10s ease-in-out infinite;
+        }
+        .animate-float-slow {
+          animation: float-slow 12s ease-in-out infinite;
+        }
+      `}</style>
 
       <div className="max-w-md w-full relative z-10">
         {/* Card principale avec glassmorphism */}
@@ -59,9 +93,9 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
               <div className="relative mb-6">
                 <div className="w-20 h-20 mx-auto bg-gradient-to-br from-gray-800 to-gray-600 rounded-2xl shadow-lg flex items-center justify-center mb-4 transform transition-all duration-300 hover:scale-105">
                   <img 
-                    src="/leandeck-symbol.png" 
+                    src="/Gemini_Generated_Image_6kdy0q6kdy0q6kdy.png" 
                     alt="Leandeck Logo" 
-                    className="w-12 h-12 object-contain filter brightness-0 invert"
+                    className="w-12 h-12 object-contain"
                   />
                 </div>
                 <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Leandeck</h1>
