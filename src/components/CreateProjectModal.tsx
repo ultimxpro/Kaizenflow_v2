@@ -98,7 +98,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
    return (
      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
        <div className="max-w-md w-full bg-white backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden">
-         <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 p-8 text-center relative overflow-hidden">
+         <div className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 p-8 text-center relative overflow-hidden">
            {/* Éléments décoratifs animés */}
            <div className="absolute inset-0">
              <div className="absolute top-4 left-4 w-2 h-2 bg-white/30 rounded-full animate-ping"></div>
@@ -113,11 +113,11 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
              </div>
              
              <h2 className="text-2xl font-bold text-white mb-2">Création en cours...</h2>
-             <p className="text-blue-100 text-sm mb-6">Nous préparons votre espace Kaizen</p>
+             <p className="text-gray-300 text-sm mb-6">Nous préparons votre espace Kaizen</p>
              
              {/* Barre de progression animée */}
              <div className="w-full bg-white/20 rounded-full h-2 mb-4 overflow-hidden">
-               <div className="h-full bg-gradient-to-r from-white to-blue-200 rounded-full animate-pulse" 
+               <div className="h-full bg-gradient-to-r from-white to-gray-200 rounded-full animate-pulse" 
                     style={{ 
                       width: '100%',
                       animation: 'loading-bar 2.5s ease-in-out infinite'
@@ -140,17 +140,17 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
                <CheckCircle className="w-4 h-4 text-green-500" />
                <span className="text-gray-600">Validation des informations</span>
              </div>
-             <div className={`flex items-center space-x-3 text-sm ${loadingStep.includes('Génération') ? 'text-blue-600' : 'text-gray-400'}`}>
+             <div className={`flex items-center space-x-3 text-sm ${loadingStep.includes('Génération') ? 'text-gray-800' : 'text-gray-400'}`}>
                {loadingStep.includes('Génération') ? (
-                 <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                 <Loader2 className="w-4 h-4 animate-spin text-gray-800" />
                ) : (
                  <CheckCircle className="w-4 h-4 text-green-500" />
                )}
                <span>Génération du numéro unique</span>
              </div>
-             <div className={`flex items-center space-x-3 text-sm ${loadingStep.includes('Création') ? 'text-blue-600' : 'text-gray-400'}`}>
+             <div className={`flex items-center space-x-3 text-sm ${loadingStep.includes('Création') ? 'text-gray-800' : 'text-gray-400'}`}>
                {loadingStep.includes('Création') ? (
-                 <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                 <Loader2 className="w-4 h-4 animate-spin text-gray-800" />
                ) : loadingStep.includes('Initialisation') || loadingStep.includes('Finalisation') ? (
                  <CheckCircle className="w-4 h-4 text-green-500" />
                ) : (
@@ -158,9 +158,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
                )}
                <span>Création du projet</span>
              </div>
-             <div className={`flex items-center space-x-3 text-sm ${loadingStep.includes('Initialisation') ? 'text-blue-600' : 'text-gray-400'}`}>
+             <div className={`flex items-center space-x-3 text-sm ${loadingStep.includes('Initialisation') ? 'text-gray-800' : 'text-gray-400'}`}>
                {loadingStep.includes('Initialisation') ? (
-                 <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                 <Loader2 className="w-4 h-4 animate-spin text-gray-800" />
                ) : loadingStep.includes('Finalisation') ? (
                  <CheckCircle className="w-4 h-4 text-green-500" />
                ) : (
@@ -168,9 +168,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
                )}
                <span>Configuration PDCA</span>
              </div>
-             <div className={`flex items-center space-x-3 text-sm ${loadingStep.includes('Finalisation') ? 'text-blue-600' : 'text-gray-400'}`}>
+             <div className={`flex items-center space-x-3 text-sm ${loadingStep.includes('Finalisation') ? 'text-gray-800' : 'text-gray-400'}`}>
                {loadingStep.includes('Finalisation') ? (
-                 <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                 <Loader2 className="w-4 h-4 animate-spin text-gray-800" />
                ) : (
                  <div className="w-4 h-4 border-2 border-gray-300 rounded-full"></div>
                )}
