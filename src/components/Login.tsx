@@ -40,31 +40,35 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Fond animé avec particules flottantes */}
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Fond animé avec particules flottantes en nuances de gris */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Particules animées */}
-        <div className="absolute top-20 left-20 w-2 h-2 bg-white/20 rounded-full animate-float-1"></div>
-        <div className="absolute top-40 right-32 w-1 h-1 bg-purple-300/30 rounded-full animate-float-2"></div>
-        <div className="absolute bottom-32 left-40 w-3 h-3 bg-blue-300/20 rounded-full animate-float-3"></div>
-        <div className="absolute top-60 left-1/3 w-2 h-2 bg-white/15 rounded-full animate-float-4"></div>
-        <div className="absolute bottom-40 right-20 w-1 h-1 bg-purple-200/25 rounded-full animate-float-5"></div>
-        <div className="absolute top-1/3 right-1/4 w-2 h-2 bg-blue-200/20 rounded-full animate-float-6"></div>
+        {/* Particules animées en gris et noir */}
+        <div className="absolute top-20 left-20 w-2 h-2 bg-gray-800 rounded-full animate-float-1 opacity-20"></div>
+        <div className="absolute top-40 right-32 w-1 h-1 bg-black rounded-full animate-float-2 opacity-15"></div>
+        <div className="absolute bottom-32 left-40 w-3 h-3 bg-gray-600 rounded-full animate-float-3 opacity-25"></div>
+        <div className="absolute top-60 left-1/3 w-2 h-2 bg-gray-700 rounded-full animate-float-4 opacity-30"></div>
+        <div className="absolute bottom-40 right-20 w-1 h-1 bg-gray-500 rounded-full animate-float-5 opacity-20"></div>
+        <div className="absolute top-1/3 right-1/4 w-2 h-2 bg-black rounded-full animate-float-6 opacity-10"></div>
+        <div className="absolute top-80 left-60 w-1 h-1 bg-gray-800 rounded-full animate-float-1 opacity-25"></div>
+        <div className="absolute bottom-60 right-40 w-2 h-2 bg-gray-400 rounded-full animate-float-3 opacity-15"></div>
+        <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-black rounded-full animate-float-5 opacity-20"></div>
+        <div className="absolute bottom-1/4 left-2/3 w-3 h-3 bg-gray-600 rounded-full animate-float-2 opacity-10"></div>
         
-        {/* Formes géométriques animées */}
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-600/20 to-blue-600/20 rounded-full blur-3xl animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-blue-600/15 to-purple-600/15 rounded-full blur-3xl animate-blob-reverse"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-white/5 to-purple-300/10 rounded-full blur-2xl animate-pulse-slow"></div>
+        {/* Formes géométriques animées en nuances de gris */}
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-gray-200/30 to-gray-400/20 rounded-full blur-3xl animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-gray-300/20 to-gray-500/15 rounded-full blur-3xl animate-blob-reverse"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-gray-100/30 to-gray-300/20 rounded-full blur-2xl animate-pulse-slow"></div>
         
-        {/* Lignes animées */}
-        <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
+        {/* Lignes animées en gris */}
+        <svg className="absolute inset-0 w-full h-full opacity-15" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.3">
-                <animate attributeName="stop-opacity" values="0.3;0.7;0.3" dur="4s" repeatCount="indefinite" />
+              <stop offset="0%" stopColor="#374151" stopOpacity="0.3">
+                <animate attributeName="stop-opacity" values="0.3;0.6;0.3" dur="4s" repeatCount="indefinite" />
               </stop>
-              <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1">
-                <animate attributeName="stop-opacity" values="0.1;0.5;0.1" dur="4s" repeatCount="indefinite" />
+              <stop offset="100%" stopColor="#6B7280" stopOpacity="0.1">
+                <animate attributeName="stop-opacity" values="0.1;0.4;0.1" dur="4s" repeatCount="indefinite" />
               </stop>
             </linearGradient>
           </defs>
@@ -139,8 +143,8 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
       `}</style>
 
       <div className="max-w-md w-full relative z-10">
-        {/* Card principale avec glassmorphism amélioré */}
-        <div className="bg-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+        {/* Card principale avec glassmorphism blanc */}
+        <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/60 overflow-hidden">
           <div className="p-8">
             {/* Header avec logo agrandi */}
             <div className="text-center mb-8">
@@ -158,13 +162,13 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
             </div>
 
             {/* Tabs moderne */}
-            <div className="flex bg-white/10 backdrop-blur-sm rounded-2xl p-1 mb-8 border border-white/20">
+            <div className="flex bg-gray-100 rounded-2xl p-1 mb-8 border border-gray-200">
               <button
                 onClick={() => setIsLogin(true)}
                 className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${
                   isLogin 
-                    ? 'bg-white/20 text-white shadow-lg backdrop-blur-sm' 
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    ? 'bg-white text-gray-900 shadow-md' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
                 Connexion
@@ -173,8 +177,8 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                 onClick={() => setIsLogin(false)}
                 className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${
                   !isLogin 
-                    ? 'bg-white/20 text-white shadow-lg backdrop-blur-sm' 
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    ? 'bg-white text-gray-900 shadow-md' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
                 Inscription
@@ -183,16 +187,16 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
             {/* Messages */}
             {error && (
-              <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-xl flex items-center space-x-3 backdrop-blur-sm">
-                <AlertCircle className="w-5 h-5 text-red-300 flex-shrink-0" />
-                <p className="text-red-200 text-sm font-medium">{error}</p>
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center space-x-3">
+                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                <p className="text-red-700 text-sm font-medium">{error}</p>
               </div>
             )}
 
             {message && (
-              <div className="mb-6 p-4 bg-green-500/20 border border-green-500/30 rounded-xl flex items-center space-x-3 backdrop-blur-sm">
-                <div className="w-5 h-5 bg-green-400 rounded-full flex-shrink-0"></div>
-                <p className="text-green-200 text-sm font-medium">{message}</p>
+              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center space-x-3">
+                <div className="w-5 h-5 bg-green-500 rounded-full flex-shrink-0"></div>
+                <p className="text-green-700 text-sm font-medium">{message}</p>
               </div>
             )}
 
@@ -200,53 +204,53 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
             <div className="space-y-6">
               {!isLogin && (
                 <div className="relative group">
-                  <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/60 group-focus-within:text-white transition-colors" />
+                  <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-gray-600 transition-colors" />
                   <input
                     type="text"
                     value={nom}
                     onChange={(e) => setNom(e.target.value)}
                     placeholder="Nom complet"
                     required={!isLogin}
-                    className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all duration-300"
+                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-400 transition-all duration-300"
                   />
                 </div>
               )}
 
               <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/60 group-focus-within:text-white transition-colors" />
+                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-gray-600 transition-colors" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Adresse email"
                   required
-                  className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all duration-300"
+                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-400 transition-all duration-300"
                 />
               </div>
 
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/60 group-focus-within:text-white transition-colors" />
+                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-gray-600 transition-colors" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Mot de passe"
                   required
-                  className="w-full pl-12 pr-12 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all duration-300"
+                  className="w-full pl-12 pr-12 py-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-400 transition-all duration-300"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white transition-colors"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
 
               <button
-                type="submit"
+                onClick={handleSubmit}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-3 group backdrop-blur-sm"
+                className="w-full bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-3 group"
               >
                 {loading ? (
                   <>
@@ -264,7 +268,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
             {isLogin && (
               <div className="mt-6 text-center">
-                <a href="#" className="text-white/70 hover:text-white text-sm font-medium transition-colors">
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors">
                   Mot de passe oublié ?
                 </a>
               </div>
@@ -274,7 +278,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
 
         {/* Footer */}
         <div className="mt-8 text-center">
-          <p className="text-white/60 text-sm">
+          <p className="text-gray-500 text-sm">
             © 2025 Leandeck. Plateforme d'amélioration continue.
           </p>
         </div>
