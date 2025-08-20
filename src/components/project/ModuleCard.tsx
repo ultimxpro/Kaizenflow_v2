@@ -3,8 +3,8 @@ import React from 'react';
 import { A3Module } from '../../types/database';
 import { 
   MessageSquare, GitBranch, BookOpen, CheckSquare, 
-  Workflow, Monitor, PenTool, Activity, FileText, MoreVertical, 
-  Edit, Trash2, Move 
+  Workflow, Monitor, PenTool, Activity, FileText, 
+  Trash2, Move 
 } from 'lucide-react';
 
 interface ModuleCardProps {
@@ -63,28 +63,6 @@ const getToolName = (toolType: string) => {
 };
 
 export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove, onDelete }) => {
-  const [showMenu, setShowMenu] = React.useState(false);
-
-  const handleMenuClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setShowMenu(!showMenu);
-  };
-
-  const handleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setShowMenu(false);
-    onClick();
-  };
-
-  const handleMove = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setShowMenu(false);
-    if (onMove) onMove(module);
-  };
-
   return (
     <div className="relative group">
       <div 
@@ -103,17 +81,24 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
             </div>
           </div>
           
-          {/* Menu trois points + bouton rouge */}
+          {/* Boutons d'action directs - PLUS DE MENU TROIS POINTS */}
           <div className="flex items-center space-x-2">
-            {/* Bouton trois points */}
-            <button
-              onClick={handleMenuClick}
-              className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
-            >
-              <MoreVertical className="w-4 h-4 text-gray-500" />
-            </button>
+            {/* Bouton déplacer BLEU */}
+            {onMove && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  onMove(module);
+                }}
+                className="w-8 h-8 rounded-lg bg-blue-500 hover:bg-blue-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                title="Déplacer"
+              >
+                <Move className="w-4 h-4 text-white" />
+              </button>
+            )}
             
-            {/* BOUTON ROUGE direct pour supprimer */}
+            {/* Bouton rouge supprimer */}
             {onDelete && (
               <button
                 onClick={(e) => {
@@ -129,35 +114,6 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
                 <Trash2 className="w-4 h-4 text-white" />
               </button>
             )}
-          {/* Menu avec z-index très élevé mais position relative */}
-          <div className="relative">
-            {showMenu && (
-              <div 
-                className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-xl border border-gray-200 py-1"
-                style={{ 
-                  zIndex: 999999,
-                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-                }}
-              >
-                <button
-                  onClick={handleEdit}
-                  className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
-                >
-                  <Edit className="w-4 h-4 mr-2" />
-                  Modifier
-                </button>
-                {onMove && (
-                  <button
-                    onClick={handleMove}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
-                  >
-                    <Move className="w-4 h-4 mr-2" />
-                    Déplacer
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
           </div>
         </div>
 
@@ -167,15 +123,6 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
           </div>
         )}
       </div>
-      
-      {/* Overlay pour fermer le menu */}
-      {showMenu && (
-        <div 
-          className="fixed inset-0"
-          style={{ zIndex: 999998 }}
-          onClick={() => setShowMenu(false)}
-        />
-      )}
     </div>
   );
 };
