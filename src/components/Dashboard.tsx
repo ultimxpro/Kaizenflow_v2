@@ -223,7 +223,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         </div>
 
 
-
         {/* Layout 4 colonnes avec compteurs ajoutés */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
           
