@@ -100,9 +100,10 @@ export const ModuleSelectionModal: React.FC<ModuleSelectionModalProps> = ({
 }) => {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl max-w-2xl w-full border border-gray-200/50 overflow-hidden">
+      <div className="bg-white backdrop-blur-xl rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden">
         {/* Header avec dégradé du quadrant */}
         <div className={`bg-gradient-to-r ${getQuadrantColor(quadrant)} p-6 relative overflow-hidden`}>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>-r ${getQuadrantColor(quadrant)} p-6 relative overflow-hidden`}>
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
           <div className="flex items-center justify-between relative z-10">
             <div>
