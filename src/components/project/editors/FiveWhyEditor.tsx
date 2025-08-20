@@ -161,7 +161,11 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
     const updatedProblems = problems.map(p => {
       if (p.id === problemId) {
         const causeText = p.whys[level - 1] || '';
-        return { ...p, intermediateCause: { level, text: causeText } };
+        return { 
+          ...p, 
+          intermediateCause: { level, text: causeText },
+          expandedLevel: level - 1 // Revenir au niveau de la cause définie
+        };
       }
       return p;
     });
@@ -177,8 +181,20 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
   }, [problems, updateProblems]);
 
   const clearIntermediateCause = useCallback((problemId: string) => {
-    updateProblemField(problemId, 'intermediateCause', null);
-  }, [updateProblemField]);
+    const updatedProblems = problems.map(p => {
+      if (p.id === problemId && p.intermediateCause) {
+        // Revenir au niveau où était définie la cause intermédiaire
+        const previousLevel = p.intermediateCause.level - 1;
+        return { 
+          ...p, 
+          intermediateCause: null,
+          expandedLevel: previousLevel 
+        };
+      }
+      return p;
+    });
+    updateProblems(updatedProblems);
+  }, [problems, updateProblems]);
 
   const expandToLevel = useCallback((problemId: string, level: number) => {
     updateProblemField(problemId, 'expandedLevel', level);
@@ -349,6 +365,7 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
                                 )}
                               </div>
 
+                              {/* Bouton + pour ajouter le pourquoi suivant */}
                               {isLastVisible && whyIndex < 4 && !problem.intermediateCause && (
                                 <button
                                   onClick={() => expandToLevel(problem.id, whyIndex + 1)}
@@ -358,10 +375,22 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
                                   <Plus className="w-5 h-5" />
                                 </button>
                               )}
+
+                              {/* Bouton X pour supprimer le pourquoi et revenir en arrière */}
+                              {isLastVisible && whyIndex > 0 && !problem.intermediateCause && (
+                                <button
+                                  onClick={() => expandToLevel(problem.id, whyIndex - 1)}
+                                  className="w-10 h-10 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-110 mt-16"
+                                  title="Supprimer ce pourquoi"
+                                >
+                                  <X className="w-5 h-5" />
+                                </button>
+                              )}
                             </React.Fragment>
                           );
                         })}
                         
+                        {/* Cause identifiée - remplace le pourquoi correspondant */}
                         {problem.intermediateCause && (
                           <>
                             <ChevronRight className="w-6 h-6 text-indigo-400 flex-shrink-0 mt-16" />
@@ -390,7 +419,7 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
                         )}
                         
                         {/* Cause racine finale - SEULEMENT si pourquoi 5 ET pas de cause intermédiaire */}
-                        {(problem.whys[4] && !problem.intermediateCause) && (
+                        {(problem.expandedLevel >= 4 && !problem.intermediateCause) && (
                           <>
                             <ChevronRight className="w-6 h-6 text-indigo-400 flex-shrink-0 mt-16" />
                             <div className="flex-shrink-0">
