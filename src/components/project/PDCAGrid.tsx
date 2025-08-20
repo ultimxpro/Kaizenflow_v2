@@ -52,6 +52,7 @@ const quadrants = [
     headerGradient: 'bg-gradient-to-r from-violet-400/90 via-purple-600/90 to-indigo-900/90',
     hoverShadow: 'hover:shadow-[0_8px_30px_rgb(139,92,246,0.15)]',
     allowedTools: ['OPL', 'SOP', 'Croquis', 'Iframe']
+  }
 ];
 
 const uniqueTools = ['5Pourquoi', '4M', 'VSM', '5S', 'PlanActions', 'SOP'];
