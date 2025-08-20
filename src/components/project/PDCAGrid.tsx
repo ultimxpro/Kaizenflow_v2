@@ -17,10 +17,10 @@ const quadrants = [
     id: 'PLAN', 
     title: 'PLAN', 
     subtitle: 'Description du phénomène',
-    bgGradient: 'bg-gradient-to-br from-white via-slate-50/30 to-slate-100/50',
-    borderColor: 'border-slate-300/60',
-    headerGradient: 'bg-gradient-to-r from-slate-600/90 to-slate-700/90',
-    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(100,116,139,0.15)]',
+    bgGradient: 'bg-gradient-to-br from-white via-blue-50/30 to-blue-100/50',
+    borderColor: 'border-blue-300/60',
+    headerGradient: 'bg-gradient-to-r from-blue-500/90 to-blue-600/90',
+    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(59,130,246,0.15)]',
     allowedTools: ['5Pourquoi', '4M', 'VSM', 'Croquis', 'Iframe']
   },
   { 
@@ -29,28 +29,28 @@ const quadrants = [
     subtitle: 'Description de la solution',
     bgGradient: 'bg-gradient-to-br from-white via-emerald-50/30 to-emerald-100/50',
     borderColor: 'border-emerald-300/60',
-    headerGradient: 'bg-gradient-to-r from-emerald-600/90 to-emerald-700/90',
-    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(5,150,105,0.15)]',
+    headerGradient: 'bg-gradient-to-r from-emerald-500/90 to-emerald-600/90',
+    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(16,185,129,0.15)]',
     allowedTools: ['5S', 'PlanActions', 'Croquis', 'Iframe']
   },
   { 
     id: 'CHECK', 
     title: 'CHECK', 
     subtitle: 'Vérification des résultats',
-    bgGradient: 'bg-gradient-to-br from-white via-amber-50/30 to-amber-100/50',
-    borderColor: 'border-amber-300/60',
-    headerGradient: 'bg-gradient-to-r from-amber-600/90 to-amber-700/90',
-    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(217,119,6,0.15)]',
+    bgGradient: 'bg-gradient-to-br from-white via-orange-50/30 to-orange-100/50',
+    borderColor: 'border-orange-300/60',
+    headerGradient: 'bg-gradient-to-r from-orange-500/90 to-orange-600/90',
+    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(249,115,22,0.15)]',
     allowedTools: ['Indicateurs', 'Croquis', 'Iframe']
   },
   { 
     id: 'ACT', 
     title: 'ACT', 
     subtitle: 'Standardisation et expansion',
-    bgGradient: 'bg-gradient-to-br from-white via-indigo-50/30 to-indigo-100/50',
-    borderColor: 'border-indigo-300/60',
-    headerGradient: 'bg-gradient-to-r from-indigo-600/90 to-indigo-700/90',
-    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(79,70,229,0.15)]',
+    bgGradient: 'bg-gradient-to-br from-white via-violet-50/30 to-violet-100/50',
+    borderColor: 'border-violet-300/60',
+    headerGradient: 'bg-gradient-to-r from-violet-500/90 to-violet-600/90',
+    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(139,92,246,0.15)]',
     allowedTools: ['OPL', 'SOP', 'Croquis', 'Iframe']
   }
 ];
