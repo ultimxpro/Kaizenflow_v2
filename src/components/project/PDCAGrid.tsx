@@ -4,7 +4,6 @@ import { useDatabase } from '../../contexts/DatabaseContext';
 import { A3Module } from '../../types/database';
 import { PDCAGridQuadrant } from './PDCAGridQuadrant';
 import { ModuleSelectionModal } from './ModuleSelectionModal';
-import { Target, Play, CheckCircle, RefreshCw } from 'lucide-react';
 
 interface PDCAGridProps {
   projectId: string;
@@ -55,7 +54,7 @@ const quadrants = [
     allowedTools: ['OPL', 'SOP', 'Croquis', 'Iframe']
   }
 ];
-"flex items-center space-x-4 relative z-10"
+
 const uniqueTools = ['5Pourquoi', '4M', 'VSM', '5S', 'PlanActions', 'SOP'];
 
 export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditModule, onMoveModule }) => {
@@ -135,14 +134,6 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
                     </p>
                   </div>
                 </div>
-                    <h3 className="font-bold text-xl text-white tracking-wide group-hover:scale-105 transition-transform duration-300">
-                      {quadrant.title}
-                    </h3>
-                    <p className="text-white/80 text-sm font-medium mt-1">
-                      {quadrant.subtitle}
-                    </p>
-                  </div>
-                </div>
               </div>
 
               {/* Contenu avec glassmorphism */}
@@ -151,7 +142,7 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
                   id={quadrant.id}
                   title={quadrant.title}
                   subtitle={quadrant.subtitle}
-                  icon={quadrant.icon}
+                  icon={null}
                   modules={quadrantModules}
                   onEditModule={onEditModule}
                   onMoveModule={onMoveModule}
