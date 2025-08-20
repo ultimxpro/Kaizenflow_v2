@@ -4,6 +4,24 @@ import { supabase } from '../Lib/supabase';
 import { useAuth } from './AuthContext';
 import { Project, A3Module, Action, ActionAssignee, ProjectMember } from '../types/database';
 
+// Interface pour les analyses 5Pourquoi
+interface FiveWhyAnalysis {
+  id: string;
+  module_id: string;
+  problem_title: string;
+  why_1?: string;
+  why_2?: string;
+  why_3?: string;
+  why_4?: string;
+  why_5?: string;
+  root_cause?: string;
+  intermediate_cause?: string;
+  intermediate_cause_level?: number;
+  position: number;
+  created_at: string;
+  updated_at: string;
+}
+
 interface DatabaseContextType {
   projects: Project[];
   a3Modules: A3Module[];
@@ -36,6 +54,12 @@ interface DatabaseContextType {
   addActionAssignee: (actionId: string, userId: string, isLeader: boolean) => Promise<void>;
   removeActionAssignee: (actionId: string, userId: string) => Promise<void>;
   
+  // FiveWhy Analysis operations
+  getFiveWhyAnalyses: (moduleId: string) => FiveWhyAnalysis[];
+  createFiveWhyAnalysis: (moduleId: string, problemTitle: string) => Promise<string>;
+  updateFiveWhyAnalysis: (id: string, updates: Partial<FiveWhyAnalysis>) => Promise<void>;
+  deleteFiveWhyAnalysis: (id: string) => Promise<void>;
+  
   // Refresh data
   refreshData: () => Promise<void>;
 }
@@ -56,6 +80,7 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [actions, setActions] = useState<Action[]>([]);
   const [actionAssignees, setActionAssignees] = useState<ActionAssignee[]>([]);
   const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
+  const [fiveWhyAnalyses, setFiveWhyAnalyses] = useState<FiveWhyAnalysis[]>([]);
   const [loading, setLoading] = useState(true);
   
   const { user } = useAuth();
@@ -67,6 +92,7 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
       setActions([]);
       setActionAssignees([]);
       setProjectMembers([]);
+      setFiveWhyAnalyses([]);
       setLoading(false);
       return;
     }
@@ -97,6 +123,23 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
       setActions(actionsData || []);
       setActionAssignees(assigneesData || []);
       setProjectMembers(membersData || []);
+
+      // Essayer de charger les analyses 5Pourquoi si la table existe
+      try {
+        const { data: fiveWhyData, error: fiveWhyError } = await supabase
+          .from('five_why_analyses')
+          .select('*')
+          .order('position');
+        
+        if (!fiveWhyError) {
+          setFiveWhyAnalyses(fiveWhyData || []);
+        }
+      } catch (fiveWhyError) {
+        // Table n'existe pas encore, pas grave
+        console.log('Table five_why_analyses non trouvée, utilisation du stockage temporaire');
+        setFiveWhyAnalyses([]);
+      }
+
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -291,122 +334,7 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     await fetchData();
   };
 
-  const value = {
-    projects,
-    a3Modules,
-    actions,
-    actionAssignees,
-    projectMembers,
-    loading,
-    createProject,
-    updateProject,
-    deleteProject,
-    addProjectMember,
-    updateProjectMember,
-    removeProjectMember,
-    createA3Module,
-    updateA3Module,
-    deleteA3Module,
-    createAction,
-    updateAction,
-    deleteAction,
-    addActionAssignee,
-    removeActionAssignee,
-    refreshData,
-  };
-
-  return <DatabaseContext.Provider value={value}>{children}</DatabaseContext.Provider>;
-};
-
-// À ajouter dans votre src/contexts/DatabaseContext.tsx
-
-// 1. Ajoutez ces interfaces au début du fichier après les imports existants
-interface FiveWhyAnalysis {
-  id: string;
-  module_id: string;
-  problem_title: string;
-  why_1?: string;
-  why_2?: string;
-  why_3?: string;
-  why_4?: string;
-  why_5?: string;
-  root_cause?: string;
-  intermediate_cause?: string;
-  intermediate_cause_level?: number;
-  position: number;
-  created_at: string;
-  updated_at: string;
-}
-
-// 2. Ajoutez ces méthodes dans l'interface DatabaseContextType
-interface DatabaseContextType {
-  // ... vos méthodes existantes ...
-  
-  // FiveWhy Analysis operations
-  getFiveWhyAnalyses: (moduleId: string) => FiveWhyAnalysis[];
-  createFiveWhyAnalysis: (moduleId: string, problemTitle: string) => Promise<string>;
-  updateFiveWhyAnalysis: (id: string, updates: Partial<FiveWhyAnalysis>) => Promise<void>;
-  deleteFiveWhyAnalysis: (id: string) => Promise<void>;
-}
-
-// 3. Dans le composant DatabaseProvider, ajoutez ces états
-export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // ... vos états existants ...
-  const [fiveWhyAnalyses, setFiveWhyAnalyses] = useState<FiveWhyAnalysis[]>([]);
-
-  // 4. Modifiez fetchData pour inclure les analyses 5Pourquoi
-  const fetchData = async () => {
-    if (!user) {
-      setProjects([]);
-      setA3Modules([]);
-      setActions([]);
-      setActionAssignees([]);
-      setProjectMembers([]);
-      setFiveWhyAnalyses([]);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const [
-        { data: projectsData, error: projectsError },
-        { data: modulesData, error: modulesError },
-        { data: actionsData, error: actionsError },
-        { data: assigneesData, error: assigneesError },
-        { data: membersData, error: membersError },
-        { data: fiveWhyData, error: fiveWhyError }
-      ] = await Promise.all([
-        supabase.from('projects').select('*').order('created_at', { ascending: false }),
-        supabase.from('a3_modules').select('*').order('position'),
-        supabase.from('actions').select('*').order('created_at', { ascending: false }),
-        supabase.from('action_assignees').select('*'),
-        supabase.from('project_members').select('*'),
-        supabase.from('five_why_analyses').select('*').order('position')
-      ]);
-
-      if (projectsError) throw projectsError;
-      if (modulesError) throw modulesError;
-      if (actionsError) throw actionsError;
-      if (assigneesError) throw assigneesError;
-      if (membersError) throw membersError;
-      if (fiveWhyError) console.warn('FiveWhy table not found:', fiveWhyError);
-
-      setProjects(projectsData || []);
-      setA3Modules(modulesData || []);
-      setActions(actionsData || []);
-      setActionAssignees(assigneesData || []);
-      setProjectMembers(membersData || []);
-      setFiveWhyAnalyses(fiveWhyData || []);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 5. Ajoutez ces nouvelles fonctions avant le return du value
-  
-  // FiveWhy Analysis operations
+  // FiveWhy Analysis operations (temporaires - stockage en mémoire)
   const getFiveWhyAnalyses = (moduleId: string): FiveWhyAnalysis[] => {
     return fiveWhyAnalyses.filter(analysis => analysis.module_id === moduleId);
   };
@@ -481,7 +409,6 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
-  // 6. Ajoutez les nouvelles fonctions dans le value
   const value = {
     projects,
     a3Modules,
@@ -504,7 +431,7 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     addActionAssignee,
     removeActionAssignee,
     refreshData,
-    // Nouvelles fonctions FiveWhy
+    // Fonctions FiveWhy
     getFiveWhyAnalyses,
     createFiveWhyAnalysis,
     updateFiveWhyAnalysis,
