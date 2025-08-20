@@ -60,8 +60,11 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
       }
 
       if (data && data.id) {
-        onNavigate('project', data.id);
-        onClose();
+        // Petit délai pour permettre au contexte de se rafraîchir
+        setTimeout(() => {
+          onNavigate('project', data.id);
+          onClose();
+        }, 100);
       } else {
         throw new Error("Le projet créé n'a pas été retrouvé après l'insertion.");
       }
@@ -129,13 +132,13 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                className="w-full bg-gray-50/70 backdrop-blur-sm border border-gray-200/70 rounded-xl py-3 px-4 focus:ring-2 focus:ring-gray-300 focus:border-gray-400 focus:outline-none transition-all text-gray-900 placeholder-gray-500 resize-none"
-                placeholder="Décrivez brièvement le problème à résoudre..."
+                className="w-full bg-gray-50/70 backdrop-blur-sm border border-gray-200/70 rounded-xl py-3 px-4 focus:ring-2 focus:ring-gray-300 focus:border-gray-400 focus:outline-none transition-all text-gray-900 placeholder-gray-500"
+                placeholder="Décrivez brièvement le problème ou l'opportunité d'amélioration..."
               />
             </div>
 
-            {/* Ligne avec localisation et thème */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Localisation et thème */}
+            <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label htmlFor="location" className="flex items-center text-sm font-semibold text-gray-700">
                   <MapPin className="w-4 h-4 mr-2 text-gray-500" />
@@ -147,10 +150,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   className="w-full bg-gray-50/70 backdrop-blur-sm border border-gray-200/70 rounded-xl py-3 px-4 focus:ring-2 focus:ring-gray-300 focus:border-gray-400 focus:outline-none transition-all text-gray-900 placeholder-gray-500"
-                  placeholder="Ex: Atelier A, Ligne 2"
+                  placeholder="Atelier, bureau, zone..."
                 />
               </div>
-
               <div className="space-y-2">
                 <label htmlFor="theme" className="flex items-center text-sm font-semibold text-gray-700">
                   <Calendar className="w-4 h-4 mr-2 text-gray-500" />
