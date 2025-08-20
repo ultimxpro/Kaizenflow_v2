@@ -25,7 +25,7 @@ const getPdcaStepColor = (step: string) => {
 
 export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const { currentUser, signedAvatarUrl, signOut, isAdmin, profile } = useAuth();
+  const { currentUser, signedAvatarUrl, signOut, isAdmin } = useAuth();
   const { projects, loading } = useDatabase();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -99,13 +99,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                       />
                     ) : (
                       <span className="text-gray-600 font-semibold text-sm">
-                        {profile?.nom?.[0] || currentUser?.email?.[0] || '?'}
+                        {currentUser?.user_metadata?.nom?.[0] || currentUser?.email?.[0] || '?'}
                       </span>
                     )}
                   </div>
                   <div className="hidden md:block text-left">
                     <p className="text-sm font-semibold text-gray-900">
-                      {profile?.nom || currentUser?.email?.split('@')[0] || 'Utilisateur'}
+                      {currentUser?.user_metadata?.nom || currentUser?.email?.split('@')[0] || 'Utilisateur'}
                     </p>
                     <p className="text-xs text-gray-500">{currentUser?.email}</p>
                   </div>
@@ -158,12 +158,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         {/* En-tête de la page avec barre de recherche */}
-        <div className="mb-8 flex justify-between items-center">
+        <div className="mb-8 flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Tableau de Bord</h1>
             <p className="text-gray-600 font-medium">Gérez vos projets d'amélioration continue</p>
           </div>
-          
+
           {/* Barre de recherche alignée et descendue */}
           <div className="relative w-80 mt-4">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -211,160 +211,180 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          {/* Total économies - Gris anthracite */}
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/20 shadow-lg hover:shadow-xl transition-all group text-white">
+          {/* Économies - Gris bleuté */}
+          <div className="bg-gradient-to-br from-gray-600 to-gray-700 backdrop-blur-sm rounded-2xl p-6 border border-gray-500/20 shadow-lg hover:shadow-xl transition-all group text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-200 opacity-90">Total économies</p>
-                <p className="text-3xl font-bold text-white">
-                  {stats.totalSavings > 0 ? `${stats.totalSavings}€` : '0€'}
-                </p>
+                <p className="text-sm font-medium text-gray-200 opacity-90">Économies</p>
+                <p className="text-2xl font-bold text-white">{stats.totalSavings.toLocaleString('fr-FR')} €</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Layout principal */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Mes projets - Colonne principale */}
-          <div className="lg:col-span-2">
-            <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
-              <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold flex items-center">
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-                      <FolderOpen className="w-4 h-4 text-gray-600" />
-                    </div>
-                    Mes Kaizens
-                    <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full ml-3">
-                      {filteredProjects.length}
-                    </span>
-                  </h2>
-                  {/* Bouton nouveau kaizen pour mobile */}
-                  <button
-                    onClick={() => setShowCreateModal(true)}
-                    className="sm:hidden bg-gradient-to-r from-gray-800 to-gray-700 text-white p-2 rounded-xl hover:from-gray-900 hover:to-gray-800 transition-all transform hover:scale-[0.95] shadow-lg"
-                  >
-                    <Plus className="w-5 h-5" />
-                  </button>
-                </div>
-                <p className="text-gray-400 text-sm">Projets que vous pilotez</p>
-              </div>
-              
-              <div className="p-5 overflow-y-auto">
-                {loading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
+
+        {/* Layout 4 colonnes avec compteurs ajoutés */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+          
+          {/* Mes Kaizens avec compteur */}
+          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
+            <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
+              <h2 className="text-lg font-semibold flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                    <FolderOpen className="w-4 h-4 text-gray-600" />
                   </div>
-                ) : filteredProjects.length > 0 ? (
-                  <div className="space-y-4">
-                    {filteredProjects.map(project => (
-                      <div 
-                        key={project.id}
-                        onClick={() => onNavigate('project', project.id)}
-                        className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/60 hover:shadow-lg hover:bg-white transition-all duration-300 cursor-pointer group hover:border-gray-300 hover:-translate-y-0.5"
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                            <h3 className="font-semibold text-gray-900 group-hover:text-gray-700 text-sm">
-                              {project.titre}
-                            </h3>
-                          </div>
-                          <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${getPdcaStepColor(project.pdca_step)}`}>
-                            {project.pdca_step}
-                          </span>
-                        </div>
-                        
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <span className="bg-gray-100/70 px-2 py-1 rounded-md font-medium">
-                            {project.kaizen_number}
-                          </span>
-                          <span className={`px-2 py-1 rounded-md font-medium ${
-                            project.statut === 'En cours' 
-                              ? 'bg-green-100/70 text-green-700' 
-                              : 'bg-gray-100/70 text-gray-600'
-                          }`}>
-                            {project.statut}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                  Mes Kaizens
+                </div>
+                <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                  {filteredProjects.length}
+                </span>
+              </h2>
+              <p className="text-gray-400 text-sm mt-1">Projets que vous pilotez</p>
+            </div>
+            <div className="p-5 space-y-4 overflow-y-auto">
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin"></div>
+                </div>
+              ) : filteredProjects.length === 0 ? (
+                searchTerm ? (
+                  <div className="text-center py-8 text-gray-400">
+                    <Search className="w-12 h-12 mx-auto mb-2" />
+                    <p>Aucun kaizen trouvé pour "{searchTerm}"</p>
+                    <button
+                      onClick={() => setSearchTerm('')}
+                      className="mt-2 text-blue-600 hover:text-blue-800 font-semibold text-sm"
+                    >
+                      Effacer la recherche
+                    </button>
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-gray-400">
-                    <FolderOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p className="font-medium">Aucun kaizen trouvé</p>
-                    <p className="text-sm mt-1">
-                      {searchTerm ? 'Essayez avec un autre terme de recherche' : 'Créez votre premier projet d\'amélioration continue'}
-                    </p>
+                  <div className="text-center py-8 text-gray-400">
+                    <FolderOpen className="w-12 h-12 mx-auto mb-2" />
+                    <p>Aucun projet en cours.</p>
+                    <button
+                      onClick={() => setShowCreateModal(true)}
+                      className="mt-4 text-blue-600 hover:text-blue-800 font-semibold text-sm"
+                    >
+                      Créer votre premier Kaizen
+                    </button>
                   </div>
-                )}
+                )
+              ) : (
+                filteredProjects.sort((a, b) => {
+                  if (a.statut === 'En cours' && b.statut === 'Terminé') return -1;
+                  if (a.statut === 'Terminé' && b.statut === 'En cours') return 1;
+                  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                }).map((project) => (
+                  <div
+                    key={project.id}
+                    onClick={() => onNavigate('project', project.id)}
+                    className="bg-white rounded-xl p-4 border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-start justify-between">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-2">
+                        {project.titre}
+                      </h3>
+                      <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ml-2 flex-shrink-0 ${
+                        project.statut === 'Terminé' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                      }`}>
+                        {project.statut}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-400 mt-1">{project.kaizen_number}</p>
+                    <div className="flex items-center justify-between mt-4">
+                        <span className={`px-4 py-2 text-xs font-semibold rounded-lg shadow-sm ${getPdcaStepColor(project.pdca_step)}`}>
+                            {project.pdca_step}
+                        </span>
+                        <span className="text-xs text-gray-500">{new Date(project.created_at).toLocaleDateString('fr-FR')}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Où j'interviens avec compteur */}
+          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
+            <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
+              <h2 className="text-lg font-semibold flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                    <Users className="w-4 h-4 text-gray-600" />
+                  </div>
+                  Où j'interviens
+                </div>
+                <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                  {contributingProjects.length}
+                </span>
+              </h2>
+              <p className="text-gray-400 text-sm mt-1">Projets où vous contribuez</p>
+            </div>
+            <div className="p-5 overflow-y-auto">
+              <div className="text-center py-8 text-gray-400">
+                <Users className="w-12 h-12 mx-auto mb-2" />
+                <p>Aucune contribution.</p>
               </div>
             </div>
           </div>
 
-          {/* Sidebar droite */}
-          <div className="space-y-6">
-            {/* Projets où je contribue avec compteur */}
-            <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[30vh]">
-              <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
-                <h2 className="text-lg font-semibold flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-                      <Users className="w-4 h-4 text-gray-600" />
-                    </div>
-                    Contributions
+          {/* Mes actions avec compteur */}
+          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
+            <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
+              <h2 className="text-lg font-semibold flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                    <Calendar className="w-4 h-4 text-gray-600" />
                   </div>
-                  <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                    {contributingProjects.length}
-                  </span>
-                </h2>
-                <p className="text-gray-400 text-sm mt-1">Projets où vous contribuez</p>
-              </div>
-              <div className="p-5 overflow-y-auto">
-                <div className="text-center py-8 text-gray-400">
-                  <Users className="w-12 h-12 mx-auto mb-2" />
-                  <p>Aucune contribution.</p>
+                  Mes actions
                 </div>
-              </div>
+                <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                  0
+                </span>
+              </h2>
+              <p className="text-gray-400 text-sm mt-1">Tâches qui vous sont assignées</p>
             </div>
-
-            {/* Mes actions avec compteur */}
-            <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
-              <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
-                <h2 className="text-lg font-semibold flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-                      <Calendar className="w-4 h-4 text-gray-600" />
-                    </div>
-                    Mes actions
-                  </div>
-                  <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                    0
-                  </span>
-                </h2>
-                <p className="text-gray-400 text-sm mt-1">Tâches qui vous sont assignées</p>
-              </div>
-              <div className="p-5 overflow-y-auto">
-                <div className="text-center py-8 text-gray-400">
-                  <Calendar className="w-12 h-12 mx-auto mb-2" />
-                  <p>Aucune action assignée.</p>
-                </div>
+            <div className="p-5 overflow-y-auto">
+              <div className="text-center py-8 text-gray-400">
+                <Calendar className="w-12 h-12 mx-auto mb-2" />
+                <p>Aucune action assignée.</p>
               </div>
             </div>
           </div>
+
+          {/* Notifications avec compteur */}
+          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
+            <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
+              <h2 className="text-lg font-semibold flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                    <Bell className="w-4 h-4 text-gray-600" />
+                  </div>
+                  Notifications
+                </div>
+                <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                  0
+                </span>
+              </h2>
+              <p className="text-gray-400 text-sm mt-1">Alertes et mises à jour</p>
+            </div>
+            <div className="p-5 overflow-y-auto">
+              <div className="text-center py-8 text-gray-400">
+                <Bell className="w-12 h-12 mx-auto mb-2" />
+                <p>Aucune notification.</p>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
       {/* Modal de création de projet */}
       {showCreateModal && (
-        <CreateProjectModal 
+        <CreateProjectModal
           onClose={() => setShowCreateModal(false)}
-          onProjectCreated={(projectId) => {
-            setShowCreateModal(false);
-            onNavigate('project', projectId);
-          }}
+          onNavigate={onNavigate}
         />
       )}
     </div>
