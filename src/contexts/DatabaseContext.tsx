@@ -317,3 +317,199 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   return <DatabaseContext.Provider value={value}>{children}</DatabaseContext.Provider>;
 };
+
+// À ajouter dans votre src/contexts/DatabaseContext.tsx
+
+// 1. Ajoutez ces interfaces au début du fichier après les imports existants
+interface FiveWhyAnalysis {
+  id: string;
+  module_id: string;
+  problem_title: string;
+  why_1?: string;
+  why_2?: string;
+  why_3?: string;
+  why_4?: string;
+  why_5?: string;
+  root_cause?: string;
+  intermediate_cause?: string;
+  intermediate_cause_level?: number;
+  position: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 2. Ajoutez ces méthodes dans l'interface DatabaseContextType
+interface DatabaseContextType {
+  // ... vos méthodes existantes ...
+  
+  // FiveWhy Analysis operations
+  getFiveWhyAnalyses: (moduleId: string) => FiveWhyAnalysis[];
+  createFiveWhyAnalysis: (moduleId: string, problemTitle: string) => Promise<string>;
+  updateFiveWhyAnalysis: (id: string, updates: Partial<FiveWhyAnalysis>) => Promise<void>;
+  deleteFiveWhyAnalysis: (id: string) => Promise<void>;
+}
+
+// 3. Dans le composant DatabaseProvider, ajoutez ces états
+export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // ... vos états existants ...
+  const [fiveWhyAnalyses, setFiveWhyAnalyses] = useState<FiveWhyAnalysis[]>([]);
+
+  // 4. Modifiez fetchData pour inclure les analyses 5Pourquoi
+  const fetchData = async () => {
+    if (!user) {
+      setProjects([]);
+      setA3Modules([]);
+      setActions([]);
+      setActionAssignees([]);
+      setProjectMembers([]);
+      setFiveWhyAnalyses([]);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const [
+        { data: projectsData, error: projectsError },
+        { data: modulesData, error: modulesError },
+        { data: actionsData, error: actionsError },
+        { data: assigneesData, error: assigneesError },
+        { data: membersData, error: membersError },
+        { data: fiveWhyData, error: fiveWhyError }
+      ] = await Promise.all([
+        supabase.from('projects').select('*').order('created_at', { ascending: false }),
+        supabase.from('a3_modules').select('*').order('position'),
+        supabase.from('actions').select('*').order('created_at', { ascending: false }),
+        supabase.from('action_assignees').select('*'),
+        supabase.from('project_members').select('*'),
+        supabase.from('five_why_analyses').select('*').order('position')
+      ]);
+
+      if (projectsError) throw projectsError;
+      if (modulesError) throw modulesError;
+      if (actionsError) throw actionsError;
+      if (assigneesError) throw assigneesError;
+      if (membersError) throw membersError;
+      if (fiveWhyError) console.warn('FiveWhy table not found:', fiveWhyError);
+
+      setProjects(projectsData || []);
+      setA3Modules(modulesData || []);
+      setActions(actionsData || []);
+      setActionAssignees(assigneesData || []);
+      setProjectMembers(membersData || []);
+      setFiveWhyAnalyses(fiveWhyData || []);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 5. Ajoutez ces nouvelles fonctions avant le return du value
+  
+  // FiveWhy Analysis operations
+  const getFiveWhyAnalyses = (moduleId: string): FiveWhyAnalysis[] => {
+    return fiveWhyAnalyses.filter(analysis => analysis.module_id === moduleId);
+  };
+
+  const createFiveWhyAnalysis = async (moduleId: string, problemTitle: string): Promise<string> => {
+    try {
+      // Générer un ID temporaire
+      const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Créer l'analyse temporairement en mémoire
+      const newAnalysis: FiveWhyAnalysis = {
+        id: tempId,
+        module_id: moduleId,
+        problem_title: problemTitle,
+        position: fiveWhyAnalyses.filter(a => a.module_id === moduleId).length,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      setFiveWhyAnalyses(prev => [...prev, newAnalysis]);
+      
+      // TODO: Remplacer par un vrai appel Supabase quand la table existe
+      // const { data, error } = await supabase.from('five_why_analyses').insert({
+      //   module_id: moduleId,
+      //   problem_title: problemTitle,
+      //   position: newAnalysis.position
+      // }).select().single();
+      // if (error) throw error;
+      // await fetchData();
+      // return data.id;
+      
+      return tempId;
+    } catch (error) {
+      console.error('Error creating FiveWhy analysis:', error);
+      throw error;
+    }
+  };
+
+  const updateFiveWhyAnalysis = async (id: string, updates: Partial<FiveWhyAnalysis>): Promise<void> => {
+    try {
+      // Mettre à jour en mémoire
+      setFiveWhyAnalyses(prev => 
+        prev.map(analysis => 
+          analysis.id === id 
+            ? { ...analysis, ...updates, updated_at: new Date().toISOString() }
+            : analysis
+        )
+      );
+      
+      // TODO: Remplacer par un vrai appel Supabase quand la table existe
+      // const { error } = await supabase.from('five_why_analyses').update(updates).eq('id', id);
+      // if (error) throw error;
+      // await fetchData();
+    } catch (error) {
+      console.error('Error updating FiveWhy analysis:', error);
+      throw error;
+    }
+  };
+
+  const deleteFiveWhyAnalysis = async (id: string): Promise<void> => {
+    try {
+      // Supprimer en mémoire
+      setFiveWhyAnalyses(prev => prev.filter(analysis => analysis.id !== id));
+      
+      // TODO: Remplacer par un vrai appel Supabase quand la table existe
+      // const { error } = await supabase.from('five_why_analyses').delete().eq('id', id);
+      // if (error) throw error;
+      // await fetchData();
+    } catch (error) {
+      console.error('Error deleting FiveWhy analysis:', error);
+      throw error;
+    }
+  };
+
+  // 6. Ajoutez les nouvelles fonctions dans le value
+  const value = {
+    projects,
+    a3Modules,
+    actions,
+    actionAssignees,
+    projectMembers,
+    loading,
+    createProject,
+    updateProject,
+    deleteProject,
+    addProjectMember,
+    updateProjectMember,
+    removeProjectMember,
+    createA3Module,
+    updateA3Module,
+    deleteA3Module,
+    createAction,
+    updateAction,
+    deleteAction,
+    addActionAssignee,
+    removeActionAssignee,
+    refreshData,
+    // Nouvelles fonctions FiveWhy
+    getFiveWhyAnalyses,
+    createFiveWhyAnalysis,
+    updateFiveWhyAnalysis,
+    deleteFiveWhyAnalysis,
+  };
+
+  return <DatabaseContext.Provider value={value}>{children}</DatabaseContext.Provider>;
+};
