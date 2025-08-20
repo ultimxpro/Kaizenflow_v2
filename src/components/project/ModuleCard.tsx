@@ -1,77 +1,65 @@
+// src/components/project/ModuleCard.tsx
 import React from 'react';
 import { A3Module } from '../../types/database';
-import { HelpCircle, MessageSquareQuote as MessageSquareQuestion, Image, GitBranch, BookOpen, CheckSquare, Workflow, Monitor, PenTool, Edit, MoreVertical, Trash2, Activity } from 'lucide-react';
+import { 
+  MessageSquareQuestion, GitBranch, BookOpen, CheckSquare, 
+  Workflow, Monitor, PenTool, Activity, FileText, MoreVertical, 
+  Edit, Trash2, Move 
+} from 'lucide-react';
 
 interface ModuleCardProps {
   module: A3Module;
   onClick: () => void;
   onMove?: (module: A3Module) => void;
-  onDelete?: () => void; // MODIFICATION : Nouvelle prop pour la suppression
+  onDelete?: () => void;
 }
 
-// RESTAURATION : La fonction getToolIcon est complète
-const getToolIcon = (tool_type: string) => {
-  switch (tool_type) {
-    case '5W1H': return <HelpCircle className="w-4 h-4" />;
+const getToolIcon = (toolType: string) => {
+  switch (toolType) {
     case '5Pourquoi': return <MessageSquareQuestion className="w-4 h-4" />;
-    case 'Image': return <Image className="w-4 h-4" />;
     case '4M': return <GitBranch className="w-4 h-4" />;
+    case 'VSM': return <Workflow className="w-4 h-4" />;
     case 'OPL': return <BookOpen className="w-4 h-4" />;
     case '5S': return <CheckSquare className="w-4 h-4" />;
-    case 'VSM': return <Workflow className="w-4 h-4" />;
     case 'PlanActions': return <CheckSquare className="w-4 h-4" />;
     case 'Croquis': return <PenTool className="w-4 h-4" />;
     case 'Iframe': return <Monitor className="w-4 h-4" />;
     case 'Indicateurs': return <Activity className="w-4 h-4" />;
-    default: return <HelpCircle className="w-4 h-4" />;
+    case 'SOP': return <FileText className="w-4 h-4" />;
+    default: return <FileText className="w-4 h-4" />;
   }
 };
 
-// RESTAURATION : La fonction getToolColor est complète
-const getToolColor = (tool_type: string) => {
-  switch (tool_type) {
-    case '5W1H': return 'bg-blue-500';
-    case '5Pourquoi': return 'bg-purple-500';
-    case 'Image': return 'bg-orange-500';
-    case '4M': return 'bg-red-500';
-    case 'OPL': return 'bg-indigo-500';
-    case '5S': return 'bg-teal-500';
-    case 'VSM': return 'bg-emerald-500';
-    case 'PlanActions': return 'bg-green-600';
-    case 'Croquis': return 'bg-yellow-500';
-    case 'Iframe': return 'bg-gray-500';
-    case 'Indicateurs': return 'bg-cyan-500';
-    default: return 'bg-gray-500';
+const getToolColor = (toolType: string) => {
+  switch (toolType) {
+    case '5Pourquoi': return 'from-purple-500 to-purple-600';
+    case '4M': return 'from-red-500 to-red-600';
+    case 'VSM': return 'from-emerald-500 to-emerald-600';
+    case 'OPL': return 'from-indigo-500 to-indigo-600';
+    case '5S': return 'from-teal-500 to-teal-600';
+    case 'PlanActions': return 'from-green-500 to-green-600';
+    case 'Croquis': return 'from-yellow-500 to-yellow-600';
+    case 'Iframe': return 'from-gray-500 to-gray-600';
+    case 'Indicateurs': return 'from-cyan-500 to-cyan-600';
+    case 'SOP': return 'from-indigo-500 to-indigo-600';
+    default: return 'from-gray-500 to-gray-600';
   }
 };
 
-// RESTAURATION : La fonction getContentPreview est complète
-const getContentPreview = (module: A3Module): string => {
-  if (module.titre) {
-    return module.titre;
+const getToolName = (toolType: string) => {
+  switch (toolType) {
+    case '5Pourquoi': return '5 Pourquoi';
+    case '4M': return '4M (Ishikawa)';
+    case 'VSM': return 'VSM';
+    case 'OPL': return 'OPL';
+    case '5S': return '5S';
+    case 'PlanActions': return 'Plan d\'Actions';
+    case 'Croquis': return 'Croquis';
+    case 'Iframe': return 'Iframe';
+    case 'Indicateurs': return 'Indicateurs';
+    case 'SOP': return 'SOP';
+    default: return toolType;
   }
-
-  const { content, tool_type } = module;
-  
-  if (!content || Object.keys(content).length === 0) {
-    return 'Cliquez pour configurer';
-  }
-
-  switch (tool_type) {
-    case '5Pourquoi':
-      if (content.problems && content.problems.length > 0) {
-        return `${content.problems.length} problème(s) analysé(s)`;
-      }
-      break;
-    case '4M':
-      const totalCauses = (content.machine?.length || 0) + (content.methode?.length || 0) + 
-                          (content.materiel?.length || 0) + (content.mainOeuvre?.length || 0);
-      if (totalCauses > 0) return `${totalCauses} cause(s) identifiée(s)`;
-      break;
-    // Ajoutez d'autres cas spécifiques si nécessaire
-  }
-
-  return module.titre || 'Cliquez pour configurer';
 };
 
 export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove, onDelete }) => {
@@ -82,76 +70,94 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
     setShowMenu(!showMenu);
   };
 
-  const handleDeleteClick = (e: React.MouseEvent) => {
+  const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onDelete) {
-      onDelete();
-    }
+    setShowMenu(false);
+    onClick();
+  };
+
+  const handleMove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    if (onMove) onMove(module);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    if (onDelete) onDelete();
   };
 
   return (
-    <div className="relative">
-      <div
+    <div className="relative group">
+      <div 
+        className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/60 hover:border-gray-300 hover:shadow-lg transition-all cursor-pointer hover:bg-white/90"
         onClick={onClick}
-        className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-lg hover:border-blue-300 transition-all cursor-pointer group"
       >
-        <div className="flex items-start space-x-3">
-          <div className={`${getToolColor(module.tool_type)} text-white p-1.5 rounded-md flex-shrink-0`}>
-            {getToolIcon(module.tool_type)}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-3">
+            <div className={`w-8 h-8 bg-gradient-to-br ${getToolColor(module.tool_type)} rounded-lg flex items-center justify-center text-white shadow-sm`}>
+              {getToolIcon(module.tool_type)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h4 className="text-sm font-semibold text-gray-900 truncate">
+                {module.titre || getToolName(module.tool_type)}
+              </h4>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              {/* MODIFICATION : Titre en gras (font-medium -> font-bold) */}
-              <h4 className="text-sm font-bold text-gray-900">{module.tool_type}</h4>
-              <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                {/* MODIFICATION : Ajout du bouton de suppression */}
-                {onDelete && (
-                    <button
-                        onClick={handleDeleteClick}
-                        className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full"
-                        title="Supprimer le module"
-                    >
-                        <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                )}
-                <Edit className="w-3 h-3 text-gray-400" />
+          
+          {/* Menu trois points */}
+          <div className="relative">
+            <button
+              onClick={handleMenuClick}
+              className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+            >
+              <MoreVertical className="w-4 h-4 text-gray-500" />
+            </button>
+            
+            {showMenu && (
+              <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                <button
+                  onClick={handleEdit}
+                  className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Modifier
+                </button>
                 {onMove && (
                   <button
-                    onClick={handleMenuClick}
-                    className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full"
-                    title="Déplacer le module"
+                    onClick={handleMove}
+                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
                   >
-                    <MoreVertical className="w-3.5 h-3.5" />
+                    <Move className="w-4 h-4 mr-2" />
+                    Déplacer
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    onClick={handleDelete}
+                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Supprimer
                   </button>
                 )}
               </div>
-            </div>
-            <p className="text-xs text-gray-600 mt-1 line-clamp-2">
-              {getContentPreview(module)}
-            </p>
-            {/* MODIFICATION : Le point vert a été supprimé */}
+            )}
           </div>
         </div>
+
+        {module.date_echeance && (
+          <div className="text-xs text-gray-500">
+            Échéance : {new Date(module.date_echeance).toLocaleDateString('fr-FR')}
+          </div>
+        )}
       </div>
-
-      {showMenu && onMove && (
-        <div className="absolute top-0 right-0 mt-8 mr-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onMove(module);
-              setShowMenu(false);
-            }}
-            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
-          >
-            Déplacer le quadrant
-          </button>
-        </div>
-      )}
-
+      
+      {/* Overlay pour fermer le menu */}
       {showMenu && (
-        <div
-          className="fixed inset-0 z-5"
+        <div 
+          className="fixed inset-0 z-40" 
           onClick={() => setShowMenu(false)}
         />
       )}
