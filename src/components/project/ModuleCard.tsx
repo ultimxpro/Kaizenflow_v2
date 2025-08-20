@@ -131,7 +131,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
             )}
             
             {showMenu && (
-              <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[60]">
+              <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[9999]">
                 <button
                   onClick={handleEdit}
                   className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
@@ -163,7 +163,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
       {/* Overlay pour fermer le menu */}
       {showMenu && (
         <div 
-          className="fixed inset-0 z-[55]" 
+          className="fixed inset-0 z-[9998]" 
           onClick={() => setShowMenu(false)}
         />
       )}
