@@ -237,16 +237,18 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
 
       {/* Header avec titre éditable */}
       <div className="relative z-30 bg-white/80 backdrop-blur-xl border-b border-gray-200/60 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4">
           <div className="flex items-center justify-between py-6">
-            {/* Bouton retour - TOUT À GAUCHE */}
-            <button
-              onClick={() => onNavigate('dashboard')}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-all group"
-            >
-              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-              <span className="font-medium">Retour</span>
-            </button>
+            {/* Bouton retour - VRAIMENT TOUT À GAUCHE */}
+            <div className="flex-shrink-0">
+              <button
+                onClick={() => onNavigate('dashboard')}
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-all group"
+              >
+                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                <span className="font-medium">Retour</span>
+              </button>
+            </div>
 
             {/* Titre et description - AU CENTRE */}
             <div className="flex-1 flex flex-col items-center justify-center mx-8">
@@ -312,8 +314,8 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
               )}
             </div>
 
-            {/* Bouton de suppression rouge - TOUT À DROITE */}
-            <div className="flex items-center space-x-2">
+            {/* Bouton de suppression rouge - VRAIMENT TOUT À DROITE */}
+            <div className="flex-shrink-0">
               {canDeleteProject && (
                 <button
                   onClick={(e) => {
@@ -322,10 +324,10 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
                       setShowDeleteModal(true);
                     }
                   }}
-                  className="w-12 h-12 rounded-xl bg-red-500 hover:bg-red-600 flex items-center justify-center transition-all shadow-lg hover:shadow-xl"
+                  className="w-10 h-10 rounded-xl bg-red-500 hover:bg-red-600 flex items-center justify-center transition-all shadow-lg hover:shadow-xl"
                   title="Supprimer le projet"
                 >
-                  <Trash2 className="w-6 h-6 text-white" />
+                  <Trash2 className="w-5 h-5 text-white" />
                 </button>
               )}
             </div>
