@@ -99,15 +99,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                       />
                     ) : (
                       <span className="text-gray-600 font-semibold text-sm">
-                        {currentUser?.user_metadata?.nom?.[0] || currentUser?.email?.[0] || '?'}
+                        {currentUser?.nom?.[0] || '?'}
                       </span>
                     )}
                   </div>
                   <div className="hidden md:block text-left">
                     <p className="text-sm font-semibold text-gray-900">
                       {currentUser?.nom || 'Utilisateur'}
-                    </p>
-                    <p className="text-xs text-gray-500">{currentUser?.email}</p>
+                    </p>      
                   </div>
                   <ChevronDown className="w-4 h-4 text-gray-500 group-hover:text-gray-700 transition-colors" />
                 </button>
