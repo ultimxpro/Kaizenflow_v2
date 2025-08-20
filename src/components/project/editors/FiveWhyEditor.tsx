@@ -145,63 +145,62 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
     updateProblems(updatedProblems);
   }, [problems, updateProblems]);
 
-  const updateWhy = useCallback((problemId: string, whyIndex: number, value: string) => {
+  const expandToLevel = useCallback((problemId: string, level: number) => {
     const updatedProblems = problems.map(p => {
       if (p.id === problemId) {
-        const newWhys = [...p.whys];
-        newWhys[whyIndex] = value;
-        return { ...p, whys: newWhys };
-      }
-      return p;
-    });
-    updateProblems(updatedProblems);
-  }, [problems, updateProblems]);
-  
-  const setIntermediateCause = useCallback((problemId: string, level: number) => {
-    const updatedProblems = problems.map(p => {
-      if (p.id === problemId) {
-        const causeText = p.whys[level - 1] || '';
-        return { 
-          ...p, 
-          intermediateCause: { level, text: causeText },
-          expandedLevel: level - 1 // Revenir au niveau de la cause définie
-        };
+        const newProblem = { ...p, expandedLevel: level };
+        if (level < p.expandedLevel) {
+          for (let i = level + 1; i < 5; i++) {
+            newProblem.whys[i] = '';
+          }
+          if (level < 4) {
+            newProblem.rootCause = '';
+          }
+        }
+        return newProblem;
       }
       return p;
     });
     updateProblems(updatedProblems);
   }, [problems, updateProblems]);
 
+  const addNextWhy = useCallback((problemId: string) => {
+    const updatedProblems = problems.map(p => 
+      p.id === problemId ? { ...p, expandedLevel: Math.min(p.expandedLevel + 1, 4) } : p
+    );
+    updateProblems(updatedProblems);
+  }, [problems, updateProblems]);
+
+  const setIntermediateCause = useCallback((problemId: string, level: number, text: string) => {
+    const updatedProblems = problems.map(p => 
+      p.id === problemId ? { 
+        ...p, 
+        intermediateCause: { level, text },
+        expandedLevel: level
+      } : p
+    );
+    updateProblems(updatedProblems);
+  }, [problems, updateProblems]);
+
   const updateIntermediateCauseText = useCallback((problemId: string, text: string) => {
-    const updatedProblems = problems.map(p =>
-      p.id === problemId && p.intermediateCause ?
-        { ...p, intermediateCause: { ...p.intermediateCause, text } } : p
+    const updatedProblems = problems.map(p => 
+      p.id === problemId && p.intermediateCause ? { 
+        ...p, 
+        intermediateCause: { ...p.intermediateCause, text }
+      } : p
     );
     updateProblems(updatedProblems);
   }, [problems, updateProblems]);
 
   const clearIntermediateCause = useCallback((problemId: string) => {
-    const updatedProblems = problems.map(p => {
-      if (p.id === problemId && p.intermediateCause) {
-        // Revenir au niveau où était définie la cause intermédiaire
-        const previousLevel = p.intermediateCause.level - 1;
-        return { 
-          ...p, 
-          intermediateCause: null,
-          expandedLevel: previousLevel 
-        };
-      }
-      return p;
-    });
+    const updatedProblems = problems.map(p => 
+      p.id === problemId ? { ...p, intermediateCause: null } : p
+    );
     updateProblems(updatedProblems);
   }, [problems, updateProblems]);
 
-  const expandToLevel = useCallback((problemId: string, level: number) => {
-    updateProblemField(problemId, 'expandedLevel', level);
-  }, [updateProblemField]);
-
   const deleteProblem = async (problemId: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette analyse ?')) {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette analyse ?')) {
       try {
         await deleteFiveWhyAnalysis(problemId);
         const newProblems = problems.filter(p => p.id !== problemId);
@@ -300,18 +299,18 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
                       </button>
                     </div>
 
-                    {/* Définition du problème */}
-                    <div className="mb-8">
-                      <div className="bg-gradient-to-br from-red-500 to-pink-600 p-4 rounded-xl shadow-lg">
-                        <label className="block text-sm font-bold text-white mb-3 flex items-center">
-                          <Flag className="w-4 h-4 mr-2" />
-                          PROBLÈME
+                    {/* NOUVEAU : Petit champ problème intégré avant le premier pourquoi */}
+                    <div className="mb-6">
+                      <div className="flex items-start space-x-3 mb-4">
+                        <label className="text-sm font-semibold text-gray-700 pt-2 flex-shrink-0 w-20">
+                          Problème :
                         </label>
                         <textarea
                           value={problem.problem}
                           onChange={(e) => updateProblemField(problem.id, 'problem', e.target.value)}
-                          className="w-full h-24 text-sm bg-white/90 backdrop-blur-sm border-0 rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-white/50 placeholder-gray-500"
+                          className="flex-1 text-sm bg-white border border-gray-200 rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                           placeholder="Décrivez clairement le problème à analyser..."
+                          rows={2}
                         />
                       </div>
                     </div>
@@ -319,16 +318,7 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
                     {/* Séquence des pourquoi avec style amélioré */}
                     <div className="relative">
                       <div className="flex items-start space-x-4 overflow-x-auto pb-4">
-                        {/* Problème de départ */}
-                        <div className="flex flex-col items-center space-y-2 flex-shrink-0">
-                          <div className="bg-gradient-to-br from-red-500 to-pink-600 p-4 rounded-xl shadow-lg w-64">
-                            <div className="text-sm font-bold text-white mb-2 text-center">PROBLÈME</div>
-                            <div className="text-sm text-white/90 line-clamp-3 text-center">
-                              {problem.problem || 'Définissez votre problème...'}
-                            </div>
-                          </div>
-                        </div>
-
+                        
                         {/* Chaîne des pourquoi */}
                         {problem.whys.map((why, whyIndex) => {
                           const isVisible = whyIndex <= problem.expandedLevel;
@@ -338,7 +328,7 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
 
                           return (
                             <React.Fragment key={whyIndex}>
-                              <ChevronRight className="w-6 h-6 text-indigo-400 flex-shrink-0 mt-16" />
+                              {whyIndex > 0 && <ChevronRight className="w-6 h-6 text-indigo-400 flex-shrink-0 mt-16" />}
                               <div className="flex flex-col items-center space-y-2 flex-shrink-0">
                                 <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-4 rounded-xl shadow-lg w-64">
                                   <label className="block text-sm font-bold text-white mb-3 flex items-center justify-center">
@@ -349,32 +339,43 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
                                   </label>
                                   <textarea
                                     value={why}
-                                    onChange={(e) => updateWhy(problem.id, whyIndex, e.target.value)}
+                                    onChange={(e) => {
+                                      const newWhys = [...problem.whys];
+                                      newWhys[whyIndex] = e.target.value;
+                                      updateProblemField(problem.id, 'whys', newWhys);
+                                    }}
                                     className="w-full h-24 text-sm bg-white/90 backdrop-blur-sm border-0 rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-white/50 placeholder-gray-500"
-                                    placeholder={`Répondez au pourquoi ${whyIndex + 1}...`}
+                                    placeholder={`Pourquoi ${whyIndex + 1} ?`}
                                   />
                                 </div>
-                                {!problem.intermediateCause && whyIndex < 4 && (
-                                  <button 
-                                    onClick={() => setIntermediateCause(problem.id, whyIndex + 1)}
-                                    className="flex items-center space-x-2 text-xs font-semibold text-orange-600 hover:text-orange-800 transition-colors px-3 py-1 rounded-lg hover:bg-orange-100"
-                                  >
-                                    <Flag className="w-3 h-3"/>
-                                    <span>Définir comme cause</span>
-                                  </button>
+
+                                {/* Boutons d'action */}
+                                {isLastVisible && (
+                                  <div className="flex flex-col space-y-2">
+                                    {/* Bouton pour continuer */}
+                                    {whyIndex < 4 && !problem.intermediateCause && (
+                                      <button 
+                                        onClick={() => addNextWhy(problem.id)}
+                                        className="flex items-center space-x-2 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors px-3 py-1 rounded-lg hover:bg-indigo-50"
+                                      >
+                                        <Plus className="w-3 h-3"/>
+                                        <span>Continuer</span>
+                                      </button>
+                                    )}
+
+                                    {/* Bouton pour identifier une cause */}
+                                    {!problem.intermediateCause && (
+                                      <button 
+                                        onClick={() => setIntermediateCause(problem.id, whyIndex + 1, '')}
+                                        className="flex items-center space-x-2 text-xs font-semibold text-orange-600 hover:text-orange-800 transition-colors px-3 py-1 rounded-lg hover:bg-orange-50"
+                                      >
+                                        <Flag className="w-3 h-3"/>
+                                        <span>Cause trouvée</span>
+                                      </button>
+                                    )}
+                                  </div>
                                 )}
                               </div>
-
-                              {/* Bouton + pour ajouter le pourquoi suivant */}
-                              {isLastVisible && whyIndex < 4 && !problem.intermediateCause && (
-                                <button
-                                  onClick={() => expandToLevel(problem.id, whyIndex + 1)}
-                                  className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-110 mt-16"
-                                  title="Ajouter le pourquoi suivant"
-                                >
-                                  <Plus className="w-5 h-5" />
-                                </button>
-                              )}
 
                               {/* Bouton X pour supprimer le pourquoi et revenir en arrière */}
                               {isLastVisible && whyIndex > 0 && !problem.intermediateCause && (
@@ -484,65 +485,4 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
                           <span className="bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">1</span>
                           <span><strong>Définir clairement</strong> le problème à résoudre</span>
                         </li>
-                        <li className="flex items-start">
-                          <span className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">2</span>
-                          <span><strong>Se demander pourquoi</strong> ce problème se produit</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">3</span>
-                          <span><strong>Répéter la question</strong> pour chaque réponse obtenue</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">4</span>
-                          <span><strong>Identifier la cause racine</strong> actionnable</span>
-                        </li>
-                      </ol>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-xl border border-amber-200">
-                    <h4 className="text-lg font-semibold text-gray-900 mb-3">Conseils pratiques</h4>
-                    <ul className="text-gray-600 space-y-2">
-                      <li className="flex items-start">
-                        <span className="w-2 h-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                        Restez factuel et objectif
-                      </li>
-                      <li className="flex items-start">
-                        <span className="w-2 h-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                        Impliquez l'équipe dans l'analyse
-                      </li>
-                      <li className="flex items-start">
-                        <span className="w-2 h-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                        Évitez les raccourcis et suppositions
-                      </li>
-                      <li className="flex items-start">
-                        <span className="w-2 h-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                        Une cause racine doit être actionnable
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                
-                <div className="mt-8 p-6 bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-xl">
-                  <p className="text-sm text-yellow-800">
-                    <strong>Note :</strong> Le nombre "5" est indicatif. Vous pouvez avoir besoin de 3 à 7 questions selon la complexité du problème.
-                    L'important est d'arriver à une cause racine que vous pouvez traiter efficacement.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="p-4 border-t border-gray-200/50 bg-gradient-to-r from-gray-50 to-white">
-                <button
-                  onClick={() => setShowHelp(false)}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium"
-                >
-                  Compris !
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
+                        <li className
