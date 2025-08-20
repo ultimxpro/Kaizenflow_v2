@@ -35,6 +35,9 @@ interface DatabaseContextType {
   // Action assignee operations
   addActionAssignee: (actionId: string, userId: string, isLeader: boolean) => Promise<void>;
   removeActionAssignee: (actionId: string, userId: string) => Promise<void>;
+  
+  // Refresh data
+  refreshData: () => Promise<void>;
 }
 
 const DatabaseContext = createContext<DatabaseContextType | undefined>(undefined);
@@ -101,6 +104,10 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
+  const refreshData = async () => {
+    await fetchData();
+  };
+
   useEffect(() => {
     fetchData();
   }, [user]);
@@ -121,22 +128,28 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const deleteProject = async (id: string) => {
     try {
-      // Supprimer dans l'ordre : assignees → actions → modules → members → project
       console.log('🗑️ Suppression du projet:', id);
 
-      // 1. Supprimer les assignees des actions du projet
-      const { error: assigneesError } = await supabase
-        .from('action_assignees')
-        .delete()
-        .in('action_id', 
-          supabase.from('actions').select('id').eq('project_id', id)
-        );
-      
-      if (assigneesError) {
-        console.warn('Erreur suppression assignees:', assigneesError);
+      // 1. Récupérer d'abord les IDs des actions pour supprimer les assignees
+      const { data: actionsData } = await supabase
+        .from('actions')
+        .select('id')
+        .eq('project_id', id);
+
+      // 2. Supprimer les assignees des actions du projet
+      if (actionsData && actionsData.length > 0) {
+        const actionIds = actionsData.map(action => action.id);
+        const { error: assigneesError } = await supabase
+          .from('action_assignees')
+          .delete()
+          .in('action_id', actionIds);
+        
+        if (assigneesError) {
+          console.warn('Erreur suppression assignees:', assigneesError);
+        }
       }
 
-      // 2. Supprimer les actions du projet
+      // 3. Supprimer les actions du projet
       const { error: actionsError } = await supabase
         .from('actions')
         .delete()
@@ -146,7 +159,7 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
         console.warn('Erreur suppression actions:', actionsError);
       }
 
-      // 3. Supprimer les modules A3
+      // 4. Supprimer les modules A3
       const { error: modulesError } = await supabase
         .from('a3_modules')
         .delete()
@@ -156,7 +169,7 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
         console.warn('Erreur suppression modules:', modulesError);
       }
 
-      // 4. Supprimer les membres du projet
+      // 5. Supprimer les membres du projet
       const { error: membersError } = await supabase
         .from('project_members')
         .delete()
@@ -166,7 +179,7 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
         console.warn('Erreur suppression membres:', membersError);
       }
 
-      // 5. Supprimer le projet lui-même
+      // 6. Supprimer le projet lui-même
       const { error: projectError } = await supabase
         .from('projects')
         .delete()
@@ -299,6 +312,7 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     deleteAction,
     addActionAssignee,
     removeActionAssignee,
+    refreshData,
   };
 
   return <DatabaseContext.Provider value={value}>{children}</DatabaseContext.Provider>;
