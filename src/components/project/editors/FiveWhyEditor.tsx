@@ -338,7 +338,7 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
                                     placeholder={`Répondez au pourquoi ${whyIndex + 1}...`}
                                   />
                                 </div>
-                                {!problem.intermediateCause && (
+                                {!problem.intermediateCause && whyIndex < 4 && (
                                   <button 
                                     onClick={() => setIntermediateCause(problem.id, whyIndex + 1)}
                                     className="flex items-center space-x-2 text-xs font-semibold text-orange-600 hover:text-orange-800 transition-colors px-3 py-1 rounded-lg hover:bg-orange-100"
@@ -389,8 +389,8 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
                           </>
                         )}
                         
-                        {/* Cause racine finale avec style - LOGIQUE CORRIGÉE */}
-                        {((problem.whys[4] && !problem.intermediateCause) || problem.intermediateCause) && (
+                        {/* Cause racine finale - SEULEMENT si pourquoi 5 ET pas de cause intermédiaire */}
+                        {(problem.whys[4] && !problem.intermediateCause) && (
                           <>
                             <ChevronRight className="w-6 h-6 text-indigo-400 flex-shrink-0 mt-16" />
                             <div className="flex-shrink-0">
