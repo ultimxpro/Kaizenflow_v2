@@ -12,14 +12,14 @@ interface DashboardProps {
   onNavigate: (page: string, projectId?: string) => void;
 }
 
-// Helper pour les couleurs des étapes PDCA - cohérent avec PDCAGrid
+// Helper pour les couleurs des étapes PDCA - style plein comme dans le sidepanel
 const getPdcaStepColor = (step: string) => {
   switch (step) {
-    case 'PLAN': return 'bg-blue-100 text-blue-700 border border-blue-200';
-    case 'DO': return 'bg-green-100 text-green-700 border border-green-200';
-    case 'CHECK': return 'bg-orange-100 text-orange-700 border border-orange-200';
-    case 'ACT': return 'bg-purple-100 text-purple-700 border border-purple-200';
-    default: return 'bg-gray-100 text-gray-700 border border-gray-200';
+    case 'PLAN': return 'bg-blue-500 text-white';
+    case 'DO': return 'bg-green-500 text-white';
+    case 'CHECK': return 'bg-orange-500 text-white';
+    case 'ACT': return 'bg-purple-500 text-white';
+    default: return 'bg-gray-500 text-white';
   }
 };
 
@@ -259,7 +259,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     </div>
                     <p className="text-sm text-gray-400 mt-1">{project.kaizen_number}</p>
                     <div className="flex items-center justify-between mt-4">
-                        <span className={`px-3 py-1 text-xs font-semibold rounded-full ${getPdcaStepColor(project.pdca_step)}`}>
+                        <span className={`px-4 py-2 text-xs font-semibold rounded-lg shadow-sm ${getPdcaStepColor(project.pdca_step)}`}>
                             {project.pdca_step}
                         </span>
                         <span className="text-xs text-gray-500">{new Date(project.created_at).toLocaleDateString('fr-FR')}</span>
