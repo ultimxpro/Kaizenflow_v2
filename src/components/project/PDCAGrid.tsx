@@ -18,9 +18,9 @@ const quadrants = [
     title: 'PLAN', 
     subtitle: 'Description du phénomène',
     bgGradient: 'bg-gradient-to-br from-white via-blue-50/30 to-blue-100/50',
-    borderColor: 'border-blue-200/60',
-    headerGradient: 'bg-gradient-to-r from-blue-500/90 to-blue-600/90',
-    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(59,130,246,0.15)]',
+    borderColor: 'border-blue-300/60',
+    headerGradient: 'bg-gradient-to-r from-blue-600/90 to-blue-700/90',
+    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(100,116,139,0.15)]',
     allowedTools: ['5Pourquoi', '4M', 'VSM', 'Croquis', 'Iframe']
   },
   { 
