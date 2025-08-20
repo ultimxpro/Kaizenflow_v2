@@ -1,4 +1,4 @@
-// src/components/project/PDCAGrid.tsx
+// src/components/project/PDCAGrid.tsx - VERSION DEBUG
 import React, { useState } from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { A3Module } from '../../types/database';
@@ -59,6 +59,7 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
   const { createA3Module, deleteA3Module } = useDatabase();
 
   const handleAddModule = (quadrant: string, toolType: string) => {
+    console.log('➕ Adding module:', { quadrant, toolType });
     const nextPosition = modules
       .filter(m => m.quadrant === quadrant)
       .length;
@@ -75,12 +76,18 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
   };
 
   const handleDeleteModule = async (moduleId: string) => {
+    console.log('🗑️ DELETE MODULE CALLED with ID:', moduleId);
+    console.log('🗑️ deleteA3Module function exists:', !!deleteA3Module);
+    
     setDeletingModule(moduleId);
+    
     try {
+      console.log('🗑️ Attempting to delete module...');
       await deleteA3Module(moduleId);
+      console.log('✅ Module deleted successfully!');
     } catch (error) {
-      console.error('Erreur lors de la suppression du module:', error);
-      alert('Erreur lors de la suppression du module');
+      console.error('❌ Error deleting module:', error);
+      alert('Erreur lors de la suppression du module: ' + error.message);
     } finally {
       setDeletingModule(null);
     }
@@ -105,6 +112,15 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
       return true;
     });
   };
+
+  // Debug: log des props au montage
+  React.useEffect(() => {
+    console.log('🏗️ PDCAGrid rendered:', {
+      projectId,
+      modulesCount: modules.length,
+      hasDeleteFunction: !!deleteA3Module
+    });
+  }, [projectId, modules.length, deleteA3Module]);
 
   return (
     <div className="h-full p-4 relative">
