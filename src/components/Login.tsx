@@ -1,10 +1,7 @@
 // src/components/Login.tsx
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { User, Lock, Mail, AlertCircle, ArrowRight } from 'lucide-react';
-
-// ON N'IMPORTE PLUS LE LOGO, ON UTILISE LE CHEMIN DIRECT
-// import newLogo from '../assets/Gemini_Generated_Image_6kdy0q6kdy0q6kdy.jpg'; 
+import { User, Lock, Mail, AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 interface LoginProps {
   onNavigate: (page: string) => void;
@@ -18,6 +15,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const { signIn, signUp } = useAuth();
 
@@ -44,113 +42,162 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4" style={{
-      background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #9333ea 100%)'
-    }}>
-      <div className="max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden">
-        <div className="p-8">
-          <div className="text-center mb-8">
-            {/* ON UTILISE LE CHEMIN DIRECT VERS L'IMAGE DANS PUBLIC */}
-            <img src="/leandeck-symbol.png" alt="KaizenFlow Logo" className="w-24 h-24 mx-auto rounded-full mb-4 border-4 border-gray-700 shadow-lg"/>
-            <h1 className="text-3xl font-bold tracking-tight">KaizenFlow</h1>
-            <p className="text-gray-300 mt-2">Votre flux vers l'amélioration continue.</p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Éléments décoratifs de fond */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full opacity-30 blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-green-100 to-blue-100 rounded-full opacity-30 blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-purple-50 to-pink-50 rounded-full opacity-20 blur-3xl"></div>
+      </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Le reste du formulaire ne change pas */}
-            {!isLogin && (
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={nom}
-                  onChange={(e) => setNom(e.target.value)}
-                  className="pl-10 w-full bg-gray-900 bg-opacity-70 border border-gray-700 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-                  placeholder="Nom complet"
-                  required={!isLogin}
-                />
+      <div className="max-w-md w-full relative z-10">
+        {/* Card principale avec glassmorphism */}
+        <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+          <div className="p-8">
+            {/* Header avec logo */}
+            <div className="text-center mb-8">
+              <div className="relative mb-6">
+                <div className="w-20 h-20 mx-auto bg-gradient-to-br from-gray-800 to-gray-600 rounded-2xl shadow-lg flex items-center justify-center mb-4 transform transition-all duration-300 hover:scale-105">
+                  <img 
+                    src="/leandeck-symbol.png" 
+                    alt="Leandeck Logo" 
+                    className="w-12 h-12 object-contain filter brightness-0 invert"
+                  />
+                </div>
+                <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Leandeck</h1>
+                <p className="text-gray-600 mt-2 font-medium">Votre plateforme d'amélioration continue</p>
               </div>
-            )}
-
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 w-full bg-gray-900 bg-opacity-70 border border-gray-700 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-                placeholder="votre@email.com"
-                required
-              />
             </div>
 
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 w-full bg-gray-900 bg-opacity-70 border border-gray-700 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-                placeholder="••••••••"
-                required
-                minLength={6}
-              />
+            {/* Tabs moderne */}
+            <div className="flex bg-gray-100 rounded-2xl p-1 mb-8">
+              <button
+                onClick={() => setIsLogin(true)}
+                className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${
+                  isLogin 
+                    ? 'bg-white text-gray-900 shadow-lg transform scale-[0.98]' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Connexion
+              </button>
+              <button
+                onClick={() => setIsLogin(false)}
+                className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${
+                  !isLogin 
+                    ? 'bg-white text-gray-900 shadow-lg transform scale-[0.98]' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Inscription
+              </button>
             </div>
-             {!isLogin && (
-                <p className="text-xs text-gray-400 -mt-3 text-center">
-                  6 caractères minimum
-                </p>
-              )}
 
+            {/* Messages */}
             {error && (
-              <div className="flex items-center p-3 bg-red-500 bg-opacity-20 rounded-lg text-red-300">
-                <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
-                <span className="text-sm">{error}</span>
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start space-x-3">
+                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                <span className="text-red-700 text-sm font-medium">{error}</span>
               </div>
             )}
 
             {message && (
-              <div className="flex items-center p-3 bg-green-500 bg-opacity-20 rounded-lg text-green-300">
-                <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
-                <span className="text-sm">{message}</span>
+              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-2xl flex items-start space-x-3">
+                <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+                <span className="text-green-700 text-sm font-medium">{message}</span>
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
-            >
-              {loading ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>Traitement...</span>
-                </>
-              ) : (
-                <>
-                  <span>{isLogin ? 'Se connecter' : 'Créer un compte'}</span>
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </>
+            {/* Formulaire */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {!isLogin && (
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                    <User className="w-5 h-5 text-gray-400 group-focus-within:text-gray-600 transition-colors" />
+                  </div>
+                  <input
+                    type="text"
+                    value={nom}
+                    onChange={(e) => setNom(e.target.value)}
+                    required
+                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:border-gray-400 focus:ring-4 focus:ring-gray-100 transition-all duration-300 text-gray-900 placeholder-gray-500 font-medium"
+                    placeholder="Nom complet"
+                  />
+                </div>
               )}
-            </button>
-          </form>
+
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <Mail className="w-5 h-5 text-gray-400 group-focus-within:text-gray-600 transition-colors" />
+                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:border-gray-400 focus:ring-4 focus:ring-gray-100 transition-all duration-300 text-gray-900 placeholder-gray-500 font-medium"
+                  placeholder="Adresse email"
+                />
+              </div>
+
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <Lock className="w-5 h-5 text-gray-400 group-focus-within:text-gray-600 transition-colors" />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full pl-12 pr-12 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:border-gray-400 focus:ring-4 focus:ring-gray-100 transition-all duration-300 text-gray-900 placeholder-gray-500 font-medium"
+                  placeholder="Mot de passe"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-900 hover:to-gray-800 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-[0.98] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-3 group"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span>Connexion en cours...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{isLogin ? 'Se connecter' : "S'inscrire"}</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {isLogin && (
+              <div className="mt-6 text-center">
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors">
+                  Mot de passe oublié ?
+                </a>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="bg-gray-900 bg-opacity-30 p-4 text-center">
-            <button
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setError('');
-                setMessage('');
-              }}
-              className="text-blue-400 hover:text-blue-300 text-sm font-medium transition"
-            >
-              {isLogin ? "Pas encore de compte ? S'inscrire" : "Déjà un compte ? Se connecter"}
-            </button>
-          </div>
+        {/* Footer */}
+        <div className="mt-8 text-center">
+          <p className="text-gray-500 text-sm">
+            © 2025 Leandeck. Plateforme d'amélioration continue.
+          </p>
+        </div>
       </div>
     </div>
   );
