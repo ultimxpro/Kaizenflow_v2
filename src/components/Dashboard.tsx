@@ -105,7 +105,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   </div>
                   <div className="hidden md:block text-left">
                     <p className="text-sm font-semibold text-gray-900">
-                      {currentUser?.user_metadata?.nom || currentUser?.email?.split('@')[0] || 'Utilisateur'}
+                      {currentUser?.nom || 'Utilisateur'}
                     </p>
                     <p className="text-xs text-gray-500">{currentUser?.email}</p>
                   </div>
