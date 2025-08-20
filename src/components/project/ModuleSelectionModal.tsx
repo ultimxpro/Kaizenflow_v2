@@ -208,3 +208,7 @@ export const ModuleSelectionModal: React.FC<ModuleSelectionModalProps> = ({
     </div>
   );
 };
+      </div>
+    </div>
+  );
+};
