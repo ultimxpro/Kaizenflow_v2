@@ -17,9 +17,9 @@ const quadrants = [
     id: 'PLAN', 
     title: 'PLAN', 
     subtitle: 'Description du phénomène',
-    bgGradient: 'bg-gradient-to-br from-white via-blue-50/30 to-blue-100/50',
-    borderColor: 'border-blue-300/60',
-    headerGradient: 'bg-gradient-to-r from-blue-500/90 to-blue-600/90',
+    bgGradient: 'bg-gradient-to-br from-white via-sky-50/30 to-indigo-100/50',
+    borderColor: 'border-sky-300/60',
+    headerGradient: 'bg-gradient-to-r from-sky-400/90 via-blue-600/90 to-indigo-800/90',
     hoverShadow: 'hover:shadow-[0_8px_30px_rgb(59,130,246,0.15)]',
     allowedTools: ['5Pourquoi', '4M', 'VSM', 'Croquis', 'Iframe']
   },
@@ -27,9 +27,9 @@ const quadrants = [
     id: 'DO', 
     title: 'DO', 
     subtitle: 'Description de la solution',
-    bgGradient: 'bg-gradient-to-br from-white via-emerald-50/30 to-emerald-100/50',
-    borderColor: 'border-emerald-300/60',
-    headerGradient: 'bg-gradient-to-r from-emerald-500/90 to-emerald-600/90',
+    bgGradient: 'bg-gradient-to-br from-white via-lime-50/30 to-emerald-100/50',
+    borderColor: 'border-lime-300/60',
+    headerGradient: 'bg-gradient-to-r from-lime-400/90 via-green-500/90 to-emerald-700/90',
     hoverShadow: 'hover:shadow-[0_8px_30px_rgb(16,185,129,0.15)]',
     allowedTools: ['5S', 'PlanActions', 'Croquis', 'Iframe']
   },
@@ -37,9 +37,9 @@ const quadrants = [
     id: 'CHECK', 
     title: 'CHECK', 
     subtitle: 'Vérification des résultats',
-    bgGradient: 'bg-gradient-to-br from-white via-orange-50/30 to-orange-100/50',
+    bgGradient: 'bg-gradient-to-br from-white via-orange-50/30 to-pink-100/50',
     borderColor: 'border-orange-300/60',
-    headerGradient: 'bg-gradient-to-r from-orange-500/90 to-orange-600/90',
+    headerGradient: 'bg-gradient-to-r from-orange-300/90 via-orange-500/90 to-pink-600/90',
     hoverShadow: 'hover:shadow-[0_8px_30px_rgb(249,115,22,0.15)]',
     allowedTools: ['Indicateurs', 'Croquis', 'Iframe']
   },
@@ -47,12 +47,11 @@ const quadrants = [
     id: 'ACT', 
     title: 'ACT', 
     subtitle: 'Standardisation et expansion',
-    bgGradient: 'bg-gradient-to-br from-white via-violet-50/30 to-violet-100/50',
+    bgGradient: 'bg-gradient-to-br from-white via-violet-50/30 to-indigo-100/50',
     borderColor: 'border-violet-300/60',
-    headerGradient: 'bg-gradient-to-r from-violet-500/90 to-violet-600/90',
+    headerGradient: 'bg-gradient-to-r from-violet-400/90 via-purple-600/90 to-indigo-900/90',
     hoverShadow: 'hover:shadow-[0_8px_30px_rgb(139,92,246,0.15)]',
     allowedTools: ['OPL', 'SOP', 'Croquis', 'Iframe']
-  }
 ];
 
 const uniqueTools = ['5Pourquoi', '4M', 'VSM', '5S', 'PlanActions', 'SOP'];
