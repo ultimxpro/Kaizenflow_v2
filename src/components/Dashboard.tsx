@@ -74,11 +74,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
             
             <div className="flex items-center gap-x-4">
-              {/* Bouton de notification */}
-              <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100/70 rounded-xl transition-all backdrop-blur-sm">
-                <Bell className="w-5 h-5" />
-              </button>
-
               {/* Bouton nouveau kaizen */}
               <button
                 onClick={() => setShowCreateModal(true)}
@@ -109,7 +104,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   </div>
                   <div className="hidden md:block text-left">
                     <p className="text-sm font-semibold text-gray-900">
-                      {currentUser?.user_metadata?.nom || 'Utilisateur'}
+                      {currentUser?.user_metadata?.nom || currentUser?.email?.split('@')[0] || 'Utilisateur'}
                     </p>
                     <p className="text-xs text-gray-500">{currentUser?.email}</p>
                   </div>
@@ -200,10 +195,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </div>
 
           {/* Économies - Gris bleuté */}
-          <div className="bg-gradient-to-br from-blue-gray-600 to-blue-gray-700 backdrop-blur-sm rounded-2xl p-6 border border-blue-gray-500/20 shadow-lg hover:shadow-xl transition-all group text-white">
+          <div className="bg-gradient-to-br from-gray-600 to-gray-700 backdrop-blur-sm rounded-2xl p-6 border border-gray-500/20 shadow-lg hover:shadow-xl transition-all group text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-gray-200 opacity-90">Économies</p>
+                <p className="text-sm font-medium text-gray-200 opacity-90">Économies</p>
                 <p className="text-2xl font-bold text-white">{stats.totalSavings.toLocaleString('fr-FR')} €</p>
               </div>
             </div>
@@ -218,8 +213,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
               <h2 className="text-lg font-semibold flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center mr-3">
-                    <FolderOpen className="w-4 h-4 text-blue-600" />
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                    <FolderOpen className="w-4 h-4 text-gray-600" />
                   </div>
                   Mes Kaizens
                 </div>
@@ -280,8 +275,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
               <h2 className="text-lg font-semibold flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center mr-3">
-                    <Users className="w-4 h-4 text-green-600" />
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                    <Users className="w-4 h-4 text-gray-600" />
                   </div>
                   Où j'interviens
                 </div>
@@ -304,8 +299,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
               <h2 className="text-lg font-semibold flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center mr-3">
-                    <Calendar className="w-4 h-4 text-orange-600" />
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                    <Calendar className="w-4 h-4 text-gray-600" />
                   </div>
                   Mes actions
                 </div>
@@ -328,8 +323,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
               <h2 className="text-lg font-semibold flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center mr-3">
-                    <Bell className="w-4 h-4 text-purple-600" />
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                    <Bell className="w-4 h-4 text-gray-600" />
                   </div>
                   Notifications
                 </div>
