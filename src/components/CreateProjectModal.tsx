@@ -109,7 +109,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
            
            <div className="relative z-10">
              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse">
-               <Sparkles className="w-10 h-10 text-yellow-400 animate-spin" style={{ animationDuration: '3s' }} />
+               <Sparkles className="w-10 h-10 text-transparent bg-gradient-to-r from-blue-500 via-green-500 via-orange-500 to-purple-500 bg-clip-text animate-spin" style={{ animationDuration: '3s' }} />
             </div>
              
              <h2 className="text-2xl font-bold text-white mb-2">Création en cours...</h2>
