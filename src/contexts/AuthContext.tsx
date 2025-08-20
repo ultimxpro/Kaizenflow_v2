@@ -1,3 +1,4 @@
+// src/contexts/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../Lib/supabase';
 import { User } from '@supabase/supabase-js';
@@ -24,8 +25,8 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, nom: string) => Promise<void>;
-  signOut: () => void;
-  logout: () => void;
+  signOut: () => Promise<void>;
+  logout: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<void>;
   isAdmin: boolean;
 }
@@ -104,7 +105,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const authUser = session?.user ?? null;
       setUser(authUser);
       if (authUser) {
-        fetchProfileAndUsers(authUser.id); // MODIFICATION: Appeler la nouvelle fonction unifiée
+        fetchProfileAndUsers(authUser.id);
       } else {
         setProfile(null);
         setSignedAvatarUrl(null);
@@ -116,48 +117,55 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => subscription.unsubscribe();
   }, []);
   
-  // MODIFICATION: Logique de mise à jour de l'URL signée de l'utilisateur principal
   useEffect(() => {
     setSignedAvatarUrl(profile?.signedAvatarUrl || null);
   }, [profile]);
 
   const fetchProfileAndUsers = async (userId: string) => {
-    // Récupère le profil de l'utilisateur connecté et tous les autres utilisateurs en parallèle
-    const [{ data: profileData, error: profileError }, { data: allUsersData, error: usersError }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', userId).single(),
-        supabase.from('profiles').select('*')
-    ]);
+    try {
+      // Récupère le profil de l'utilisateur connecté et tous les autres utilisateurs en parallèle
+      const [{ data: profileData, error: profileError }, { data: allUsersData, error: usersError }] = await Promise.all([
+          supabase.from('profiles').select('*').eq('id', userId).single(),
+          supabase.from('profiles').select('*')
+      ]);
 
-    if (profileError) console.error("Error fetching profile:", profileError);
-    if (usersError) console.error("Error fetching all users:", usersError);
+      if (profileError) console.error("Error fetching profile:", profileError);
+      if (usersError) console.error("Error fetching all users:", usersError);
 
-    if (profileData) {
-        // Enrichir et définir le profil de l'utilisateur courant
-        const [enrichedProfile] = await generateSignedUrls([profileData]);
-        setProfile(enrichedProfile);
-    }
-    if (allUsersData) {
-        // Enrichir et définir la liste de tous les utilisateurs
-        const enrichedUsers = await generateSignedUrls(allUsersData);
-        setUsers(enrichedUsers);
+      if (profileData) {
+          // Enrichir et définir le profil de l'utilisateur courant
+         const [enrichedProfile] = await generateSignedUrls([profileData]);
+          setProfile(enrichedProfile);
+      }
+      if (allUsersData) {
+          // Enrichir et définir la liste de tous les utilisateurs
+          const enrichedUsers = await generateSignedUrls(allUsersData);
+          setUsers(enrichedUsers);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des profils:', error);
     }
   };
 
   const fetchOrCreateProfile = async (user: User) => {
-    let { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-    if (error && error.code === 'PGRST116') {
-      const { data: newProfile, error: createError } = await supabase
-        .from('profiles')
-        .insert({ id: user.id, email: user.email!, nom: user.user_metadata?.nom || user.email!.split('@')[0] })
-        .select()
-        .single();
-      if (createError) throw createError;
-      data = newProfile;
-    } else if (error) {
-      throw error;
+    try {
+      let { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      if (error && error.code === 'PGRST116') {
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert({ id: user.id, email: user.email!, nom: user.user_metadata?.nom || user.email!.split('@')[0] })
+          .select()
+          .single();
+        if (createError) throw createError;
+        data = newProfile;
+      } else if (error) {
+        throw error;
+      }
+      // Après la création, on recharge tout
+      await fetchProfileAndUsers(data.id);
+    } catch (error) {
+      console.error('Erreur lors de la récupération/création du profil:', error);
     }
-    // Après la création, on recharge tout
-    await fetchProfileAndUsers(data.id);
   };
 
   const signIn = async (email: string, password: string) => {
@@ -177,12 +185,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (error) throw error;
   };
 
+  // CORRECTION : Gestion robuste des erreurs de logout
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
-    setSignedAvatarUrl(null);
-    setUsers([]);
+    try {
+      // Tentative de déconnexion côté serveur
+      const { error } = await supabase.auth.signOut();
+      
+      // Si l'erreur est "session_not_found", c'est OK, la session n'existe déjà plus
+      if (error && error.message.includes('session_not_found')) {
+        console.log('Session déjà expirée côté serveur, nettoyage local seulement');
+      } else if (error) {
+        console.error('Erreur lors de la déconnexion:', error);
+        // On continue quand même le nettoyage local
+      }
+    } catch (error) {
+      console.error('Erreur inattendue lors de la déconnexion:', error);
+      // On continue quand même le nettoyage local
+    } finally {
+      // TOUJOURS nettoyer l'état local, même en cas d'erreur
+      setUser(null);
+      setProfile(null);
+      setSignedAvatarUrl(null);
+      setUsers([]);
+      
+      // Nettoyer le localStorage de Supabase manuellement si nécessaire
+      try {
+        localStorage.removeItem('sb-shnmlscbewdwyuefoqyr-auth-token');
+      } catch (e) {
+        console.log('Nettoyage localStorage échoué (normal en mode privé)');
+      }
+    }
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {
