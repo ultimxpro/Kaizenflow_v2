@@ -1,4 +1,4 @@
-// src/components/ProjectView.tsx
+// src/components/ProjectView.tsx - CORRECTION DU MENU PROJET
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useDatabase } from '../contexts/DatabaseContext';
@@ -40,7 +40,7 @@ const DeleteProjectModal: React.FC<{
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
       <div className="max-w-md w-full bg-white backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-red-600 to-red-700 p-6">
@@ -214,16 +214,12 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <ArrowLeft className="w-8 h-8 text-gray-400" />
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Projet non trouvé</h2>
-          <p className="text-gray-600 mb-6">Ce projet n'existe pas ou vous n'y avez pas accès</p>
+          <h2 className="text-xl font-semibold text-gray-600 mb-4">Projet non trouvé</h2>
           <button 
-            onClick={() => onNavigate('dashboard')} 
-            className="bg-gray-800 text-white px-6 py-3 rounded-xl hover:bg-gray-900 transition-colors font-semibold"
+            onClick={() => onNavigate('dashboard')}
+            className="px-6 py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-900 transition-all"
           >
             Retour au tableau de bord
           </button>
@@ -232,147 +228,110 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
     );
   }
 
-  const getPDCABarColor = (step: string) => {
-    switch (step) {
-      case 'PLAN': return 'bg-gradient-to-r from-blue-500 to-blue-600';
-      case 'DO': return 'bg-gradient-to-r from-green-500 to-green-600';
-      case 'CHECK': return 'bg-gradient-to-r from-orange-500 to-orange-600';
-      case 'ACT': return 'bg-gradient-to-r from-purple-500 to-purple-600';
-      default: return 'bg-gradient-to-r from-gray-500 to-gray-600';
-    }
-  };
-
   return (
-    <div className="h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 flex flex-col relative overflow-hidden">
-      {/* Éléments décoratifs de fond */}
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 relative overflow-hidden">
+      {/* Éléments décoratifs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full opacity-20 blur-3xl"></div>
-        <div className="absolute bottom-0 -left-40 w-80 h-80 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full opacity-15 blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200/20 to-purple-300/15 rounded-full opacity-20 blur-3xl"></div>
+        <div className="absolute top-1/3 -left-40 w-80 h-80 bg-gradient-to-br from-green-200/15 to-teal-300/20 rounded-full opacity-15 blur-3xl"></div>
       </div>
 
-      {/* Barre PDCA moderne */}
-      <div className={`h-1 ${getPDCABarColor(project.pdca_step)} relative z-20 shadow-lg`}>
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-      </div>
-      
-      <div className="flex flex-row flex-1 overflow-hidden relative z-10">
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Header moderne */}
-          <div className="bg-white/80 backdrop-blur-xl shadow-sm border-b border-gray-200/50 flex-shrink-0">
-            <div className="max-w-full px-6 h-20 flex items-center">
+      {/* Header avec titre éditable */}
+      <div className="relative z-30 bg-white/80 backdrop-blur-xl border-b border-gray-200/60 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-6">
+            <div className="flex items-center space-x-6">
               <button
                 onClick={() => onNavigate('dashboard')}
-                className="flex items-center text-gray-600 hover:text-gray-900 mr-6 transition-all hover:bg-gray-100 px-3 py-2 rounded-xl group"
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-all group"
               >
-                <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-                <span className="text-sm font-semibold">Retour</span>
+                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                <span className="font-medium">Retour</span>
               </button>
-              
-              <div className="flex-1 min-w-0">
-                {/* Titre éditable */}
-                <div className="mb-1">
-                  {isEditingTitle ? (
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="text"
-                        value={tempTitle}
-                        onChange={(e) => setTempTitle(e.target.value)}
-                        className="text-2xl font-bold text-gray-900 bg-white border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
-                        placeholder="Titre du Kaizen"
-                        autoFocus
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') handleSaveTitle();
-                          if (e.key === 'Escape') handleCancelEdit('title');
-                        }}
-                      />
-                      <button
-                        onClick={handleSaveTitle}
-                        className="w-8 h-8 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center"
-                      >
-                        <Save className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleCancelEdit('title')}
-                        className="w-8 h-8 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center justify-center"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div
-                      onClick={() => setIsEditingTitle(true)}
-                      className="group flex items-center space-x-2 cursor-pointer hover:bg-gray-100 rounded-lg px-3 py-1 -mx-3 transition-all"
-                    >
-                      <h1 className="text-2xl font-bold text-gray-900 truncate">
-                        {project.titre || 'Titre du Kaizen'}
-                      </h1>
-                      <Edit3 className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-                    </div>
-                  )}
-                </div>
 
-                {/* Description éditable */}
-                <div>
-                  {isEditingDescription ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="flex items-center text-sm font-medium text-gray-500 mr-2 flex-shrink-0">
-                        Problème :
-                      </div>
-                      <input
-                        type="text"
-                        value={tempDescription}
-                        onChange={(e) => setTempDescription(e.target.value)}
-                        className="text-sm text-gray-700 bg-white border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
-                        placeholder="Quel est le problème ? (Quoi ?)"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') handleSaveDescription();
-                          if (e.key === 'Escape') handleCancelEdit('description');
-                        }}
-                      />
-                      <button
-                        onClick={handleSaveDescription}
-                        className="w-6 h-6 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors flex items-center justify-center"
-                      >
-                        <Save className="w-3 h-3" />
-                      </button>
-                      <button
-                        onClick={() => handleCancelEdit('description')}
-                        className="w-6 h-6 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors flex items-center justify-center"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div
-                      onClick={() => setIsEditingDescription(true)}
-                      className="group flex items-center cursor-pointer hover:bg-gray-100 rounded-lg px-3 py-1 -mx-3 transition-all"
+              <div className="flex items-center space-x-4">
+                {isEditingTitle ? (
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={tempTitle}
+                      onChange={(e) => setTempTitle(e.target.value)}
+                      className="text-2xl font-bold bg-transparent border-b-2 border-blue-500 focus:outline-none min-w-0 flex-1"
+                      onKeyPress={(e) => e.key === 'Enter' && handleSaveTitle()}
+                      autoFocus
+                    />
+                    <button onClick={handleSaveTitle} className="p-1 text-green-600 hover:text-green-700">
+                      <Save className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => handleCancelEdit('title')} className="p-1 text-red-600 hover:text-red-700">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center group">
+                    <h1 className="text-2xl font-bold text-gray-900 mr-2">{project.titre}</h1>
+                    <button
+                      onClick={() => setIsEditingTitle(true)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-gray-600"
                     >
-                      <label className="text-sm font-medium text-gray-500 mr-2 flex-shrink-0">
-                        Problème :
-                      </label>
-                      <span className="text-sm text-gray-700 flex-1 truncate">
-                        {project.what || 'Cliquez pour décrire le problème...'}
-                      </span>
-                      <Edit3 className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 ml-2" />
-                    </div>
-                  )}
-                </div>
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
+                {isEditingDescription ? (
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={tempDescription}
+                      onChange={(e) => setTempDescription(e.target.value)}
+                      className="text-sm text-gray-600 bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500 min-w-0"
+                      onKeyPress={(e) => e.key === 'Enter' && handleSaveDescription()}
+                      placeholder="Description..."
+                      autoFocus
+                    />
+                    <button onClick={handleSaveDescription} className="p-1 text-green-600 hover:text-green-700">
+                      <Save className="w-3 h-3" />
+                    </button>
+                    <button onClick={() => handleCancelEdit('description')} className="p-1 text-red-600 hover:text-red-700">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center group">
+                    <span className="text-sm text-gray-600 mr-2">
+                      {project.what || 'Cliquez pour ajouter une description...'}
+                    </span>
+                    <button
+                      onClick={() => setIsEditingDescription(true)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-gray-600"
+                    >
+                      <Edit3 className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
               </div>
 
-              {/* Menu projet */}
+              {/* Menu projet - VERSION CORRIGÉE */}
               {canDeleteProject && (
                 <div className="relative ml-4">
                   <button
-                    onClick={() => setShowProjectMenu(!showProjectMenu)}
+                    onClick={(e) => {
+                      console.log('🎯 Project menu button clicked!');
+                      e.stopPropagation();
+                      setShowProjectMenu(!showProjectMenu);
+                    }}
                     className="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition-all"
                   >
                     <MoreVertical className="w-5 h-5 text-gray-500" />
                   </button>
                   
                   {showProjectMenu && (
-                    <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                    <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[90]">
                       <button
-                        onClick={() => {
+                        onClick={(e) => {
+                          console.log('🗑️ Delete project button clicked!');
+                          e.stopPropagation();
                           setShowProjectMenu(false);
                           setShowDeleteModal(true);
                         }}
@@ -387,17 +346,20 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
               )}
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Zone principale avec PDCA Grid */}
-          <div className="flex-1 p-6 overflow-hidden">
-            <div className="h-full bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 overflow-hidden">
-              <PDCAGrid 
-                projectId={projectId}
-                modules={projectModules}
-                onEditModule={setEditingModule}
-                onMoveModule={setMovingModule}
-              />
-            </div>
+      {/* Contenu principal */}
+      <div className="flex h-[calc(100vh-120px)] relative z-20">
+        {/* Zone principale avec PDCA Grid */}
+        <div className="flex-1 p-6 overflow-hidden">
+          <div className="h-full bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 overflow-hidden">
+            <PDCAGrid 
+              projectId={projectId}
+              modules={projectModules}
+              onEditModule={setEditingModule}
+              onMoveModule={setMovingModule}
+            />
           </div>
         </div>
 
@@ -410,11 +372,14 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
         </div>
       </div>
 
-      {/* Overlay pour fermer le menu */}
+      {/* Overlay pour fermer le menu - VERSION CORRIGÉE */}
       {showProjectMenu && (
         <div 
-          className="fixed inset-0 z-40" 
-          onClick={() => setShowProjectMenu(false)}
+          className="fixed inset-0 z-[85]" 
+          onClick={() => {
+            console.log('🎯 Project menu overlay clicked!');
+            setShowProjectMenu(false);
+          }}
         />
       )}
 
