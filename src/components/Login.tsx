@@ -43,32 +43,37 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Fond animé avec particules flottantes en nuances de gris */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Particules animées en gris et noir */}
+        {/* Particules animées en gris, noir et couleurs du logo */}
         <div className="absolute top-20 left-20 w-2 h-2 bg-gray-800 rounded-full animate-float-1 opacity-20"></div>
-        <div className="absolute top-40 right-32 w-1 h-1 bg-black rounded-full animate-float-2 opacity-15"></div>
-        <div className="absolute bottom-32 left-40 w-3 h-3 bg-gray-600 rounded-full animate-float-3 opacity-25"></div>
+        <div className="absolute top-40 right-32 w-1 h-1 bg-blue-600 rounded-full animate-float-2 opacity-30"></div>
+        <div className="absolute bottom-32 left-40 w-3 h-3 bg-orange-500 rounded-full animate-float-3 opacity-25"></div>
         <div className="absolute top-60 left-1/3 w-2 h-2 bg-gray-700 rounded-full animate-float-4 opacity-30"></div>
-        <div className="absolute bottom-40 right-20 w-1 h-1 bg-gray-500 rounded-full animate-float-5 opacity-20"></div>
-        <div className="absolute top-1/3 right-1/4 w-2 h-2 bg-black rounded-full animate-float-6 opacity-10"></div>
-        <div className="absolute top-80 left-60 w-1 h-1 bg-gray-800 rounded-full animate-float-1 opacity-25"></div>
-        <div className="absolute bottom-60 right-40 w-2 h-2 bg-gray-400 rounded-full animate-float-3 opacity-15"></div>
-        <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-black rounded-full animate-float-5 opacity-20"></div>
-        <div className="absolute bottom-1/4 left-2/3 w-3 h-3 bg-gray-600 rounded-full animate-float-2 opacity-10"></div>
+        <div className="absolute bottom-40 right-20 w-1 h-1 bg-green-600 rounded-full animate-float-5 opacity-35"></div>
+        <div className="absolute top-1/3 right-1/4 w-2 h-2 bg-purple-600 rounded-full animate-float-6 opacity-25"></div>
+        <div className="absolute top-80 left-60 w-1 h-1 bg-red-500 rounded-full animate-float-1 opacity-30"></div>
+        <div className="absolute bottom-60 right-40 w-2 h-2 bg-yellow-500 rounded-full animate-float-3 opacity-20"></div>
+        <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-indigo-600 rounded-full animate-float-5 opacity-25"></div>
+        <div className="absolute bottom-1/4 left-2/3 w-3 h-3 bg-teal-600 rounded-full animate-float-2 opacity-20"></div>
+        <div className="absolute top-2/3 right-1/3 w-2 h-2 bg-pink-500 rounded-full animate-float-4 opacity-30"></div>
+        <div className="absolute bottom-1/3 left-1/5 w-1 h-1 bg-cyan-500 rounded-full animate-float-6 opacity-25"></div>
         
-        {/* Formes géométriques animées en nuances de gris */}
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-gray-200/30 to-gray-400/20 rounded-full blur-3xl animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-gray-300/20 to-gray-500/15 rounded-full blur-3xl animate-blob-reverse"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-gray-100/30 to-gray-300/20 rounded-full blur-2xl animate-pulse-slow"></div>
+        {/* Formes géométriques animées avec touches de couleur */}
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200/20 to-purple-300/15 rounded-full blur-3xl animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-green-200/15 to-teal-300/20 rounded-full blur-3xl animate-blob-reverse"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-orange-100/20 to-yellow-200/15 rounded-full blur-2xl animate-pulse-slow"></div>
         
-        {/* Lignes animées en gris */}
+        {/* Lignes animées avec couleurs subtiles */}
         <svg className="absolute inset-0 w-full h-full opacity-15" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#374151" stopOpacity="0.3">
+              <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.4">
+                <animate attributeName="stop-opacity" values="0.4;0.7;0.4" dur="4s" repeatCount="indefinite" />
+              </stop>
+              <stop offset="50%" stopColor="#10B981" stopOpacity="0.3">
                 <animate attributeName="stop-opacity" values="0.3;0.6;0.3" dur="4s" repeatCount="indefinite" />
               </stop>
-              <stop offset="100%" stopColor="#6B7280" stopOpacity="0.1">
-                <animate attributeName="stop-opacity" values="0.1;0.4;0.1" dur="4s" repeatCount="indefinite" />
+              <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.2">
+                <animate attributeName="stop-opacity" values="0.2;0.5;0.2" dur="4s" repeatCount="indefinite" />
               </stop>
             </linearGradient>
           </defs>
@@ -149,12 +154,12 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
             {/* Header avec logo agrandi */}
             <div className="text-center mb-8">
               <div className="relative mb-8">
-                {/* Logo très grand sans contour */}
-                <div className="w-32 h-32 mx-auto flex items-center justify-center mb-6 transform transition-all duration-500 hover:scale-105">
+                {/* Logo très agrandi sans ombrage */}
+                <div className="w-40 h-40 mx-auto flex items-center justify-center mb-6 transform transition-all duration-500 hover:scale-105">
                   <img 
                     src="/leandeck-symbol.png" 
                     alt="Leandeck Logo" 
-                    className="w-28 h-28 object-contain drop-shadow-2xl"
+                    className="w-36 h-36 object-contain"
                   />
                 </div>
                 {/* Pas de titre Leandeck */}
