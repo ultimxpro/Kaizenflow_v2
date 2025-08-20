@@ -17,9 +17,9 @@ const quadrants = [
     id: 'PLAN', 
     title: 'PLAN', 
     subtitle: 'Description du phénomène',
-    bgGradient: 'bg-gradient-to-br from-white via-blue-50/30 to-blue-100/50',
-    borderColor: 'border-blue-300/60',
-    headerGradient: 'bg-gradient-to-r from-blue-600/90 to-blue-700/90',
+    bgGradient: 'bg-gradient-to-br from-white via-slate-50/30 to-slate-100/50',
+    borderColor: 'border-slate-300/60',
+    headerGradient: 'bg-gradient-to-r from-slate-600/90 to-slate-700/90',
     hoverShadow: 'hover:shadow-[0_8px_30px_rgb(100,116,139,0.15)]',
     allowedTools: ['5Pourquoi', '4M', 'VSM', 'Croquis', 'Iframe']
   },
@@ -27,10 +27,10 @@ const quadrants = [
     id: 'DO', 
     title: 'DO', 
     subtitle: 'Description de la solution',
-    bgGradient: 'bg-gradient-to-br from-white via-green-50/30 to-green-100/50',
-    borderColor: 'border-green-200/60',
-    headerGradient: 'bg-gradient-to-r from-green-500/90 to-green-600/90',
-    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(34,197,94,0.15)]',
+    bgGradient: 'bg-gradient-to-br from-white via-emerald-50/30 to-emerald-100/50',
+    borderColor: 'border-emerald-300/60',
+    headerGradient: 'bg-gradient-to-r from-emerald-600/90 to-emerald-700/90',
+    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(5,150,105,0.15)]',
     allowedTools: ['5S', 'PlanActions', 'Croquis', 'Iframe']
   },
   { 
