@@ -75,28 +75,19 @@ export const useDatabase = () => {
 };
 
 export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [a3Modules, setA3Modules] = useState<A3Module[]>([]);
   const [actions, setActions] = useState<Action[]>([]);
   const [actionAssignees, setActionAssignees] = useState<ActionAssignee[]>([]);
   const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
   const [fiveWhyAnalyses, setFiveWhyAnalyses] = useState<FiveWhyAnalysis[]>([]);
-  const [loading, setLoading] = useState(true);
-  
-  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
-    if (!user) {
-      setProjects([]);
-      setA3Modules([]);
-      setActions([]);
-      setActionAssignees([]);
-      setProjectMembers([]);
-      setFiveWhyAnalyses([]);
-      setLoading(false);
-      return;
-    }
-
+    if (!user) return;
+    
+    setLoading(true);
     try {
       const [
         { data: projectsData, error: projectsError },
@@ -124,19 +115,17 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
       setActionAssignees(assigneesData || []);
       setProjectMembers(membersData || []);
 
-      // Essayer de charger les analyses 5Pourquoi si la table existe
+      // Charger les analyses 5Pourquoi
       try {
         const { data: fiveWhyData, error: fiveWhyError } = await supabase
           .from('five_why_analyses')
           .select('*')
           .order('position');
         
-        if (!fiveWhyError) {
-          setFiveWhyAnalyses(fiveWhyData || []);
-        }
+        if (fiveWhyError) throw fiveWhyError;
+        setFiveWhyAnalyses(fiveWhyData || []);
       } catch (fiveWhyError) {
-        // Table n'existe pas encore, pas grave
-        console.log('Table five_why_analyses non trouvée, utilisation du stockage temporaire');
+        console.log('Erreur chargement 5Pourquoi, utilisation stockage temporaire:', fiveWhyError);
         setFiveWhyAnalyses([]);
       }
 
@@ -173,13 +162,32 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     try {
       console.log('🗑️ Suppression du projet:', id);
 
-      // 1. Récupérer d'abord les IDs des actions pour supprimer les assignees
+      // 1. Récupérer d'abord les IDs des modules pour supprimer les analyses 5Pourquoi
+      const { data: modulesData } = await supabase
+        .from('a3_modules')
+        .select('id')
+        .eq('project_id', id);
+
+      // 2. Supprimer les analyses 5Pourquoi des modules du projet
+      if (modulesData && modulesData.length > 0) {
+        const moduleIds = modulesData.map(module => module.id);
+        const { error: fiveWhyError } = await supabase
+          .from('five_why_analyses')
+          .delete()
+          .in('module_id', moduleIds);
+        
+        if (fiveWhyError) {
+          console.warn('Erreur suppression analyses 5Pourquoi:', fiveWhyError);
+        }
+      }
+
+      // 3. Récupérer les IDs des actions pour supprimer les assignees
       const { data: actionsData } = await supabase
         .from('actions')
         .select('id')
         .eq('project_id', id);
 
-      // 2. Supprimer les assignees des actions du projet
+      // 4. Supprimer les assignees des actions du projet
       if (actionsData && actionsData.length > 0) {
         const actionIds = actionsData.map(action => action.id);
         const { error: assigneesError } = await supabase
@@ -192,7 +200,7 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
       }
 
-      // 3. Supprimer les actions du projet
+      // 5. Supprimer les actions du projet
       const { error: actionsError } = await supabase
         .from('actions')
         .delete()
@@ -202,7 +210,7 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
         console.warn('Erreur suppression actions:', actionsError);
       }
 
-      // 4. Supprimer les modules A3
+      // 6. Supprimer les modules A3
       const { error: modulesError } = await supabase
         .from('a3_modules')
         .delete()
@@ -212,7 +220,7 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
         console.warn('Erreur suppression modules:', modulesError);
       }
 
-      // 5. Supprimer les membres du projet
+      // 7. Supprimer les membres du projet
       const { error: membersError } = await supabase
         .from('project_members')
         .delete()
@@ -222,7 +230,7 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
         console.warn('Erreur suppression membres:', membersError);
       }
 
-      // 6. Supprimer le projet lui-même
+      // 8. Supprimer le projet lui-même
       const { error: projectError } = await supabase
         .from('projects')
         .delete()
@@ -281,17 +289,33 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   const deleteA3Module = async (id: string) => {
-    const { error } = await supabase.from('a3_modules').delete().eq('id', id);
-    if (error) throw error;
-    await fetchData();
+    try {
+      // 1. Supprimer d'abord les analyses 5Pourquoi liées à ce module
+      const { error: fiveWhyError } = await supabase
+        .from('five_why_analyses')
+        .delete()
+        .eq('module_id', id);
+      
+      if (fiveWhyError) {
+        console.warn('Erreur suppression analyses 5Pourquoi:', fiveWhyError);
+      }
+
+      // 2. Supprimer le module
+      const { error } = await supabase.from('a3_modules').delete().eq('id', id);
+      if (error) throw error;
+      
+      await fetchData();
+    } catch (error) {
+      console.error('❌ Erreur lors de la suppression du module:', error);
+      throw error;
+    }
   };
 
   // Action operations
   const createAction = async (action: Omit<Action, 'id' | 'created_at' | 'updated_at' | 'created_by'>): Promise<string> => {
-    if (!user) throw new Error('User not authenticated');
     const { data, error } = await supabase.from('actions').insert({
       ...action,
-      created_by: user.id
+      created_by: user?.id
     }).select().single();
     if (error) throw error;
     await fetchData();
@@ -305,10 +329,7 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   const deleteAction = async (id: string) => {
-    // Supprimer d'abord les assignees
-    await supabase.from('action_assignees').delete().eq('action_id', id);
-    
-    // Puis supprimer l'action
+    const { error: assigneesError } = await supabase.from('action_assignees').delete().eq('action_id', id);
     const { error } = await supabase.from('actions').delete().eq('id', id);
     if (error) throw error;
     await fetchData();
@@ -326,47 +347,29 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   const removeActionAssignee = async (actionId: string, userId: string) => {
-    const { error } = await supabase.from('action_assignees')
-      .delete()
+    const { error } = await supabase.from('action_assignees').delete()
       .eq('action_id', actionId)
       .eq('user_id', userId);
     if (error) throw error;
     await fetchData();
   };
 
-  // FiveWhy Analysis operations (temporaires - stockage en mémoire)
+  // FiveWhy Analysis operations - MAINTENANT AVEC SUPABASE !
   const getFiveWhyAnalyses = (moduleId: string): FiveWhyAnalysis[] => {
     return fiveWhyAnalyses.filter(analysis => analysis.module_id === moduleId);
   };
 
   const createFiveWhyAnalysis = async (moduleId: string, problemTitle: string): Promise<string> => {
     try {
-      // Générer un ID temporaire
-      const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      // Créer l'analyse temporairement en mémoire
-      const newAnalysis: FiveWhyAnalysis = {
-        id: tempId,
+      const { data, error } = await supabase.from('five_why_analyses').insert({
         module_id: moduleId,
         problem_title: problemTitle,
-        position: fiveWhyAnalyses.filter(a => a.module_id === moduleId).length,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
+        position: fiveWhyAnalyses.filter(a => a.module_id === moduleId).length
+      }).select().single();
       
-      setFiveWhyAnalyses(prev => [...prev, newAnalysis]);
-      
-      // TODO: Remplacer par un vrai appel Supabase quand la table existe
-      // const { data, error } = await supabase.from('five_why_analyses').insert({
-      //   module_id: moduleId,
-      //   problem_title: problemTitle,
-      //   position: newAnalysis.position
-      // }).select().single();
-      // if (error) throw error;
-      // await fetchData();
-      // return data.id;
-      
-      return tempId;
+      if (error) throw error;
+      await fetchData();
+      return data.id;
     } catch (error) {
       console.error('Error creating FiveWhy analysis:', error);
       throw error;
@@ -375,7 +378,9 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const updateFiveWhyAnalysis = async (id: string, updates: Partial<FiveWhyAnalysis>): Promise<void> => {
     try {
-      // Mettre à jour en mémoire
+      const { error } = await supabase.from('five_why_analyses').update(updates).eq('id', id);
+      if (error) throw error;
+      // Ne pas recharger toutes les données, juste mettre à jour localement pour de meilleures performances
       setFiveWhyAnalyses(prev => 
         prev.map(analysis => 
           analysis.id === id 
@@ -383,11 +388,6 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
             : analysis
         )
       );
-      
-      // TODO: Remplacer par un vrai appel Supabase quand la table existe
-      // const { error } = await supabase.from('five_why_analyses').update(updates).eq('id', id);
-      // if (error) throw error;
-      // await fetchData();
     } catch (error) {
       console.error('Error updating FiveWhy analysis:', error);
       throw error;
@@ -396,13 +396,10 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const deleteFiveWhyAnalysis = async (id: string): Promise<void> => {
     try {
-      // Supprimer en mémoire
+      const { error } = await supabase.from('five_why_analyses').delete().eq('id', id);
+      if (error) throw error;
+      // Mettre à jour localement
       setFiveWhyAnalyses(prev => prev.filter(analysis => analysis.id !== id));
-      
-      // TODO: Remplacer par un vrai appel Supabase quand la table existe
-      // const { error } = await supabase.from('five_why_analyses').delete().eq('id', id);
-      // if (error) throw error;
-      // await fetchData();
     } catch (error) {
       console.error('Error deleting FiveWhy analysis:', error);
       throw error;
