@@ -270,17 +270,17 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                 {/* Effet de dégradé animé au survol */}
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 via-green-500 via-orange-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-gradient-shift"></div>
                 <div className="relative z-10 flex items-center justify-center space-x-3">
-                {loading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <span>Connexion en cours...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>{isLogin ? 'Se connecter' : "S'inscrire"}</span>
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </>
-                )}
+                  {loading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Connexion en cours...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{isLogin ? 'Se connecter' : "S'inscrire"}</span>
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
                 </div>
               </button>
             </div>
