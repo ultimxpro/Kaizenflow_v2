@@ -163,9 +163,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Tableau de Bord</h1>
             <p className="text-gray-600 font-medium">Gérez vos projets d'amélioration continue</p>
           </div>
-          
-          {/* Barre de recherche alignée */}
-          <div className="relative w-80">
+
+          {/* Barre de recherche alignée et descendue */}
+          <div className="relative w-80 mt-4">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-5 h-5 text-gray-400" />
             </div>
