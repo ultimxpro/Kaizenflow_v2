@@ -18,7 +18,6 @@ const quadrants = [
     title: 'PLAN', 
     subtitle: 'Description du phénomène',
     bgGradient: 'bg-gradient-to-br from-white via-sky-50/30 to-indigo-100/50',
-    borderColor: 'border-transparent bg-gradient-to-r from-indigo-800/60 via-blue-600/60 to-sky-400/60',
     headerGradient: 'bg-gradient-to-r from-indigo-800/90 via-blue-600/90 to-sky-400/90',
     hoverShadow: 'hover:shadow-[0_8px_30px_rgb(59,130,246,0.15)]',
     allowedTools: ['5Pourquoi', '4M', 'VSM', 'Croquis', 'Iframe']
@@ -28,7 +27,6 @@ const quadrants = [
     title: 'DO', 
     subtitle: 'Description de la solution',
     bgGradient: 'bg-gradient-to-br from-white via-lime-50/30 to-emerald-100/50',
-    borderColor: 'border-transparent bg-gradient-to-r from-emerald-700/60 via-green-500/60 to-lime-400/60',
     headerGradient: 'bg-gradient-to-r from-emerald-700/90 via-green-500/90 to-lime-400/90',
     hoverShadow: 'hover:shadow-[0_8px_30px_rgb(16,185,129,0.15)]',
     allowedTools: ['5S', 'PlanActions', 'Croquis', 'Iframe']
@@ -38,7 +36,6 @@ const quadrants = [
     title: 'CHECK', 
     subtitle: 'Vérification des résultats',
     bgGradient: 'bg-gradient-to-br from-white via-orange-50/30 to-pink-100/50',
-    borderColor: 'border-transparent bg-gradient-to-r from-pink-600/60 via-orange-500/60 to-orange-300/60',
     headerGradient: 'bg-gradient-to-r from-pink-600/90 via-orange-500/90 to-orange-300/90',
     hoverShadow: 'hover:shadow-[0_8px_30px_rgb(249,115,22,0.15)]',
     allowedTools: ['Indicateurs', 'Croquis', 'Iframe']
@@ -48,7 +45,6 @@ const quadrants = [
     title: 'ACT', 
     subtitle: 'Standardisation et expansion',
     bgGradient: 'bg-gradient-to-br from-white via-violet-50/30 to-indigo-100/50',
-    borderColor: 'border-transparent bg-gradient-to-r from-indigo-900/60 via-purple-600/60 to-violet-400/60',
     headerGradient: 'bg-gradient-to-r from-indigo-900/90 via-purple-600/90 to-violet-400/90',
     hoverShadow: 'hover:shadow-[0_8px_30px_rgb(139,92,246,0.15)]',
     allowedTools: ['OPL', 'SOP', 'Croquis', 'Iframe']
@@ -109,7 +105,6 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
               key={quadrant.id}
               className={`
                 ${quadrant.bgGradient} 
-                ${quadrant.borderColor} 
                 ${quadrant.hoverShadow}
                 border-2 rounded-2xl flex flex-col h-full 
                 transition-all duration-500 ease-out 
