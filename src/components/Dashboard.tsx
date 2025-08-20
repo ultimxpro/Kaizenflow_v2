@@ -53,10 +53,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 relative overflow-hidden">
-      {/* Éléments décoratifs de fond avec dégradés blanc-gris */}
+      {/* Éléments décoratifs de fond avec dégradés blanc-gris cohérents avec la page de connexion */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-gray-200 to-gray-400 rounded-full opacity-20 blur-3xl"></div>
-        <div className="absolute top-1/3 -left-40 w-80 h-80 bg-gradient-to-br from-gray-100 to-gray-300 rounded-full opacity-15 blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200/20 to-purple-300/15 rounded-full opacity-20 blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/3 -left-40 w-80 h-80 bg-gradient-to-br from-green-200/15 to-teal-300/20 rounded-full opacity-15 blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-60 h-60 bg-gradient-to-br from-orange-100/20 to-yellow-200/15 rounded-full blur-2xl"></div>
       </div>
 
       {/* Header moderne avec glassmorphism */}
@@ -64,13 +65,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             {/* Logo et titre */}
-<div className="cursor-pointer group" onClick={() => onNavigate('dashboard')}>
-  <img 
-    src="/leandeck-symbol.png" 
-    alt="Leandeck Logo" 
-    className="w-24 h-24 object-contain group-hover:scale-105 transition-transform duration-300" 
-  />
-</div>
+            <div className="cursor-pointer group" onClick={() => onNavigate('dashboard')}>
+              <img 
+                src="/leandeck-symbol.png" 
+                alt="Leandeck Logo" 
+                className="w-24 h-24 object-contain group-hover:scale-105 transition-transform duration-300" 
+              />
+            </div>
             
             <div className="flex items-center gap-x-4">
               {/* Bouton de notification */}
@@ -96,46 +97,55 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 >
                   <div className="w-10 h-10 bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
                     {signedAvatarUrl ? (
-                      <img src={signedAvatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                      <img 
+                        src={signedAvatarUrl} 
+                        alt="Avatar" 
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
-                      <span className="text-sm font-bold text-gray-700">
-                        {currentUser?.nom?.split(' ').map(n => n.charAt(0)).join('') || '?'}
+                      <span className="text-gray-600 font-semibold text-sm">
+                        {currentUser?.user_metadata?.nom?.[0] || currentUser?.email?.[0] || '?'}
                       </span>
                     )}
                   </div>
                   <div className="hidden md:block text-left">
-                    <p className="text-sm font-semibold text-gray-900">{currentUser?.nom}</p>
-                    <p className="text-xs text-gray-500">En ligne</p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {currentUser?.user_metadata?.nom || 'Utilisateur'}
+                    </p>
+                    <p className="text-xs text-gray-500">{currentUser?.email}</p>
                   </div>
-                  <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isMenuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className="w-4 h-4 text-gray-500 group-hover:text-gray-700 transition-colors" />
                 </button>
-                
+
+                {/* Dropdown menu */}
                 {isMenuOpen && (
-                  <div 
-                    className="absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-xl border border-gray-200/60 rounded-2xl shadow-2xl py-2 z-50 animate-fade-in-down"
-                    onMouseLeave={() => setIsMenuOpen(false)}
-                  >
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-sm font-semibold text-gray-900">{currentUser?.nom}</p>
-                      <p className="text-xs text-gray-500">{currentUser?.email}</p>
-                    </div>
+                  <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/60 py-2 z-50">
                     <button
-                      onClick={() => { onNavigate('profile'); setIsMenuOpen(false); }}
-                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50/70 flex items-center transition-colors"
+                      onClick={() => {
+                        onNavigate('profile');
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100/70 flex items-center transition-colors"
                     >
                       <Settings className="w-4 h-4 mr-3" />
-                      Profil et paramètres
+                      Paramètres du profil
                     </button>
+                    
                     {isAdmin && (
                       <button
-                        onClick={() => { onNavigate('admin'); setIsMenuOpen(false); }}
-                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50/70 flex items-center transition-colors"
+                        onClick={() => {
+                          onNavigate('admin');
+                          setIsMenuOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100/70 flex items-center transition-colors"
                       >
                         <Shield className="w-4 h-4 mr-3" />
                         Administration
                       </button>
                     )}
-                    <div className="my-1 h-px bg-gray-100"></div>
+
+                    <hr className="my-2 border-gray-200/60" />
+                    
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50/70 flex items-center transition-colors"
@@ -158,67 +168,65 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <p className="text-gray-600 font-medium">Gérez vos projets d'amélioration continue</p>
         </div>
         
-        {/* Stats rapides */}
+        {/* Stats rapides - Version colorée sans logos */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-lg hover:shadow-xl transition-all group">
+          {/* Total Kaizens - Bleu */}
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 backdrop-blur-sm rounded-2xl p-6 border border-blue-400/20 shadow-lg hover:shadow-xl transition-all group text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Projets</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalProjects}</p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Target className="w-6 h-6 text-blue-600" />
+                <p className="text-sm font-medium text-blue-100 opacity-90">Total Kaizens</p>
+                <p className="text-3xl font-bold text-white">{stats.totalProjects}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-lg hover:shadow-xl transition-all group">
+          {/* En cours - Vert */}
+          <div className="bg-gradient-to-br from-green-500 to-green-600 backdrop-blur-sm rounded-2xl p-6 border border-green-400/20 shadow-lg hover:shadow-xl transition-all group text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">En cours</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.inProgress}</p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Activity className="w-6 h-6 text-orange-600" />
+                <p className="text-sm font-medium text-green-100 opacity-90">En cours</p>
+                <p className="text-3xl font-bold text-white">{stats.inProgress}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-lg hover:shadow-xl transition-all group">
+          {/* Terminés - Orange */}
+          <div className="bg-gradient-to-br from-orange-500 to-orange-600 backdrop-blur-sm rounded-2xl p-6 border border-orange-400/20 shadow-lg hover:shadow-xl transition-all group text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Terminés</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.completed}</p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <TrendingUp className="w-6 h-6 text-green-600" />
+                <p className="text-sm font-medium text-orange-100 opacity-90">Terminés</p>
+                <p className="text-3xl font-bold text-white">{stats.completed}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-lg hover:shadow-xl transition-all group">
+          {/* Économies - Violet */}
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 backdrop-blur-sm rounded-2xl p-6 border border-purple-400/20 shadow-lg hover:shadow-xl transition-all group text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Économies</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalSavings.toLocaleString('fr-FR')} €</p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <TrendingUp className="w-6 h-6 text-purple-600" />
+                <p className="text-sm font-medium text-purple-100 opacity-90">Économies</p>
+                <p className="text-2xl font-bold text-white">{stats.totalSavings.toLocaleString('fr-FR')} €</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Layout 4 colonnes comme avant */}
+        {/* Layout 4 colonnes avec compteurs ajoutés */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
           
+          {/* Mes Kaizens avec compteur */}
           <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
             <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
-              <h2 className="text-lg font-semibold flex items-center">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center mr-3">
-                  <FolderOpen className="w-4 h-4 text-blue-600" />
+              <h2 className="text-lg font-semibold flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center mr-3">
+                    <FolderOpen className="w-4 h-4 text-blue-600" />
+                  </div>
+                  Mes Kaizens
                 </div>
-                Mes Kaizens
+                <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                  {myProjects.length}
+                </span>
               </h2>
               <p className="text-gray-400 text-sm mt-1">Projets que vous pilotez</p>
             </div>
@@ -228,16 +236,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin"></div>
                 </div>
               ) : filteredProjects.length === 0 ? (
-                <div className="text-center py-8">
-                  <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center mx-auto mb-3">
-                    <FolderOpen className="w-6 h-6 text-gray-400" />
-                  </div>
-                  <p className="text-gray-600 font-medium">Aucun projet</p>
+                <div className="text-center py-8 text-gray-400">
+                  <FolderOpen className="w-12 h-12 mx-auto mb-2" />
+                  <p>Aucun projet en cours.</p>
                   <button
                     onClick={() => setShowCreateModal(true)}
-                    className="mt-3 text-sm bg-gradient-to-br from-gray-800 to-gray-700 text-white px-4 py-2 rounded-lg hover:from-gray-900 hover:to-gray-800 transition-all"
+                    className="mt-4 text-blue-600 hover:text-blue-800 font-semibold text-sm"
                   >
-                    Créer un projet
+                    Créer votre premier Kaizen
                   </button>
                 </div>
               ) : (
@@ -245,11 +251,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   <div
                     key={project.id}
                     onClick={() => onNavigate('project', project.id)}
-                    className="bg-gradient-to-br from-white to-gray-50 rounded-lg p-4 border border-gray-200/60 hover:border-gray-300 hover:shadow-md transition-all cursor-pointer group"
+                    className="bg-white rounded-xl p-4 border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all cursor-pointer group"
                   >
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="font-semibold text-gray-900 text-sm line-clamp-2">{project.titre}</h3>
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                    <div className="flex items-start justify-between">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                        {project.titre}
+                      </h3>
+                      <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ml-2 flex-shrink-0 ${
                         project.statut === 'Terminé' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
                       }`}>
                         {project.statut}
@@ -268,13 +276,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
           </div>
 
+          {/* Où j'interviens avec compteur */}
           <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
             <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
-              <h2 className="text-lg font-semibold flex items-center">
-                <div className="w-8 h-8 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center mr-3">
-                  <Users className="w-4 h-4 text-green-600" />
+              <h2 className="text-lg font-semibold flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center mr-3">
+                    <Users className="w-4 h-4 text-green-600" />
+                  </div>
+                  Où j'interviens
                 </div>
-                Où j'interviens
+                <span className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                  {contributingProjects.length}
+                </span>
               </h2>
               <p className="text-gray-400 text-sm mt-1">Projets où vous contribuez</p>
             </div>
@@ -286,13 +300,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
           </div>
 
+          {/* Mes actions avec compteur */}
           <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
             <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
-              <h2 className="text-lg font-semibold flex items-center">
-                <div className="w-8 h-8 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center mr-3">
-                  <Calendar className="w-4 h-4 text-orange-600" />
+              <h2 className="text-lg font-semibold flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center mr-3">
+                    <Calendar className="w-4 h-4 text-orange-600" />
+                  </div>
+                  Mes actions
                 </div>
-                Mes actions
+                <span className="bg-orange-100 text-orange-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                  0
+                </span>
               </h2>
               <p className="text-gray-400 text-sm mt-1">Tâches qui vous sont assignées</p>
             </div>
@@ -303,21 +323,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               </div>
             </div>
           </div>
-          
+
+          {/* Notifications avec compteur */}
           <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
             <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
-              <h2 className="text-lg font-semibold flex items-center">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center mr-3">
-                  <Plus className="w-4 h-4 text-purple-600" />
+              <h2 className="text-lg font-semibold flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center mr-3">
+                    <Bell className="w-4 h-4 text-purple-600" />
+                  </div>
+                  Notifications
                 </div>
-                Actions créées
+                <span className="bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                  0
+                </span>
               </h2>
-              <p className="text-gray-400 text-sm mt-1">Actions initiées par vous</p>
+              <p className="text-gray-400 text-sm mt-1">Alertes et mises à jour</p>
             </div>
             <div className="p-5 overflow-y-auto">
               <div className="text-center py-8 text-gray-400">
-                <Plus className="w-12 h-12 mx-auto mb-2" />
-                <p>Aucune action créée.</p>
+                <Bell className="w-12 h-12 mx-auto mb-2" />
+                <p>Aucune notification.</p>
               </div>
             </div>
           </div>
@@ -325,6 +351,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         </div>
       </div>
 
+      {/* Modal de création de projet */}
       {showCreateModal && (
         <CreateProjectModal
           onClose={() => setShowCreateModal(false)}
