@@ -1,3 +1,4 @@
+// src/components/project/PDCAGrid.tsx
 import React, { useState } from 'react';
 import { useDatabase } from '../../contexts/DatabaseContext';
 import { A3Module } from '../../types/database';
@@ -18,8 +19,10 @@ const quadrants = [
     title: 'PLAN', 
     subtitle: 'Description du phénomène',
     icon: <Target className="w-6 h-6" />,
-    color: 'border-blue-200 bg-blue-50',
-    headerColor: 'bg-blue-100 text-blue-800',
+    bgGradient: 'bg-gradient-to-br from-white via-blue-50/30 to-blue-100/50',
+    borderColor: 'border-blue-200/60',
+    headerGradient: 'bg-gradient-to-r from-blue-500/90 to-blue-600/90',
+    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(59,130,246,0.15)]',
     allowedTools: ['5Pourquoi', '4M', 'VSM', 'Croquis', 'Iframe']
   },
   { 
@@ -27,26 +30,32 @@ const quadrants = [
     title: 'DO', 
     subtitle: 'Description de la solution',
     icon: <Play className="w-6 h-6" />,
-    color: 'border-green-200 bg-green-50',
-    headerColor: 'bg-green-100 text-green-800',
+    bgGradient: 'bg-gradient-to-br from-white via-green-50/30 to-green-100/50',
+    borderColor: 'border-green-200/60',
+    headerGradient: 'bg-gradient-to-r from-green-500/90 to-green-600/90',
+    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(34,197,94,0.15)]',
     allowedTools: ['5S', 'PlanActions', 'Croquis', 'Iframe']
   },
-   { 
+  { 
     id: 'CHECK', 
     title: 'CHECK', 
     subtitle: 'Vérification des résultats',
     icon: <CheckCircle className="w-6 h-6" />,
-    color: 'border-orange-200 bg-orange-50',
-    headerColor: 'bg-orange-100 text-orange-800',
-    allowedTools: ['Indicateurs', 'Croquis', 'Iframe'] // Ajout d'Indicateurs
+    bgGradient: 'bg-gradient-to-br from-white via-orange-50/30 to-orange-100/50',
+    borderColor: 'border-orange-200/60',
+    headerGradient: 'bg-gradient-to-r from-orange-500/90 to-orange-600/90',
+    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(249,115,22,0.15)]',
+    allowedTools: ['Indicateurs', 'Croquis', 'Iframe']
   },
   { 
     id: 'ACT', 
     title: 'ACT', 
     subtitle: 'Standardisation et expansion',
     icon: <RefreshCw className="w-6 h-6" />,
-    color: 'border-purple-200 bg-purple-50',
-    headerColor: 'bg-purple-100 text-purple-800',
+    bgGradient: 'bg-gradient-to-br from-white via-purple-50/30 to-purple-100/50',
+    borderColor: 'border-purple-200/60',
+    headerGradient: 'bg-gradient-to-r from-purple-500/90 to-purple-600/90',
+    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(139,92,246,0.15)]',
     allowedTools: ['OPL', 'SOP', 'Croquis', 'Iframe']
   }
 ];
@@ -94,35 +103,73 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
   };
 
   return (
-    <>
-      <div className="grid grid-cols-2 grid-rows-2 gap-4 h-full">
+    <div className="h-full p-4 relative">
+      {/* Grille PDCA avec glassmorphism */}
+      <div className="grid grid-cols-2 grid-rows-2 gap-6 h-full">
         {quadrants.map((quadrant) => {
           const quadrantModules = getModulesForQuadrant(quadrant.id);
           
           return (
-            <PDCAGridQuadrant
+            <div
               key={quadrant.id}
-              id={quadrant.id}
-              title={quadrant.title}
-              subtitle={quadrant.subtitle}
-              icon={quadrant.icon}
-              color={quadrant.color}
-              headerColor={quadrant.headerColor}
-              modules={quadrantModules}
-              onEditModule={onEditModule}
-              onMoveModule={onMoveModule}
-              onAddModule={() => setShowModuleSelection(quadrant.id)}
-              // MODIFICATION : On "branche" la fonction de suppression ici
-              onDeleteModule={(moduleId) => {
-                if(confirm('Êtes-vous sûr de vouloir supprimer ce module ?')) {
-                  deleteA3Module(moduleId);
-                }
-              }}
-            />
+              className={`
+                ${quadrant.bgGradient} 
+                ${quadrant.borderColor} 
+                ${quadrant.hoverShadow}
+                border-2 rounded-2xl flex flex-col h-full 
+                transition-all duration-500 ease-out 
+                hover:scale-[1.02] hover:border-opacity-80
+                backdrop-blur-sm
+                group relative overflow-hidden
+              `}
+            >
+              {/* Effet glassmorphism subtil */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10 pointer-events-none"></div>
+              
+              {/* Header avec dégradé moderne */}
+              <div className={`${quadrant.headerGradient} backdrop-blur-xl p-6 rounded-t-2xl border-b border-white/20 flex-shrink-0 relative z-10`}>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                <div className="flex items-center space-x-4 relative z-10">
+                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-white/30">
+                    <div className="text-white">
+                      {quadrant.icon}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-xl text-white tracking-wide group-hover:scale-105 transition-transform duration-300">
+                      {quadrant.title}
+                    </h3>
+                    <p className="text-white/80 text-sm font-medium mt-1">
+                      {quadrant.subtitle}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contenu avec glassmorphism */}
+              <div className="p-6 flex-1 overflow-y-auto min-h-0 relative z-10">
+                <PDCAGridQuadrant
+                  id={quadrant.id}
+                  title={quadrant.title}
+                  subtitle={quadrant.subtitle}
+                  icon={quadrant.icon}
+                  modules={quadrantModules}
+                  onEditModule={onEditModule}
+                  onMoveModule={onMoveModule}
+                  onAddModule={() => setShowModuleSelection(quadrant.id)}
+                  onDeleteModule={(moduleId) => {
+                    if(confirm('Êtes-vous sûr de vouloir supprimer ce module ?')) {
+                      deleteA3Module(moduleId);
+                    }
+                  }}
+                />
+              </div>
+            </div>
           );
         })}
       </div>
 
+      {/* Modal de sélection moderne */}
       {showModuleSelection && (
         <ModuleSelectionModal
           quadrant={showModuleSelection}
@@ -131,6 +178,6 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
           onClose={() => setShowModuleSelection(null)}
         />
       )}
-    </>
+    </div>
   );
 };
