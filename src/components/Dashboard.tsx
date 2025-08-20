@@ -64,15 +64,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             {/* Logo et titre */}
-            <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => onNavigate('dashboard')}>
-              <div className="w-10 h-10 bg-gradient-to-br from-gray-800 to-gray-600 rounded-xl shadow-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-                <img src="/Gemini_Generated_Image_6kdy0q6kdy0q6kdy.png" alt="Leandeck Logo" className="w-6 h-6 object-contain" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 tracking-tight">Leandeck</h1>
-                <p className="text-xs text-gray-500 font-medium">Amélioration continue</p>
-              </div>
-            </div>
+        <div className="cursor-pointer group" onClick={() => onNavigate('dashboard')}>
+  <img 
+    src="/leandeck-symbol.png" 
+    alt="Leandeck Logo" 
+    className="w-16 h-16 object-contain group-hover:scale-105 transition-transform duration-300" 
+  />
+</div>
             
             <div className="flex items-center gap-x-4">
               {/* Bouton de notification */}
