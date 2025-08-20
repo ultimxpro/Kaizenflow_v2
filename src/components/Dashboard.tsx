@@ -33,6 +33,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const myProjects = projects.filter(p => p.pilote === currentUser?.id);
   const contributingProjects = projects.filter(p => p.pilote !== currentUser?.id && false);
 
+  // Filtrage avec la barre de recherche du haut
+  const filteredProjects = myProjects.filter(project =>
+    project.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.kaizen_number.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const handleLogout = () => {
     signOut();
     onNavigate('login');
@@ -151,10 +157,26 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        {/* En-tête de la page */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tableau de Bord</h1>
-          <p className="text-gray-600 font-medium">Gérez vos projets d'amélioration continue</p>
+        {/* En-tête de la page avec barre de recherche */}
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Tableau de Bord</h1>
+            <p className="text-gray-600 font-medium">Gérez vos projets d'amélioration continue</p>
+          </div>
+          
+          {/* Barre de recherche alignée */}
+          <div className="relative w-80">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 h-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Rechercher un élément..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white/80 backdrop-blur-sm placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-gray-300 focus:border-gray-400 transition-all duration-300 shadow-sm"
+            />
+          </div>
         </div>
         
         {/* Stats rapides - Version avec couleurs grises élégantes */}
@@ -230,7 +252,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   Mes Kaizens
                 </div>
                 <span className="bg-gray-100 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                  {myProjects.length}
+                  {filteredProjects.length}
                 </span>
               </h2>
               <p className="text-gray-400 text-sm mt-1">Projets que vous pilotez</p>
@@ -240,19 +262,32 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 <div className="flex items-center justify-center py-8">
                   <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin"></div>
                 </div>
-              ) : myProjects.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">
-                  <FolderOpen className="w-12 h-12 mx-auto mb-2" />
-                  <p>Aucun projet en cours.</p>
-                  <button
-                    onClick={() => setShowCreateModal(true)}
-                    className="mt-4 text-blue-600 hover:text-blue-800 font-semibold text-sm"
-                  >
-                    Créer votre premier Kaizen
-                  </button>
-                </div>
+              ) : filteredProjects.length === 0 ? (
+                searchTerm ? (
+                  <div className="text-center py-8 text-gray-400">
+                    <Search className="w-12 h-12 mx-auto mb-2" />
+                    <p>Aucun kaizen trouvé pour "{searchTerm}"</p>
+                    <button
+                      onClick={() => setSearchTerm('')}
+                      className="mt-2 text-blue-600 hover:text-blue-800 font-semibold text-sm"
+                    >
+                      Effacer la recherche
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-400">
+                    <FolderOpen className="w-12 h-12 mx-auto mb-2" />
+                    <p>Aucun projet en cours.</p>
+                    <button
+                      onClick={() => setShowCreateModal(true)}
+                      className="mt-4 text-blue-600 hover:text-blue-800 font-semibold text-sm"
+                    >
+                      Créer votre premier Kaizen
+                    </button>
+                  </div>
+                )
               ) : (
-                myProjects.sort((a, b) => {
+                filteredProjects.sort((a, b) => {
                   if (a.statut === 'En cours' && b.statut === 'Terminé') return -1;
                   if (a.statut === 'Terminé' && b.statut === 'En cours') return 1;
                   return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
