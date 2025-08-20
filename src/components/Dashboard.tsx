@@ -154,13 +154,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         {/* En-tête de la page avec barre de recherche */}
-        <div className="mb-8 flex justify-between items-start">
+        <div className="mb-8 flex justify-between items-end">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Tableau de Bord</h1>
             <p className="text-gray-600 font-medium">Gérez vos projets d'amélioration continue</p>
           </div>
           
-          {/* Barre de recherche alignée */}
+          {/* Barre de recherche alignée avec le texte */}
           <div className="relative w-80">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-5 h-5 text-gray-400" />
@@ -175,44 +175,72 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </div>
         </div>
         
-        {/* Stats rapides - Version avec couleurs grises élégantes */}
+        {/* Stats rapides - Version avec couleurs originales */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Total Kaizens - Gris foncé */}
-          <div className="bg-gradient-to-br from-gray-700 to-gray-800 backdrop-blur-sm rounded-2xl p-6 border border-gray-600/20 shadow-lg hover:shadow-xl transition-all group text-white">
+          {/* Total Kaizens - Bleu */}
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 backdrop-blur-sm rounded-2xl p-6 border border-blue-400/20 shadow-lg hover:shadow-xl transition-all group text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-200 opacity-90">Total Kaizens</p>
+                <div className="flex items-center mb-2">
+                  <Target className="w-5 h-5 mr-2 opacity-80" />
+                  <p className="text-sm font-medium text-blue-100">Total Kaizens</p>
+                </div>
                 <p className="text-3xl font-bold text-white">{stats.totalProjects}</p>
+                <p className="text-xs text-blue-100 opacity-75 mt-1">Projets créés</p>
+              </div>
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <FolderOpen className="w-6 h-6 text-white" />
               </div>
             </div>
           </div>
 
-          {/* En cours - Gris moyen */}
-          <div className="bg-gradient-to-br from-gray-600 to-gray-700 backdrop-blur-sm rounded-2xl p-6 border border-gray-500/20 shadow-lg hover:shadow-xl transition-all group text-white">
+          {/* En cours - Vert */}
+          <div className="bg-gradient-to-br from-green-500 to-green-600 backdrop-blur-sm rounded-2xl p-6 border border-green-400/20 shadow-lg hover:shadow-xl transition-all group text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-200 opacity-90">En cours</p>
+                <div className="flex items-center mb-2">
+                  <Activity className="w-5 h-5 mr-2 opacity-80" />
+                  <p className="text-sm font-medium text-green-100">En cours</p>
+                </div>
                 <p className="text-3xl font-bold text-white">{stats.inProgress}</p>
+                <p className="text-xs text-green-100 opacity-75 mt-1">Projets actifs</p>
+              </div>
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Clock className="w-6 h-6 text-white" />
               </div>
             </div>
           </div>
 
-          {/* Terminés - Gris acier */}
-          <div className="bg-gradient-to-br from-slate-600 to-slate-700 backdrop-blur-sm rounded-2xl p-6 border border-slate-500/20 shadow-lg hover:shadow-xl transition-all group text-white">
+          {/* Terminés - Orange */}
+          <div className="bg-gradient-to-br from-orange-500 to-orange-600 backdrop-blur-sm rounded-2xl p-6 border border-orange-400/20 shadow-lg hover:shadow-xl transition-all group text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-200 opacity-90">Terminés</p>
+                <div className="flex items-center mb-2">
+                  <TrendingUp className="w-5 h-5 mr-2 opacity-80" />
+                  <p className="text-sm font-medium text-orange-100">Terminés</p>
+                </div>
                 <p className="text-3xl font-bold text-white">{stats.completed}</p>
+                <p className="text-xs text-orange-100 opacity-75 mt-1">Projets finalisés</p>
+              </div>
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <TrendingUp className="w-6 h-6 text-white" />
               </div>
             </div>
           </div>
 
-          {/* Économies - Gris bleuté */}
-          <div className="bg-gradient-to-br from-gray-600 to-gray-700 backdrop-blur-sm rounded-2xl p-6 border border-gray-500/20 shadow-lg hover:shadow-xl transition-all group text-white">
+          {/* Économies - Violet */}
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 backdrop-blur-sm rounded-2xl p-6 border border-purple-400/20 shadow-lg hover:shadow-xl transition-all group text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-200 opacity-90">Économies</p>
+                <div className="flex items-center mb-2">
+                  <TrendingUp className="w-5 h-5 mr-2 opacity-80" />
+                  <p className="text-sm font-medium text-purple-100">Économies</p>
+                </div>
                 <p className="text-2xl font-bold text-white">{stats.totalSavings.toLocaleString('fr-FR')} €</p>
+                <p className="text-xs text-purple-100 opacity-75 mt-1">Gains générés</p>
+              </div>
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <TrendingUp className="w-6 h-6 text-white" />
               </div>
             </div>
           </div>
