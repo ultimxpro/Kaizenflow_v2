@@ -1,4 +1,4 @@
-// src/components/project/ModuleCard.tsx - VERSION ULTRA SIMPLE
+// src/components/project/ModuleCard.tsx - VERSION FINALE
 import React from 'react';
 import { A3Module } from '../../types/database';
 import { 
@@ -65,15 +65,40 @@ const getToolName = (toolType: string) => {
 export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove, onDelete }) => {
   const [showMenu, setShowMenu] = React.useState(false);
 
-  // VERSION ULTRA SIMPLE : un seul bouton rouge visible
+  const handleMenuClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setShowMenu(!showMenu);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setShowMenu(false);
+    onClick();
+  };
+
+  const handleMove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setShowMenu(false);
+    if (onMove) onMove(module);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setShowMenu(false);
+    if (onDelete && confirm('Êtes-vous sûr de vouloir supprimer ce module ?')) {
+      onDelete(module.id);
+    }
+  };
+
   return (
     <div className="relative group">
       <div 
         className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/60 hover:border-gray-300 hover:shadow-lg transition-all cursor-pointer hover:bg-white/90"
-        onClick={() => {
-          console.log('📦 Card clicked for module:', module.id);
-          onClick();
-        }}
+        onClick={onClick}
       >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-3">
@@ -87,38 +112,53 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
             </div>
           </div>
           
-          {/* BOUTON SIMPLE ET VISIBLE - PAS DE MENU DROPDOWN */}
+          {/* Menu trois points + bouton rouge */}
           <div className="flex items-center space-x-2">
             {/* Bouton trois points */}
             <button
-              type="button"
-              onClick={(e) => {
-                console.log('🎯 Three dots clicked!');
-                e.stopPropagation();
-                setShowMenu(!showMenu);
-              }}
-              className="w-8 h-8 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-all"
+              onClick={handleMenuClick}
+              className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
             >
-              <MoreVertical className="w-4 h-4 text-gray-600" />
+              <MoreVertical className="w-4 h-4 text-gray-500" />
             </button>
             
-            {/* BOUTON ROUGE DIRECT - TOUJOURS VISIBLE */}
+            {/* BOUTON ROUGE direct pour supprimer */}
             {onDelete && (
               <button
-                type="button"
                 onClick={(e) => {
-                  console.log('🔥 RED DELETE BUTTON CLICKED for module:', module.id);
                   e.stopPropagation();
+                  e.preventDefault();
                   if (confirm('Supprimer ce module ?')) {
-                    console.log('🔥 User confirmed - calling onDelete');
                     onDelete(module.id);
                   }
                 }}
-                className="w-8 h-8 rounded-lg bg-red-500 hover:bg-red-600 flex items-center justify-center transition-all"
+                className="w-8 h-8 rounded-lg bg-red-500 hover:bg-red-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
                 title="Supprimer"
               >
                 <Trash2 className="w-4 h-4 text-white" />
               </button>
+            )}
+          </div>
+            
+            {showMenu && (
+              <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[60]">
+                <button
+                  onClick={handleEdit}
+                  className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Modifier
+                </button>
+                {onMove && (
+                  <button
+                    onClick={handleMove}
+                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+                  >
+                    <Move className="w-4 h-4 mr-2" />
+                    Déplacer
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -130,66 +170,11 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
         )}
       </div>
       
-      {/* Menu dropdown SI affiché */}
-      {showMenu && (
-        <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[9999]">
-          <button
-            type="button"
-            onClick={(e) => {
-              console.log('✏️ Edit from menu clicked');
-              e.stopPropagation();
-              setShowMenu(false);
-              onClick();
-            }}
-            className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
-          >
-            <Edit className="w-4 h-4 mr-2" />
-            Modifier
-          </button>
-          {onMove && (
-            <button
-              type="button"
-              onClick={(e) => {
-                console.log('🔄 Move from menu clicked');
-                e.stopPropagation();
-                setShowMenu(false);
-                onMove(module);
-              }}
-              className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
-            >
-              <Move className="w-4 h-4 mr-2" />
-              Déplacer
-            </button>
-          )}
-          {onDelete && (
-            <button
-              type="button"
-              onClick={(e) => {
-                console.log('🗑️ Delete from menu clicked for module:', module.id);
-                e.stopPropagation();
-                setShowMenu(false);
-                if (confirm('Supprimer ce module depuis le menu ?')) {
-                  console.log('🗑️ User confirmed from menu - calling onDelete');
-                  onDelete(module.id);
-                }
-              }}
-              className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Supprimer depuis menu
-            </button>
-          )}
-        </div>
-      )}
-      
       {/* Overlay pour fermer le menu */}
       {showMenu && (
         <div 
-          className="fixed inset-0 z-[9998]" 
-          onClick={() => {
-            console.log('🎯 Overlay clicked - closing menu');
-            setShowMenu(false);
-          }}
+          className="fixed inset-0 z-[55]" 
+          onClick={() => setShowMenu(false)}
         />
       )}
     </div>
