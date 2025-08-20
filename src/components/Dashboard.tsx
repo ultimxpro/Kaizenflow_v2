@@ -64,11 +64,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             {/* Logo et titre */}
-        <div className="cursor-pointer group" onClick={() => onNavigate('dashboard')}>
+<div className="cursor-pointer group" onClick={() => onNavigate('dashboard')}>
   <img 
     src="/leandeck-symbol.png" 
     alt="Leandeck Logo" 
-    className="w-16 h-16 object-contain group-hover:scale-105 transition-transform duration-300" 
+    className="w-24 h-24 object-contain group-hover:scale-105 transition-transform duration-300" 
   />
 </div>
             
