@@ -95,13 +95,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                       <img src={signedAvatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
                       <span className="text-gray-700 font-semibold text-sm">
-                        {currentUser?.user_metadata.first_name?.[0]}{currentUser?.user_metadata.last_name?.[0]}
+                        {currentUser?.user_metadata?.first_name?.[0] || currentUser?.email?.[0]?.toUpperCase() || '?'}
+                        {currentUser?.user_metadata?.last_name?.[0] || ''}
                       </span>
                     )}
                   </div>
                   <div className="text-left min-w-0">
                     <p className="text-sm font-semibold text-gray-900 truncate">
-                      {currentUser?.user_metadata.first_name} {currentUser?.user_metadata.last_name}
+                      {currentUser?.user_metadata?.first_name || ''} {currentUser?.user_metadata?.last_name || ''}
+                      {!currentUser?.user_metadata?.first_name && !currentUser?.user_metadata?.last_name && currentUser?.email}
                     </p>
                     <p className="text-xs text-gray-500 truncate">{currentUser?.email}</p>
                   </div>
