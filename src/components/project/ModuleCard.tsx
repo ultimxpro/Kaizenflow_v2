@@ -85,7 +85,9 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowMenu(false);
-    if (onDelete) onDelete();
+    if (onDelete && confirm('Êtes-vous sûr de vouloir supprimer ce module ?')) {
+      onDelete();
+    }
   };
 
   return (
