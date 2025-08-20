@@ -29,6 +29,7 @@ export const DeleteProjectModal: React.FC<DeleteProjectModalProps> = ({
       onDeleted();
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
+      alert('Erreur lors de la suppression du projet');
     } finally {
       setLoading(false);
     }
@@ -38,13 +39,10 @@ export const DeleteProjectModal: React.FC<DeleteProjectModalProps> = ({
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="max-w-md w-full bg-white backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-red-600 to-red-700 p-6 relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
-          <div className="flex items-center justify-between relative z-10">
+        <div className="bg-gradient-to-r from-red-600 to-red-700 p-6">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-white" />
-              </div>
+              <AlertTriangle className="w-6 h-6 text-white" />
               <div>
                 <h2 className="text-xl font-bold text-white">Supprimer le projet</h2>
                 <p className="text-red-100 text-sm">Cette action est irréversible</p>
