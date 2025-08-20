@@ -2,12 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useDatabase } from '../contexts/DatabaseContext';
-import { ArrowLeft, Edit3, Save, X, MoreVertical, Trash2, Settings } from 'lucide-react';
+import { ArrowLeft, Edit3, Save, X } from 'lucide-react';
 import { PDCAGrid } from './project/PDCAGrid';
 import { SidePanel } from './project/SidePanel';
 import { ModuleEditModal } from './project/ModuleEditModal';
 import { MoveModuleModal } from './project/MoveModuleModal';
-import { DeleteProjectModal } from './DeleteProjectModal';
 
 interface ProjectViewProps {
   projectId: string;
@@ -21,8 +20,6 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [tempTitle, setTempTitle] = useState('');
   const [tempDescription, setTempDescription] = useState('');
-  const [showProjectMenu, setShowProjectMenu] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   
   const { currentUser } = useAuth();
   const { projects, a3Modules, updateProject } = useDatabase();
@@ -84,13 +81,6 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
       setIsEditingDescription(false);
     }
   };
-
-  const handleProjectDeleted = () => {
-    setShowDeleteModal(false);
-    onNavigate('dashboard');
-  };
-
-  const canDeleteProject = currentUser?.id === project?.pilote || currentUser?.role === 'admin';
 
   if (!project) {
     return (
@@ -238,33 +228,6 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
                   )}
                 </div>
               </div>
-
-              {/* Menu projet */}
-              {canDeleteProject && (
-                <div className="relative ml-4">
-                  <button
-                    onClick={() => setShowProjectMenu(!showProjectMenu)}
-                    className="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition-all"
-                  >
-                    <MoreVertical className="w-5 h-5 text-gray-500" />
-                  </button>
-                  
-                  {showProjectMenu && (
-                    <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                      <button
-                        onClick={() => {
-                          setShowProjectMenu(false);
-                          setShowDeleteModal(true);
-                        }}
-                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Supprimer le projet
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           </div>
 
@@ -290,14 +253,6 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
         </div>
       </div>
 
-      {/* Overlay pour fermer le menu */}
-      {showProjectMenu && (
-        <div 
-          className="fixed inset-0 z-40" 
-          onClick={() => setShowProjectMenu(false)}
-        />
-      )}
-
       {editingModule && (
         <ModuleEditModal
           module={editingModule}
@@ -309,15 +264,6 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ projectId, onNavigate 
         <MoveModuleModal
           module={movingModule}
           onClose={() => setMovingModule(null)}
-        />
-      )}
-
-      {showDeleteModal && (
-        <DeleteProjectModal
-          projectId={projectId}
-          projectTitle={project.titre}
-          onClose={() => setShowDeleteModal(false)}
-          onDeleted={handleProjectDeleted}
         />
       )}
     </div>
