@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useDatabase } from '../contexts/DatabaseContext';
 import { 
   Plus, FolderOpen, Users, Calendar, Settings, LogOut, Shield, 
-  ChevronDown, TrendingUp, Activity, Target, Clock, Search, Filter, Bell, Eye
+  ChevronDown, TrendingUp, Activity, Target, Clock, Search, Filter, Bell
 } from 'lucide-react';
 import { CreateProjectModal } from './CreateProjectModal';
 
@@ -52,21 +52,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
-      {/* Éléments décoratifs de fond */}
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 relative overflow-hidden">
+      {/* Éléments décoratifs de fond avec dégradés blanc-gris */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full opacity-30 blur-3xl"></div>
-        <div className="absolute top-1/3 -left-40 w-80 h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full opacity-30 blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-gray-200 to-gray-400 rounded-full opacity-20 blur-3xl"></div>
+        <div className="absolute top-1/3 -left-40 w-80 h-80 bg-gradient-to-br from-gray-100 to-gray-300 rounded-full opacity-15 blur-3xl"></div>
       </div>
 
       {/* Header moderne avec glassmorphism */}
-      <header className="bg-white/70 backdrop-blur-xl sticky top-0 z-40 border-b border-gray-200/50 shadow-sm">
+      <header className="bg-white/80 backdrop-blur-xl sticky top-0 z-40 border-b border-gray-200/60 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             {/* Logo et titre */}
             <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => onNavigate('dashboard')}>
               <div className="w-10 h-10 bg-gradient-to-br from-gray-800 to-gray-600 rounded-xl shadow-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-                <img src="/Gemini_Generated_Image_6kdy0q6kdy0q6kdy.png" alt="Leandeck Logo" className="w-6 h-6 object-contain filter brightness-0 invert" />
+                <img src="/Gemini_Generated_Image_6kdy0q6kdy0q6kdy.png" alt="Leandeck Logo" className="w-6 h-6 object-contain" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 tracking-tight">Leandeck</h1>
@@ -114,7 +114,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 
                 {isMenuOpen && (
                   <div 
-                    className="absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-2xl shadow-2xl py-2 z-50 animate-fade-in-down"
+                    className="absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-xl border border-gray-200/60 rounded-2xl shadow-2xl py-2 z-50 animate-fade-in-down"
                     onMouseLeave={() => setIsMenuOpen(false)}
                   >
                     <div className="px-4 py-3 border-b border-gray-100">
@@ -162,7 +162,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         
         {/* Stats rapides */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 shadow-lg hover:shadow-xl transition-all group">
+          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-lg hover:shadow-xl transition-all group">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Projets</p>
@@ -174,7 +174,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 shadow-lg hover:shadow-xl transition-all group">
+          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-lg hover:shadow-xl transition-all group">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">En cours</p>
@@ -186,7 +186,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 shadow-lg hover:shadow-xl transition-all group">
+          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-lg hover:shadow-xl transition-all group">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Terminés</p>
@@ -198,7 +198,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 shadow-lg hover:shadow-xl transition-all group">
+          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-lg hover:shadow-xl transition-all group">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Économies</p>
@@ -211,184 +211,119 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* Layout équilibré : 2 colonnes principales */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Mes Kaizens - Prend 2 colonnes */}
-          <div className="lg:col-span-2">
-            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 flex flex-col h-[600px]">
-              <div className="p-6 border-b border-gray-100/70 flex-shrink-0">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
-                      <FolderOpen className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-bold text-gray-900">Mes Kaizens</h2>
-                      <p className="text-sm text-gray-600">Projets que vous pilotez</p>
-                    </div>
+        {/* Layout 4 colonnes comme avant */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+          
+          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
+            <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
+              <h2 className="text-lg font-semibold flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center mr-3">
+                  <FolderOpen className="w-4 h-4 text-blue-600" />
+                </div>
+                Mes Kaizens
+              </h2>
+              <p className="text-gray-400 text-sm mt-1">Projets que vous pilotez</p>
+            </div>
+            <div className="p-5 space-y-4 overflow-y-auto">
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin"></div>
+                </div>
+              ) : filteredProjects.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <FolderOpen className="w-6 h-6 text-gray-400" />
                   </div>
+                  <p className="text-gray-600 font-medium">Aucun projet</p>
                   <button
                     onClick={() => setShowCreateModal(true)}
-                    className="sm:hidden w-10 h-10 bg-gradient-to-br from-gray-800 to-gray-700 text-white rounded-xl flex items-center justify-center hover:from-gray-900 hover:to-gray-800 transition-all"
+                    className="mt-3 text-sm bg-gradient-to-br from-gray-800 to-gray-700 text-white px-4 py-2 rounded-lg hover:from-gray-900 hover:to-gray-800 transition-all"
                   >
-                    <Plus className="w-5 h-5" />
+                    Créer un projet
                   </button>
                 </div>
+              ) : (
+                filteredProjects.map((project) => (
+                  <div
+                    key={project.id}
+                    onClick={() => onNavigate('project', project.id)}
+                    className="bg-gradient-to-br from-white to-gray-50 rounded-lg p-4 border border-gray-200/60 hover:border-gray-300 hover:shadow-md transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="font-semibold text-gray-900 text-sm line-clamp-2">{project.titre}</h3>
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        project.statut === 'Terminé' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                      }`}>
+                        {project.statut}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-400 mt-1">{project.kaizen_number}</p>
+                    <div className="flex items-center justify-between mt-4">
+                        <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${getPdcaStepColor(project.pdca_step)}`}>
+                            {project.pdca_step}
+                        </span>
+                        <span className="text-xs text-gray-500">{new Date(project.created_at).toLocaleDateString('fr-FR')}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
 
-                {/* Barre de recherche */}
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Rechercher un projet..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-gray-50/70 backdrop-blur-sm border border-gray-200/70 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300 text-sm"
-                  />
+          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
+            <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
+              <h2 className="text-lg font-semibold flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center mr-3">
+                  <Users className="w-4 h-4 text-green-600" />
                 </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                {loading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="text-center">
-                      <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin mx-auto mb-4"></div>
-                      <p className="text-gray-600">Chargement...</p>
-                    </div>
-                  </div>
-                ) : filteredProjects.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <FolderOpen className="w-8 h-8 text-gray-400" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {searchTerm ? 'Aucun résultat' : 'Aucun projet'}
-                    </h3>
-                    <p className="text-gray-600 mb-6">
-                      {searchTerm ? 'Aucun projet ne correspond à votre recherche' : 'Créez votre premier projet Kaizen'}
-                    </p>
-                    {!searchTerm && (
-                      <button
-                        onClick={() => setShowCreateModal(true)}
-                        className="bg-gradient-to-br from-gray-800 to-gray-700 text-white px-6 py-3 rounded-xl hover:from-gray-900 hover:to-gray-800 transition-all font-semibold"
-                      >
-                        Créer un projet
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  filteredProjects.map((project) => (
-                    <div
-                      key={project.id}
-                      onClick={() => onNavigate('project', project.id)}
-                      className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200/70 hover:border-gray-300 hover:shadow-lg transition-all cursor-pointer group hover:bg-white/90"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className="font-semibold text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-1">
-                          {project.titre}
-                        </h3>
-                        <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${
-                          project.statut === 'Terminé' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-orange-50 text-orange-700 border-orange-200'
-                        }`}>
-                          {project.statut}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-3">{project.kaizen_number}</p>
-                      <div className="flex items-center justify-between">
-                        <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getPdcaStepColor(project.pdca_step)}`}>
-                          {project.pdca_step}
-                        </span>
-                        <div className="flex items-center space-x-2 text-xs text-gray-500">
-                          <Clock className="w-3 h-3" />
-                          <span>{new Date(project.created_at).toLocaleDateString('fr-FR')}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
+                Où j'interviens
+              </h2>
+              <p className="text-gray-400 text-sm mt-1">Projets où vous contribuez</p>
+            </div>
+            <div className="p-5 overflow-y-auto">
+              <div className="text-center py-8 text-gray-400">
+                <Users className="w-12 h-12 mx-auto mb-2" />
+                <p>Aucune contribution.</p>
               </div>
             </div>
           </div>
 
-          {/* Sidebar - 1 colonne avec sections empilées */}
-          <div className="space-y-6">
-            {/* Actions récentes */}
-            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50">
-              <div className="p-6 border-b border-gray-100/70">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center">
-                    <Calendar className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-900">Actions récentes</h2>
-                    <p className="text-sm text-gray-600">Dernières activités</p>
-                  </div>
+          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
+            <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
+              <h2 className="text-lg font-semibold flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center mr-3">
+                  <Calendar className="w-4 h-4 text-orange-600" />
                 </div>
-              </div>
-              <div className="p-6">
-                <div className="text-center py-8">
-                  <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center mx-auto mb-3">
-                    <Activity className="w-6 h-6 text-gray-400" />
-                  </div>
-                  <p className="text-gray-600 font-medium">Aucune activité récente</p>
-                  <p className="text-sm text-gray-500 mt-1">Vos dernières actions apparaîtront ici</p>
-                </div>
-              </div>
+                Mes actions
+              </h2>
+              <p className="text-gray-400 text-sm mt-1">Tâches qui vous sont assignées</p>
             </div>
-
-            {/* Équipe */}
-            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50">
-              <div className="p-6 border-b border-gray-100/70">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center">
-                    <Users className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-900">Équipe</h2>
-                    <p className="text-sm text-gray-600">Collaborateurs actifs</p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="text-center py-8">
-                  <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center mx-auto mb-3">
-                    <Users className="w-6 h-6 text-gray-400" />
-                  </div>
-                  <p className="text-gray-600 font-medium">Équipe en formation</p>
-                  <p className="text-sm text-gray-500 mt-1">Invitez des collaborateurs</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Aperçu performance */}
-            <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50">
-              <div className="p-6 border-b border-gray-100/70">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center">
-                    <Eye className="w-5 h-5 text-orange-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-900">Performance</h2>
-                    <p className="text-sm text-gray-600">Vue d'ensemble</p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6 space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Taux de réussite</span>
-                  <span className="text-sm font-bold text-gray-900">
-                    {myProjects.length > 0 ? Math.round((stats.completed / myProjects.length) * 100) : 0}%
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">ROI moyen</span>
-                  <span className="text-sm font-bold text-green-600">
-                    {myProjects.length > 0 ? Math.round(stats.totalSavings / myProjects.length).toLocaleString('fr-FR') : 0} €
-                  </span>
-                </div>
+            <div className="p-5 overflow-y-auto">
+              <div className="text-center py-8 text-gray-400">
+                <Calendar className="w-12 h-12 mx-auto mb-2" />
+                <p>Aucune action assignée.</p>
               </div>
             </div>
           </div>
+          
+          <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
+            <div className="p-5 border-b border-gray-100/70 flex-shrink-0">
+              <h2 className="text-lg font-semibold flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center mr-3">
+                  <Plus className="w-4 h-4 text-purple-600" />
+                </div>
+                Actions créées
+              </h2>
+              <p className="text-gray-400 text-sm mt-1">Actions initiées par vous</p>
+            </div>
+            <div className="p-5 overflow-y-auto">
+              <div className="text-center py-8 text-gray-400">
+                <Plus className="w-12 h-12 mx-auto mb-2" />
+                <p>Aucune action créée.</p>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
