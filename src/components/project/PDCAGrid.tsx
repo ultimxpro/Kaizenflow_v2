@@ -37,10 +37,10 @@ const quadrants = [
     id: 'CHECK', 
     title: 'CHECK', 
     subtitle: 'Vérification des résultats',
-    bgGradient: 'bg-gradient-to-br from-white via-orange-50/30 to-orange-100/50',
-    borderColor: 'border-orange-200/60',
-    headerGradient: 'bg-gradient-to-r from-orange-500/90 to-orange-600/90',
-    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(249,115,22,0.15)]',
+    bgGradient: 'bg-gradient-to-br from-white via-amber-50/30 to-amber-100/50',
+    borderColor: 'border-amber-300/60',
+    headerGradient: 'bg-gradient-to-r from-amber-600/90 to-amber-700/90',
+    hoverShadow: 'hover:shadow-[0_8px_30px_rgb(217,119,6,0.15)]',
     allowedTools: ['Indicateurs', 'Croquis', 'Iframe']
   },
   { 
