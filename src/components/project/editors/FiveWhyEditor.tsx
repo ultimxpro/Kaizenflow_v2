@@ -485,4 +485,65 @@ export const FiveWhyEditor: React.FC<FiveWhyEditorProps> = ({ module, onClose })
                           <span className="bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">1</span>
                           <span><strong>Définir clairement</strong> le problème à résoudre</span>
                         </li>
-                        <li className
+                        <li className="flex items-start">
+                          <span className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">2</span>
+                          <span><strong>Se demander pourquoi</strong> ce problème se produit</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">3</span>
+                          <span><strong>Répéter la question</strong> pour chaque réponse obtenue</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">4</span>
+                          <span><strong>Identifier la cause racine</strong> actionnable</span>
+                        </li>
+                      </ol>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-xl border border-amber-200">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-3">Conseils pratiques</h4>
+                    <ul className="text-gray-600 space-y-2">
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        Restez factuel et objectif
+                      </li>
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        Impliquez l'équipe dans l'analyse
+                      </li>
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        Évitez les raccourcis et suppositions
+                      </li>
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        Une cause racine doit être actionnable
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div className="mt-8 p-6 bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-xl">
+                  <p className="text-sm text-yellow-800">
+                    <strong>Note :</strong> Le nombre "5" est indicatif. Vous pouvez avoir besoin de 3 à 7 questions selon la complexité du problème.
+                    L'important est d'arriver à une cause racine que vous pouvez traiter efficacement.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="p-4 border-t border-gray-200/50 bg-gradient-to-r from-gray-50 to-white">
+                <button
+                  onClick={() => setShowHelp(false)}
+                  className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium"
+                >
+                  Compris !
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
