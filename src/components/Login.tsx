@@ -145,6 +145,16 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
         .animate-blob { animation: blob 20s ease-in-out infinite; }
         .animate-blob-reverse { animation: blob-reverse 25s ease-in-out infinite; }
         .animate-pulse-slow { animation: pulse-slow 8s ease-in-out infinite; }
+        
+        @keyframes gradient-shift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-gradient-shift {
+          background-size: 300% 300%;
+          animation: gradient-shift 3s ease infinite;
+        }
       `}</style>
 
       <div className="max-w-md w-full relative z-10">
@@ -154,12 +164,12 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
             {/* Header avec logo agrandi */}
             <div className="text-center mb-8">
               <div className="relative mb-8">
-                {/* Logo très agrandi sans ombrage */}
-                <div className="w-40 h-40 mx-auto flex items-center justify-center mb-6 transform transition-all duration-500 hover:scale-105">
+                {/* Logo encore plus énorme */}
+                <div className="w-48 h-48 mx-auto flex items-center justify-center mb-6 transform transition-all duration-500 hover:scale-105">
                   <img 
                     src="/leandeck-symbol.png" 
                     alt="Leandeck Logo" 
-                    className="w-36 h-36 object-contain"
+                    className="w-44 h-44 object-contain"
                   />
                 </div>
                 {/* Pas de titre Leandeck */}
@@ -255,8 +265,11 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-3 group"
+                className="w-full bg-gradient-to-r from-gray-800 to-gray-900 hover:from-blue-600 hover:via-purple-600 hover:to-green-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-500 transform hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-3 group relative overflow-hidden"
               >
+                {/* Effet de dégradé animé au survol */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 via-green-500 via-orange-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-gradient-shift"></div>
+                <div className="relative z-10 flex items-center justify-center space-x-3">
                 {loading ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -268,6 +281,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
+                </div>
               </button>
             </div>
 
