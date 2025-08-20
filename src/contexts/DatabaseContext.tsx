@@ -1,95 +1,23 @@
 // src/contexts/DatabaseContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase, FiveWhyAnalysis } from '../Lib/supabase';
+import { supabase } from '../Lib/supabase';
 import { useAuth } from './AuthContext';
-
-// Types locaux pour éviter les conflits d'import
-interface Project {
-  id: string;
-  pilote: string;
-  titre: string;
-  what?: string;
-  theme?: string;
-  date_creation: string;
-  date_probleme?: string;
-  kaizen_number: string;
-  location?: string;
-  cost: number;
-  benefit: number;
-  statut: 'En cours' | 'Terminé';
-  pdca_step: 'PLAN' | 'DO' | 'CHECK' | 'ACT';
-  created_at: string;
-  updated_at: string;
-}
-
-interface ProjectMember {
-  id: string;
-  project_id: string;
-  user_id: string;
-  role_in_project: 'Leader' | 'Membre';
-  created_at: string;
-}
-
-interface A3Module {
-  id: string;
-  project_id: string;
-  quadrant: 'PLAN' | 'DO' | 'CHECK' | 'ACT';
-  tool_type: string;
-  content: any;
-  position: number;
-  titre?: string;
-  date_echeance?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface Action {
-  id: string;
-  project_id: string;
-  title: string;
-  description?: string;
-  type: 'simple' | 'securisation' | 'poka-yoke';
-  start_date?: string;
-  due_date?: string;
-  status: 'À faire' | 'Fait';
-  effort: number;
-  gain: number;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface ActionAssignee {
-  id: string;
-  action_id: string;
-  user_id: string;
-  is_leader: boolean;
-  created_at: string;
-}
-
-interface Persona {
-  id: string;
-  nom: string;
-  fonction: string;
-  photo?: string;
-}
+import { Project, A3Module, Action, ActionAssignee, ProjectMember } from '../types/database';
 
 interface DatabaseContextType {
   projects: Project[];
-  projectMembers: ProjectMember[];
   a3Modules: A3Module[];
   actions: Action[];
   actionAssignees: ActionAssignee[];
-  personas: Persona[];
-  fiveWhyAnalyses: FiveWhyAnalysis[];
+  projectMembers: ProjectMember[];
   loading: boolean;
   
   // Project operations
-  createProject: (titre: string, what?: string) => Promise<string>;
+  createProject: (project: Omit<Project, 'id' | 'created_at' | 'updated_at'>) => Promise<string>;
   updateProject: (id: string, updates: Partial<Project>) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
   
-  // Project members operations
+  // Project member operations
   addProjectMember: (projectId: string, userId: string, role: 'Leader' | 'Membre') => Promise<void>;
   updateProjectMember: (id: string, updates: Partial<ProjectMember>) => Promise<void>;
   removeProjectMember: (id: string) => Promise<void>;
@@ -104,18 +32,9 @@ interface DatabaseContextType {
   updateAction: (id: string, updates: Partial<Action>) => Promise<void>;
   deleteAction: (id: string) => Promise<void>;
   
-  // Action assignees operations
-  addActionAssignee: (actionId: string, userId: string, isLeader?: boolean) => Promise<void>;
+  // Action assignee operations
+  addActionAssignee: (actionId: string, userId: string, isLeader: boolean) => Promise<void>;
   removeActionAssignee: (actionId: string, userId: string) => Promise<void>;
-  
-  // Five Why operations
-  getFiveWhyAnalyses: (moduleId: string) => FiveWhyAnalysis[];
-  createFiveWhyAnalysis: (moduleId: string, problemTitle: string) => Promise<string>;
-  updateFiveWhyAnalysis: (id: string, updates: Partial<FiveWhyAnalysis>) => Promise<void>;
-  deleteFiveWhyAnalysis: (id: string) => Promise<void>;
-  
-  // Refresh data
-  refreshData: () => Promise<void>;
 }
 
 const DatabaseContext = createContext<DatabaseContextType | undefined>(undefined);
@@ -129,51 +48,52 @@ export const useDatabase = () => {
 };
 
 export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
   const [a3Modules, setA3Modules] = useState<A3Module[]>([]);
   const [actions, setActions] = useState<Action[]>([]);
   const [actionAssignees, setActionAssignees] = useState<ActionAssignee[]>([]);
-  const [personas, setPersonas] = useState<Persona[]>([]);
-  const [fiveWhyAnalyses, setFiveWhyAnalyses] = useState<FiveWhyAnalysis[]>([]);
+  const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const { user } = useAuth();
 
-  // Fetch all data
   const fetchData = async () => {
-    if (!user) return;
-    
-    setLoading(true);
+    if (!user) {
+      setProjects([]);
+      setA3Modules([]);
+      setActions([]);
+      setActionAssignees([]);
+      setProjectMembers([]);
+      setLoading(false);
+      return;
+    }
+
     try {
-      const { data: projectsData, error: projectsError } = await supabase.from('projects').select('*').order('created_at', { ascending: false });
+      const [
+        { data: projectsData, error: projectsError },
+        { data: modulesData, error: modulesError },
+        { data: actionsData, error: actionsError },
+        { data: assigneesData, error: assigneesError },
+        { data: membersData, error: membersError }
+      ] = await Promise.all([
+        supabase.from('projects').select('*').order('created_at', { ascending: false }),
+        supabase.from('a3_modules').select('*').order('position'),
+        supabase.from('actions').select('*').order('created_at', { ascending: false }),
+        supabase.from('action_assignees').select('*'),
+        supabase.from('project_members').select('*')
+      ]);
+
       if (projectsError) throw projectsError;
-      setProjects(projectsData || []);
-
-      const { data: membersData, error: membersError } = await supabase.from('project_members').select('*');
-      if (membersError) throw membersError;
-      setProjectMembers(membersData || []);
-
-      const { data: modulesData, error: modulesError } = await supabase.from('a3_modules').select('*').order('position', { ascending: true });
       if (modulesError) throw modulesError;
-      setA3Modules(modulesData || []);
-
-      const { data: actionsData, error: actionsError } = await supabase.from('actions').select('*').order('created_at', { ascending: false });
       if (actionsError) throw actionsError;
-      setActions(actionsData || []);
-
-      const { data: assigneesData, error: assigneesError } = await supabase.from('action_assignees').select('*');
       if (assigneesError) throw assigneesError;
+      if (membersError) throw membersError;
+
+      setProjects(projectsData || []);
+      setA3Modules(modulesData || []);
+      setActions(actionsData || []);
       setActionAssignees(assigneesData || []);
-
-      const { data: fiveWhyData, error: fiveWhyError } = await supabase
-        .from('five_why_analyses')
-        .select('*')
-        .order('position', { ascending: true });
-      if (fiveWhyError) throw fiveWhyError;
-      setFiveWhyAnalyses(fiveWhyData || []);
-
-      setPersonas([]);
-
+      setProjectMembers(membersData || []);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -182,36 +102,14 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   useEffect(() => {
-    if (user) {
-      fetchData();
-    }
+    fetchData();
   }, [user]);
 
   // Project operations
-  const createProject = async (titre: string, what?: string): Promise<string> => {
-    if (!user) throw new Error('Utilisateur non authentifié');
-
-    const currentYear = new Date().getFullYear();
-    const { count } = await supabase.from('projects').select('*', { count: 'exact', head: true }).ilike('kaizen_number', `KZN-${currentYear}-%`);
-    const nextNumber = (count || 0) + 1;
-    const kaizenNumber = `KZN-${currentYear}-${nextNumber.toString().padStart(3, '0')}`;
-
-    const projectData = {
-      titre,
-      what,
-      kaizen_number: kaizenNumber,
-      pilote: user.id,
-      statut: 'En cours' as const,
-      pdca_step: 'PLAN' as const,
-      cost: 0,
-      benefit: 0,
-      date_creation: new Date().toISOString()
-    };
-
-    const { data, error } = await supabase.from('projects').insert(projectData).select().single();
+  const createProject = async (project: Omit<Project, 'id' | 'created_at' | 'updated_at'>): Promise<string> => {
+    const { data, error } = await supabase.from('projects').insert(project).select().single();
     if (error) throw error;
-    
-    await addProjectMember(data.id, user.id, 'Leader');
+    await fetchData();
     return data.id;
   };
 
@@ -222,16 +120,75 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   const deleteProject = async (id: string) => {
-    const { error } = await supabase.from('projects').delete().eq('id', id);
-    if (error) throw error;
-    await fetchData();
+    try {
+      // Supprimer dans l'ordre : assignees → actions → modules → members → project
+      console.log('🗑️ Suppression du projet:', id);
+
+      // 1. Supprimer les assignees des actions du projet
+      const { error: assigneesError } = await supabase
+        .from('action_assignees')
+        .delete()
+        .in('action_id', 
+          supabase.from('actions').select('id').eq('project_id', id)
+        );
+      
+      if (assigneesError) {
+        console.warn('Erreur suppression assignees:', assigneesError);
+      }
+
+      // 2. Supprimer les actions du projet
+      const { error: actionsError } = await supabase
+        .from('actions')
+        .delete()
+        .eq('project_id', id);
+      
+      if (actionsError) {
+        console.warn('Erreur suppression actions:', actionsError);
+      }
+
+      // 3. Supprimer les modules A3
+      const { error: modulesError } = await supabase
+        .from('a3_modules')
+        .delete()
+        .eq('project_id', id);
+      
+      if (modulesError) {
+        console.warn('Erreur suppression modules:', modulesError);
+      }
+
+      // 4. Supprimer les membres du projet
+      const { error: membersError } = await supabase
+        .from('project_members')
+        .delete()
+        .eq('project_id', id);
+      
+      if (membersError) {
+        console.warn('Erreur suppression membres:', membersError);
+      }
+
+      // 5. Supprimer le projet lui-même
+      const { error: projectError } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', id);
+      
+      if (projectError) throw projectError;
+
+      console.log('✅ Projet supprimé avec succès');
+      await fetchData();
+    } catch (error) {
+      console.error('❌ Erreur lors de la suppression du projet:', error);
+      throw error;
+    }
   };
 
-  // Project members operations
+  // Project member operations
   const addProjectMember = async (projectId: string, userId: string, role: 'Leader' | 'Membre') => {
-    const { error } = await supabase
-      .from('project_members')
-      .insert({ project_id: projectId, user_id: userId, role_in_project: role });
+    const { error } = await supabase.from('project_members').insert({ 
+      project_id: projectId, 
+      user_id: userId, 
+      role_in_project: role 
+    });
 
     if (error && error.code !== '23505') {
       console.error("Erreur lors de l'ajout du membre:", error);
@@ -276,7 +233,10 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
   // Action operations
   const createAction = async (action: Omit<Action, 'id' | 'created_at' | 'updated_at' | 'created_by'>): Promise<string> => {
     if (!user) throw new Error('User not authenticated');
-    const { data, error } = await supabase.from('actions').insert({ ...action, created_by: user.id }).select().single();
+    const { data, error } = await supabase.from('actions').insert({
+      ...action,
+      created_by: user.id
+    }).select().single();
     if (error) throw error;
     await fetchData();
     return data.id;
@@ -289,80 +249,41 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   const deleteAction = async (id: string) => {
+    // Supprimer d'abord les assignees
+    await supabase.from('action_assignees').delete().eq('action_id', id);
+    
+    // Puis supprimer l'action
     const { error } = await supabase.from('actions').delete().eq('id', id);
     if (error) throw error;
     await fetchData();
   };
 
-  // Action assignees operations
-  const addActionAssignee = async (actionId: string, userId: string, isLeader: boolean = false) => {
-    const { error } = await supabase.from('action_assignees').insert({ action_id: actionId, user_id: userId, is_leader: isLeader });
-    if (error && error.code !== '23505') throw error;
+  // Action assignee operations
+  const addActionAssignee = async (actionId: string, userId: string, isLeader: boolean) => {
+    const { error } = await supabase.from('action_assignees').insert({
+      action_id: actionId,
+      user_id: userId,
+      is_leader: isLeader
+    });
+    if (error) throw error;
     await fetchData();
   };
 
   const removeActionAssignee = async (actionId: string, userId: string) => {
-    const { error } = await supabase.from('action_assignees').delete().eq('action_id', actionId).eq('user_id', userId);
-    if (error) throw error;
-    await fetchData();
-  };
-
-  // Five Why operations
-  const getFiveWhyAnalyses = (moduleId: string): FiveWhyAnalysis[] => {
-    return fiveWhyAnalyses.filter(analysis => analysis.module_id === moduleId);
-  };
-
-  const createFiveWhyAnalysis = async (moduleId: string, problemTitle: string): Promise<string> => {
-    const existingAnalyses = fiveWhyAnalyses.filter(a => a.module_id === moduleId);
-    const position = existingAnalyses.length;
-    
-    const { data, error } = await supabase
-      .from('five_why_analyses')
-      .insert({
-        module_id: moduleId,
-        problem_title: problemTitle,
-        position
-      })
-      .select()
-      .single();
-      
-    if (error) throw error;
-    await fetchData();
-    return data.id;
-  };
-
-  const updateFiveWhyAnalysis = async (id: string, updates: Partial<FiveWhyAnalysis>): Promise<void> => {
-    const { error } = await supabase
-      .from('five_why_analyses')
-      .update(updates)
-      .eq('id', id);
-      
-    if (error) throw error;
-    await fetchData();
-  };
-
-  const deleteFiveWhyAnalysis = async (id: string): Promise<void> => {
-    const { error } = await supabase
-      .from('five_why_analyses')
+    const { error } = await supabase.from('action_assignees')
       .delete()
-      .eq('id', id);
-      
+      .eq('action_id', actionId)
+      .eq('user_id', userId);
     if (error) throw error;
-    await fetchData();
-  };
-
-  const refreshData = async () => {
     await fetchData();
   };
 
   const value = {
     projects,
-    projectMembers,
     a3Modules,
     actions,
     actionAssignees,
-    personas,
-    fiveWhyAnalyses,
+    projectMembers,
     loading,
     createProject,
     updateProject,
@@ -378,16 +299,7 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     deleteAction,
     addActionAssignee,
     removeActionAssignee,
-    getFiveWhyAnalyses,
-    createFiveWhyAnalysis,
-    updateFiveWhyAnalysis,
-    deleteFiveWhyAnalysis,
-    refreshData
   };
 
-  return (
-    <DatabaseContext.Provider value={value}>
-      {children}
-    </DatabaseContext.Provider>
-  );
+  return <DatabaseContext.Provider value={value}>{children}</DatabaseContext.Provider>;
 };
