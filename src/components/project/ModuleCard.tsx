@@ -1,4 +1,4 @@
-// src/components/project/ModuleCard.tsx
+// src/components/project/ModuleCard.tsx - VERSION DEBUG
 import React from 'react';
 import { A3Module } from '../../types/database';
 import { 
@@ -64,46 +64,56 @@ const getToolName = (toolType: string) => {
 
 export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove, onDelete }) => {
   const [showMenu, setShowMenu] = React.useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
 
+  // Version SIMPLE pour debug - sans modal de confirmation
   const handleMenuClick = (e: React.MouseEvent) => {
+    console.log('🎯 Menu clicked for module:', module.id);
     e.stopPropagation();
+    e.preventDefault();
     setShowMenu(!showMenu);
   };
 
   const handleEdit = (e: React.MouseEvent) => {
+    console.log('✏️ Edit clicked for module:', module.id);
     e.stopPropagation();
+    e.preventDefault();
     setShowMenu(false);
     onClick();
   };
 
   const handleMove = (e: React.MouseEvent) => {
+    console.log('🔄 Move clicked for module:', module.id);
     e.stopPropagation();
+    e.preventDefault();
     setShowMenu(false);
     if (onMove) onMove(module);
   };
 
-  const handleDeleteClick = (e: React.MouseEvent) => {
+  const handleDelete = (e: React.MouseEvent) => {
+    console.log('🗑️ Delete clicked for module:', module.id);
+    console.log('🗑️ onDelete function exists:', !!onDelete);
     e.stopPropagation();
     e.preventDefault();
     setShowMenu(false);
-    setShowDeleteConfirm(true);
-  };
-
-  const handleConfirmDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setShowDeleteConfirm(false);
+    
+    // Version simple pour debug
     if (onDelete) {
+      console.log('🗑️ Calling onDelete for module:', module.id);
       onDelete(module.id);
+    } else {
+      console.error('❌ onDelete is not defined!');
     }
   };
 
-  const handleCancelDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setShowDeleteConfirm(false);
-  };
+  // Debug: log des props reçues
+  React.useEffect(() => {
+    console.log('📦 ModuleCard rendered:', {
+      moduleId: module.id,
+      moduleTitle: module.titre || getToolName(module.tool_type),
+      hasOnDelete: !!onDelete,
+      hasOnMove: !!onMove
+    });
+  }, [module.id, onDelete, onMove]);
 
   return (
     <div className="relative group">
@@ -123,18 +133,24 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
             </div>
           </div>
           
-          {/* Menu trois points */}
+          {/* Menu trois points - VERSION SIMPLIFIÉE */}
           <div className="relative">
             <button
+              type="button"
               onClick={handleMenuClick}
               className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+              style={{ pointerEvents: 'auto' }}
             >
               <MoreVertical className="w-4 h-4 text-gray-500" />
             </button>
             
             {showMenu && (
-              <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[60]">
+              <div 
+                className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1"
+                style={{ zIndex: 9999 }}
+              >
                 <button
+                  type="button"
                   onClick={handleEdit}
                   className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
                 >
@@ -143,6 +159,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
                 </button>
                 {onMove && (
                   <button
+                    type="button"
                     onClick={handleMove}
                     className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
                   >
@@ -152,11 +169,13 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
                 )}
                 {onDelete && (
                   <button
-                    onClick={handleDeleteClick}
+                    type="button"
+                    onClick={handleDelete}
                     className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
+                    style={{ pointerEvents: 'auto' }}
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Supprimer
+                    Supprimer (Debug)
                   </button>
                 )}
               </div>
@@ -174,53 +193,13 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ module, onClick, onMove,
       {/* Overlay pour fermer le menu */}
       {showMenu && (
         <div 
-          className="fixed inset-0 z-[55]" 
-          onClick={() => setShowMenu(false)}
+          className="fixed inset-0"
+          style={{ zIndex: 9998 }}
+          onClick={() => {
+            console.log('🎯 Overlay clicked - closing menu');
+            setShowMenu(false);
+          }}
         />
-      )}
-
-      {/* Modal de confirmation de suppression */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[70] p-4">
-          <div className="max-w-sm w-full bg-white backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-red-600 to-red-700 p-4">
-              <div className="flex items-center space-x-3">
-                <Trash2 className="w-5 h-5 text-white" />
-                <div>
-                  <h3 className="text-lg font-bold text-white">Supprimer le module</h3>
-                  <p className="text-red-100 text-sm">Cette action est irréversible</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Contenu */}
-            <div className="p-4">
-              <p className="text-sm text-gray-600 mb-4">
-                Êtes-vous sûr de vouloir supprimer le module "{module.titre || getToolName(module.tool_type)}" ?
-              </p>
-              <p className="text-xs text-gray-500 mb-6">
-                Toutes les données associées à ce module seront définitivement perdues.
-              </p>
-
-              <div className="flex justify-end space-x-3">
-                <button 
-                  onClick={handleCancelDelete}
-                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-all text-sm"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={handleConfirmDelete}
-                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg font-medium hover:from-red-700 hover:to-red-800 transition-all text-sm"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span>Supprimer</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );
