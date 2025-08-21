@@ -830,16 +830,6 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
   );
 };
 
-// Composant BranchCard pour chaque branche (Main d'œuvre, Méthode, etc.)
-const BranchCard: React.FC<{
-  branch: Branch;
-  onAddCause: (branchId: string, parentId?: string) => void;
-  onUpdateCause: (branchId: string, causeId: string, text: string) => void;
-  onDeleteCause: (branchId: string, causeId: string) => void;
-  editingCause: string | null;
-  setEditingCause: (id: string | null) => void;
-}> = ({ branch, onAddCause, onUpdateCause, onDeleteCause, editingCause, setEditingCause }) => {
-  const mainCauses = branch.causes.filter(c => c.level === 0);
 
   // TROUVER LA CONFIGURATION CORRESPONDANTE
   // On parcourt toutes les configurations pour trouver celle qui correspond à l'ID de la branche
