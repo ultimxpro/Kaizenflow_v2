@@ -151,19 +151,20 @@ const handleDeleteDiagram = async (id: string) => {
   }
 };
 
-  // Changement du type de M
-const changeMType = (newType: IshikawaDiagram['mType']) => {
-  const newBranches = M_CONFIGS[newType].map(config => {
-    const existingBranch = branches.find(b => b.id === config.id);
-    // On ne recrée que les données nécessaires
-    return existingBranch || { 
-        id: config.id, 
-        name: config.name, 
-        color: config.color, 
-        causes: [] 
-    };
-  });
-  updateDiagram({ mType: newType, branches: newBranches });
+// Changement du type de M
+const changeMType = async (newType: IshikawaMType) => {
+  if (!selectedDiagram) return;
+  
+  try {
+    // Mettre à jour seulement le type du diagramme
+    await updateIshikawaDiagram(selectedDiagram.id, { m_type: newType });
+    
+    // Les branches seront automatiquement recréées par la fonction RPC create_default_branches
+    console.log(`Type de diagramme changé vers ${newType}`);
+  } catch (error) {
+    console.error('Erreur lors du changement de type:', error);
+    alert('Erreur lors du changement de type');
+  }
 };
 
   // Gestion des causes
