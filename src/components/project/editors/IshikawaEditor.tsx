@@ -170,6 +170,7 @@ const handleDeleteDiagram = async (id: string) => {
   }
 };
 
+
 // Changement du type de M
 const changeMType = async (newType: IshikawaMType) => {
   if (!selectedDiagram) return;
@@ -178,7 +179,9 @@ const changeMType = async (newType: IshikawaMType) => {
     // Mettre à jour seulement le type du diagramme
     await updateIshikawaDiagram(selectedDiagram.id, { m_type: newType });
     
-    // Les branches seront automatiquement recréées par la fonction RPC create_default_branches
+    // AJOUTER CETTE LIGNE pour forcer le rechargement des données
+    window.location.reload();
+    
     console.log(`Type de diagramme changé vers ${newType}`);
   } catch (error) {
     console.error('Erreur lors du changement de type:', error);
