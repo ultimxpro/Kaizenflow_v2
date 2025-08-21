@@ -8,11 +8,11 @@ import {
   Action, 
   ActionAssignee, 
   ProjectMember,
+  FiveWhyAnalysis,
   IshikawaDiagram,
   IshikawaBranch,
   IshikawaCause,
-  IshikawaMType,
-  FiveWhyAnalysis
+  IshikawaMType
 } from '../types/database';
 
 interface DatabaseContextType {
@@ -154,7 +154,6 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     if (user) {
       fetchData();
     } else {
-      // Reset all state when user is null
       setProjects([]);
       setA3Modules([]);
       setActions([]);
@@ -297,144 +296,7 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     const { data, error } = await supabase
       .from('actions')
       .insert({
-        .insert({
-          branch_id: branchId,
-          parent_cause_id: parentCauseId || null,
-          text,
-          level,
-          position
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setIshikawaCauses(prev => [...prev, data]);
-      
-      return data.id;
-    } catch (error) {
-      console.error('Erreur lors de la création de la cause:', error);
-      throw error;
-    }
-  };
-
-  const updateIshikawaCause = async (id: string, updates: Partial<IshikawaCause>): Promise<void> => {
-    try {
-      const { error } = await supabase
-        .from('ishikawa_causes')
-        .update(updates)
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setIshikawaCauses(prev => 
-        prev.map(cause => 
-          cause.id === id ? { ...cause, ...updates } : cause
-        )
-      );
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour de la cause:', error);
-      throw error;
-    }
-  };
-
-  const deleteIshikawaCause = async (id: string): Promise<void> => {
-    try {
-      const { error } = await supabase
-        .from('ishikawa_causes')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setIshikawaCauses(prev => {
-        const deleteRecursive = (causeId: string): string[] => {
-          const childCauses = prev.filter(c => c.parent_cause_id === causeId);
-          let toDelete = [causeId];
-          childCauses.forEach(child => {
-            toDelete = [...toDelete, ...deleteRecursive(child.id)];
-          });
-          return toDelete;
-        };
-        
-        const causesToDelete = deleteRecursive(id);
-        return prev.filter(cause => !causesToDelete.includes(cause.id));
-      });
-    } catch (error) {
-      console.error('Erreur lors de la suppression de la cause:', error);
-      throw error;
-    }
-  };
-
-  // REFRESH DATA FUNCTION
-  const refreshData = async (): Promise<void> => {
-    await fetchData();
-  };
-
-  const contextValue: DatabaseContextType = {
-    projects,
-    a3Modules,
-    actions,
-    actionAssignees,
-    projectMembers,
-    loading,
-    
-    // Project operations
-    createProject,
-    updateProject,
-    deleteProject,
-    
-    // Project member operations
-    addProjectMember,
-    updateProjectMember,
-    removeProjectMember,
-    
-    // A3 Module operations
-    createA3Module,
-    updateA3Module,
-    deleteA3Module,
-    
-    // Action operations
-    createAction,
-    updateAction,
-    deleteAction,
-    
-    // Action assignee operations
-    addActionAssignee,
-    removeActionAssignee,
-    
-    // FiveWhy Analysis operations
-    getFiveWhyAnalyses,
-    createFiveWhyAnalysis,
-    updateFiveWhyAnalysis,
-    deleteFiveWhyAnalysis,
-    
-    // Ishikawa operations
-    getIshikawaDiagrams,
-    createIshikawaDiagram,
-    updateIshikawaDiagram,
-    deleteIshikawaDiagram,
-    
-    getIshikawaBranches,
-    createIshikawaBranch,
-    updateIshikawaBranch,
-    deleteIshikawaBranch,
-    
-    getIshikawaCauses,
-    createIshikawaCause,
-    updateIshikawaCause,
-    deleteIshikawaCause,
-    
-    // Refresh data
-    refreshData
-  };
-
-  return (
-    <DatabaseContext.Provider value={contextValue}>
-      {children}
-    </DatabaseContext.Provider>
-  );
-};..action,
+        ...action,
         created_by: user.id
       })
       .select()
@@ -554,14 +416,12 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   // ISHIKAWA OPERATIONS
   
-  // Functions for Ishikawa Diagrams
   const getIshikawaDiagrams = (moduleId: string): IshikawaDiagram[] => {
     return ishikawaDiagrams.filter(diagram => diagram.module_id === moduleId);
   };
 
   const createIshikawaDiagram = async (moduleId: string, name: string, mType: IshikawaMType): Promise<string> => {
     try {
-      // Créer le diagramme
       const { data: diagram, error: diagramError } = await supabase
         .from('ishikawa_diagrams')
         .insert({
@@ -576,7 +436,6 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
 
       if (diagramError) throw diagramError;
 
-      // Créer les branches par défaut via la fonction SQL
       const { error: branchesError } = await supabase.rpc('create_default_branches', {
         diagram_id_param: diagram.id,
         m_type_param: mType
@@ -584,7 +443,6 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
 
       if (branchesError) throw branchesError;
 
-      // Recharger les données
       await fetchData();
       
       return diagram.id;
@@ -635,7 +493,6 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
-  // Functions for Ishikawa Branches
   const getIshikawaBranches = (diagramId: string): IshikawaBranch[] => {
     return ishikawaBranches.filter(branch => branch.diagram_id === diagramId);
   };
@@ -708,7 +565,6 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
-  // Functions for Ishikawa Causes
   const getIshikawaCauses = (branchId: string): IshikawaCause[] => {
     return ishikawaCauses.filter(cause => cause.branch_id === branchId);
   };
@@ -723,4 +579,132 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     try {
       const { data, error } = await supabase
         .from('ishikawa_causes')
-        .
+        .insert({
+          branch_id: branchId,
+          parent_cause_id: parentCauseId || null,
+          text,
+          level,
+          position
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setIshikawaCauses(prev => [...prev, data]);
+      
+      return data.id;
+    } catch (error) {
+      console.error('Erreur lors de la création de la cause:', error);
+      throw error;
+    }
+  };
+
+  const updateIshikawaCause = async (id: string, updates: Partial<IshikawaCause>): Promise<void> => {
+    try {
+      const { error } = await supabase
+        .from('ishikawa_causes')
+        .update(updates)
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setIshikawaCauses(prev => 
+        prev.map(cause => 
+          cause.id === id ? { ...cause, ...updates } : cause
+        )
+      );
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la cause:', error);
+      throw error;
+    }
+  };
+
+  const deleteIshikawaCause = async (id: string): Promise<void> => {
+    try {
+      const { error } = await supabase
+        .from('ishikawa_causes')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setIshikawaCauses(prev => {
+        const deleteRecursive = (causeId: string): string[] => {
+          const childCauses = prev.filter(c => c.parent_cause_id === causeId);
+          let toDelete = [causeId];
+          childCauses.forEach(child => {
+            toDelete = [...toDelete, ...deleteRecursive(child.id)];
+          });
+          return toDelete;
+        };
+        
+        const causesToDelete = deleteRecursive(id);
+        return prev.filter(cause => !causesToDelete.includes(cause.id));
+      });
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la cause:', error);
+      throw error;
+    }
+  };
+
+  const refreshData = async (): Promise<void> => {
+    await fetchData();
+  };
+
+  const contextValue: DatabaseContextType = {
+    projects,
+    a3Modules,
+    actions,
+    actionAssignees,
+    projectMembers,
+    loading,
+    
+    createProject,
+    updateProject,
+    deleteProject,
+    
+    addProjectMember,
+    updateProjectMember,
+    removeProjectMember,
+    
+    createA3Module,
+    updateA3Module,
+    deleteA3Module,
+    
+    createAction,
+    updateAction,
+    deleteAction,
+    
+    addActionAssignee,
+    removeActionAssignee,
+    
+    getFiveWhyAnalyses,
+    createFiveWhyAnalysis,
+    updateFiveWhyAnalysis,
+    deleteFiveWhyAnalysis,
+    
+    getIshikawaDiagrams,
+    createIshikawaDiagram,
+    updateIshikawaDiagram,
+    deleteIshikawaDiagram,
+    
+    getIshikawaBranches,
+    createIshikawaBranch,
+    updateIshikawaBranch,
+    deleteIshikawaBranch,
+    
+    getIshikawaCauses,
+    createIshikawaCause,
+    updateIshikawaCause,
+    deleteIshikawaCause,
+    
+    refreshData
+  };
+
+  return (
+    <DatabaseContext.Provider value={contextValue}>
+      {children}
+    </DatabaseContext.Provider>
+  );
+};
