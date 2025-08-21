@@ -93,28 +93,16 @@ const branches = selectedDiagram ? getIshikawaBranches(selectedDiagram.id) : [];
 
 
   useEffect(() => {
-    if (diagrams.length > 0 && !selectedDiagramId) {
-      setSelectedDiagramId(diagrams[0].id);
-    }
-  }, [diagrams, selectedDiagramId]);
-
-
-// Initialisation automatique si aucun diagramme
-useEffect(() => {
-  const initializeDiagramsIfNeeded = async () => {
-    if (diagrams.length === 0) {
-      try {
-        console.log('Aucun diagramme trouvé, création automatique...');
-        const diagramId = await createIshikawaDiagram(module.id, 'Analyse Ishikawa #1', '5M');
-        setSelectedDiagramId(diagramId);
-      } catch (error) {
-        console.error('Erreur lors de la création automatique du diagramme:', error);
-      }
-    }
-  };
-  
-  initializeDiagramsIfNeeded();
-}, [diagrams.length, module.id, createIshikawaDiagram]);
+  // Sélectionne automatiquement le premier diagramme seulement s'il y en a
+  // et qu'aucun n'est actuellement sélectionné
+  if (diagrams.length > 0 && !selectedDiagramId) {
+    setSelectedDiagramId(diagrams[0].id);
+  }
+  // Si le diagramme sélectionné n'existe plus, reset la sélection
+  if (selectedDiagramId && !diagrams.find(d => d.id === selectedDiagramId)) {
+    setSelectedDiagramId(diagrams.length > 0 ? diagrams[0].id : null);
+  }
+}, [diagrams, selectedDiagramId]);
 
 
 
