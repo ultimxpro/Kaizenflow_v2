@@ -489,7 +489,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
                         </text>
                         
                         {/* Branches supérieures */}
-                        {selectedDiagram.branches.slice(0, Math.ceil(selectedDiagram.branches.length / 2)).map((branch, index) => {
+                        {branches.slice(0, Math.ceil(branches.length / 2)).map((branch, index) => {
                           const x = 150 + (index * 140);
                           const mainCauses = branch.causes.filter(c => c.level === 0);
                           
@@ -564,7 +564,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
                         })}
                         
                         {/* Branches inférieures */}
-                        {selectedDiagram.branches.slice(Math.ceil(selectedDiagram.branches.length / 2)).map((branch, index) => {
+                        {branches.slice(Math.ceil(branches.length / 2)).map((branch, index) => {
                           const x = 150 + (index * 140);
                           const mainCauses = branch.causes.filter(c => c.level === 0);
                           
@@ -641,7 +641,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
                       
                       {/* Légende */}
                       <div className="mt-4 flex flex-wrap gap-3 justify-center">
-                        {selectedDiagram.branches.map(branch => {
+                        {branches.map(branch => {
                           const mainCauses = branch.causes.filter(c => c.level === 0);
                           return (
                             <div key={branch.id} className="flex items-center space-x-2 bg-white/80 px-3 py-1 rounded-lg">
