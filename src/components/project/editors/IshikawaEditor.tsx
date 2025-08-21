@@ -129,11 +129,30 @@ const handleUpdateDiagram = async (updates: Partial<IshikawaDiagram>) => {
   }
 };
 
-// Fonction de raccourci pour updateDiagram
+// Fonction de raccourci pour updateDiagram avec debounce
 const updateDiagram = (updates: Partial<IshikawaDiagram>) => {
   if (!selectedDiagram) return;
-  handleUpdateDiagram(updates);
-};  
+  
+  // Filtrer les propriétés qui existent réellement dans la table
+  const validUpdates: Partial<IshikawaDiagram> = {};
+  
+  // Propriétés autorisées dans ishikawa_diagrams
+  const allowedFields = ['name', 'problem', 'm_type', 'position'];
+  
+  Object.keys(updates).forEach(key => {
+    if (allowedFields.includes(key)) {
+      validUpdates[key as keyof IshikawaDiagram] = updates[key as keyof IshikawaDiagram];
+    }
+  });
+  
+  // Ignore les updates vides ou interdites
+  if (Object.keys(validUpdates).length === 0) {
+    return;
+  }
+  
+  // Appel direct sans debounce pour l'instant
+  handleUpdateDiagram(validUpdates);
+};
 
 const handleDeleteDiagram = async (id: string) => {
   if (!confirm('Êtes-vous sûr de vouloir supprimer cette analyse ?')) return;
