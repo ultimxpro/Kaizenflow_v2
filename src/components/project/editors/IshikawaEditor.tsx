@@ -331,7 +331,12 @@ const changeMType = async (newType: IshikawaMType) => {
                   <h3 className="font-bold text-gray-800 mb-3">Problème à analyser</h3>
                   <textarea
                     value={selectedDiagram.problem}
-                    onChange={(e) => updateDiagram({ problem: e.target.value })}
+                    onChange={(e) => {
+  // Mise à jour immédiate de l'affichage
+  const newValue = e.target.value;
+  // TODO: implémenter le debounce
+  updateDiagram({ problem: newValue });
+}}
                     placeholder="Décrivez le problème ou l'effet à analyser..."
                     className="w-full h-24 p-3 border border-red-200 rounded-lg resize-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white/80"
                   />
