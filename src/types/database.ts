@@ -43,7 +43,7 @@ export interface A3Module {
   id: string;
   project_id: string;
   quadrant: 'PLAN' | 'DO' | 'CHECK' | 'ACT';
-  tool_type: '5Pourquoi' | 'Image' | '4M' | 'OPL' | '5S' | 'VSM' | 'PlanActions' | 'Croquis' | 'Iframe' | 'Indicateurs'; // Ajout d'Indicateurs
+  tool_type: '5Pourquoi' | 'Image' | '4M' | 'OPL' | '5S' | 'VSM' | 'PlanActions' | 'Croquis' | 'Iframe' | 'Indicateurs' | 'SOP';
   content: any;
   position: number;
   titre?: string;
@@ -138,6 +138,9 @@ export interface VSMContent {
   global: VSMGlobalData;
 }
 
+// =======================================================================
+// === INTERFACES POUR LE MODULE 5 POURQUOI ===
+// =======================================================================
 
 export interface FiveWhyAnalysis {
   id: string;
@@ -155,3 +158,104 @@ export interface FiveWhyAnalysis {
   created_at: string;
   updated_at: string;
 }
+
+// =======================================================================
+// === INTERFACES POUR LE MODULE 4M ISHIKAWA ===
+// =======================================================================
+
+export type IshikawaMType = '4M' | '5M' | '6M' | '7M' | '8M' | '9M';
+
+export interface IshikawaDiagram {
+  id: string;
+  module_id: string;
+  name: string;
+  problem: string;
+  m_type: IshikawaMType;
+  position: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IshikawaBranch {
+  id: string;
+  diagram_id: string;
+  branch_key: string; // 'main-oeuvre', 'methode', 'materiel', 'matiere', etc.
+  name: string;
+  color: string; // Format hex #RRGGBB
+  position: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IshikawaCause {
+  id: string;
+  branch_id: string;
+  parent_cause_id?: string;
+  text: string;
+  level: number; // 0 = cause principale, 1 = sous-cause, 2 = sous-sous-cause
+  position: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// Configuration des branches par défaut pour chaque type de M
+export interface IshikawaBranchConfig {
+  id: string;
+  name: string;
+  color: string;
+  icon?: React.ReactNode;
+}
+
+export const ISHIKAWA_BRANCH_CONFIGS: Record<IshikawaMType, IshikawaBranchConfig[]> = {
+  '4M': [
+    { id: 'main-oeuvre', name: 'Main d\'œuvre', color: '#3B82F6' },
+    { id: 'methode', name: 'Méthode', color: '#10B981' },
+    { id: 'materiel', name: 'Matériel', color: '#F59E0B' },
+    { id: 'matiere', name: 'Matière', color: '#EF4444' }
+  ],
+  '5M': [
+    { id: 'main-oeuvre', name: 'Main d\'œuvre', color: '#3B82F6' },
+    { id: 'methode', name: 'Méthode', color: '#10B981' },
+    { id: 'materiel', name: 'Matériel', color: '#F59E0B' },
+    { id: 'matiere', name: 'Matière', color: '#EF4444' },
+    { id: 'milieu', name: 'Milieu', color: '#8B5CF6' }
+  ],
+  '6M': [
+    { id: 'main-oeuvre', name: 'Main d\'œuvre', color: '#3B82F6' },
+    { id: 'methode', name: 'Méthode', color: '#10B981' },
+    { id: 'materiel', name: 'Matériel', color: '#F59E0B' },
+    { id: 'matiere', name: 'Matière', color: '#EF4444' },
+    { id: 'milieu', name: 'Milieu', color: '#8B5CF6' },
+    { id: 'mesure', name: 'Mesure', color: '#EC4899' }
+  ],
+  '7M': [
+    { id: 'main-oeuvre', name: 'Main d\'œuvre', color: '#3B82F6' },
+    { id: 'methode', name: 'Méthode', color: '#10B981' },
+    { id: 'materiel', name: 'Matériel', color: '#F59E0B' },
+    { id: 'matiere', name: 'Matière', color: '#EF4444' },
+    { id: 'milieu', name: 'Milieu', color: '#8B5CF6' },
+    { id: 'mesure', name: 'Mesure', color: '#EC4899' },
+    { id: 'management', name: 'Management', color: '#F97316' }
+  ],
+  '8M': [
+    { id: 'main-oeuvre', name: 'Main d\'œuvre', color: '#3B82F6' },
+    { id: 'methode', name: 'Méthode', color: '#10B981' },
+    { id: 'materiel', name: 'Matériel', color: '#F59E0B' },
+    { id: 'matiere', name: 'Matière', color: '#EF4444' },
+    { id: 'milieu', name: 'Milieu', color: '#8B5CF6' },
+    { id: 'mesure', name: 'Mesure', color: '#EC4899' },
+    { id: 'management', name: 'Management', color: '#F97316' },
+    { id: 'moyens-financiers', name: 'Moyens financiers', color: '#06B6D4' }
+  ],
+  '9M': [
+    { id: 'main-oeuvre', name: 'Main d\'œuvre', color: '#3B82F6' },
+    { id: 'methode', name: 'Méthode', color: '#10B981' },
+    { id: 'materiel', name: 'Matériel', color: '#F59E0B' },
+    { id: 'matiere', name: 'Matière', color: '#EF4444' },
+    { id: 'milieu', name: 'Milieu', color: '#8B5CF6' },
+    { id: 'mesure', name: 'Mesure', color: '#EC4899' },
+    { id: 'management', name: 'Management', color: '#F97316' },
+    { id: 'moyens-financiers', name: 'Moyens financiers', color: '#06B6D4' },
+    { id: 'maintenance', name: 'Maintenance', color: '#84CC16' }
+  ]
+};
