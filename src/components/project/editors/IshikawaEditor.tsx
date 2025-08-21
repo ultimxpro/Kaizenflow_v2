@@ -109,21 +109,9 @@ const branches = selectedDiagram ? getIshikawaBranches(selectedDiagram.id) : [];
   // Gestion des diagrammes
 // Dans le composant IshikawaEditor, ajoutez ces logs
 const handleCreateDiagram = async () => {
-  console.log('=== DIAGNOSTIC ISHIKAWA ===');
-  console.log('Module ID:', module.id);
-  console.log('Module complet:', module);
-  console.log('Project ID du module:', module.project_id);
-  
   try {
     const diagramName = `Analyse Ishikawa #${diagrams.length + 1}`;
-    console.log('Tentative de création avec:', {
-      moduleId: module.id,
-      diagramName,
-      mType: '5M'
-    });
-    
     const diagramId = await createIshikawaDiagram(module.id, diagramName, '5M');
-    console.log('Succès! Diagramme créé avec ID:', diagramId);
     setSelectedDiagramId(diagramId);
   } catch (error) {
     console.error('Erreur lors de la création du diagramme:', error);
