@@ -670,6 +670,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
                       onDeleteCause={deleteCause}
                       editingCause={editingCause}
                       setEditingCause={setEditingCause}
+                      getIshikawaCauses={getIshikawaCauses}
                     />
                   ))}
                   </div>
@@ -839,7 +840,8 @@ const BranchCard: React.FC<{
   onDeleteCause: (branchId: string, causeId: string) => void;
   editingCause: string | null;
   setEditingCause: (id: string | null) => void;
-}> = ({ branch, onAddCause, onUpdateCause, onDeleteCause, editingCause, setEditingCause }) => {
+  getIshikawaCauses: (branchId: string) => IshikawaCause[];
+}> = ({ branch, onAddCause, onUpdateCause, onDeleteCause, editingCause, setEditingCause, getIshikawaCauses }) => {
   const mainCauses = getIshikawaCauses(branch.id).filter(c => c.level === 0);
 
   // TROUVER LA CONFIGURATION CORRESPONDANTE
