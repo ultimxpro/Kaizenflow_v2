@@ -126,6 +126,9 @@ const handleCreateDiagram = async () => {
     setSelectedDiagramId(diagramId);
   } catch (error) {
     console.error('Erreur lors de la création du diagramme:', error);
+// Dans le handleCreateDiagram, ajoutez :
+    console.log('Module ID utilisé:', module.id);
+    console.log('Module complet:', module);
     alert('Erreur lors de la création du diagramme');
   }
 };
