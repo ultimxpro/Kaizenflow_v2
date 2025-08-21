@@ -173,7 +173,7 @@ const handleDeleteDiagram = async (id: string) => {
   // Changement du type de M
 const changeMType = (newType: IshikawaDiagram['mType']) => {
   const newBranches = M_CONFIGS[newType].map(config => {
-    const existingBranch = selectedDiagram.branches.find(b => b.id === config.id);
+    const existingBranch = branches.find(b => b.id === config.id);
     // On ne recrée que les données nécessaires
     return existingBranch || { 
         id: config.id, 
@@ -194,7 +194,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
       parentId
     };
 
-    const updatedBranches = selectedDiagram.branches.map(branch => {
+    const updatedBranches = branches.map(branch => {
       if (branch.id === branchId) {
         return { ...branch, causes: [...getIshikawaCauses(branch.id), newCause] };
       }
@@ -206,7 +206,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
   };
 
   const updateCause = (branchId: string, causeId: string, text: string) => {
-    const updatedBranches = selectedDiagram.branches.map(branch => {
+    const updatedBranches = branches.map(branch => {
       if (branch.id === branchId) {
         return {
           ...branch,
@@ -221,7 +221,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
   };
 
   const deleteCause = (branchId: string, causeId: string) => {
-    const updatedBranches = selectedDiagram.branches.map(branch => {
+    const updatedBranches = branches.map(branch => {
       if (branch.id === branchId) {
         // Supprimer la cause et ses sous-causes
         const causesToDelete = new Set([causeId]);
@@ -641,7 +641,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
                       
                       {/* Légende */}
                       <div className="mt-4 flex flex-wrap gap-3 justify-center">
-                        {selectedDiagram.branches.map(branch => {
+                        {branches.map(branch => {
                           const mainCauses = getIshikawaCauses(branch.id).filter(c => c.level === 0);
                           return (
                             <div key={branch.id} className="flex items-center space-x-2 bg-white/80 px-3 py-1 rounded-lg">
@@ -661,7 +661,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
 
                   {/* Grille des cartes de branches */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {selectedDiagram.branches.map(branch => (
+                  {branches.map(branch => (
                     <BranchCard
                       key={branch.id}
                       branch={branch}
