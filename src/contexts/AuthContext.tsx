@@ -100,22 +100,45 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      const authUser = session?.user ?? null;
-      setUser(authUser);
-      if (authUser) {
-        fetchProfileAndUsers(authUser.id);
-      } else {
+useEffect(() => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    console.log('Auth state change:', event);
+    
+    // Gestion des tokens expirés ou invalides
+    if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+      if (!session) {
+        console.log('Session expirée ou token invalide, nettoyage...');
+        setUser(null);
         setProfile(null);
         setSignedAvatarUrl(null);
         setUsers([]);
+        
+        // Nettoyer le localStorage
+        try {
+          localStorage.removeItem('sb-shnmlscbewdwyuefoqyr-auth-token');
+          localStorage.removeItem('supabase.auth.token');
+        } catch (e) {
+          console.log('Nettoyage localStorage échoué (normal en mode privé)');
+        }
+        setLoading(false);
+        return;
       }
-      setLoading(false);
-    });
+    }
 
-    return () => subscription.unsubscribe();
-  }, []);
+    const authUser = session?.user ?? null;
+    setUser(authUser);
+    if (authUser) {
+      fetchProfileAndUsers(authUser.id);
+    } else {
+      setProfile(null);
+      setSignedAvatarUrl(null);
+      setUsers([]);
+    }
+    setLoading(false);
+  });
+
+  return () => subscription.unsubscribe();
+}, []);
   
   useEffect(() => {
     setSignedAvatarUrl(profile?.signedAvatarUrl || null);
