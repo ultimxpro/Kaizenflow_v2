@@ -92,7 +92,7 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
       </div>
 
       {/* Styles d'animation */}
-      <style jsx>{`
+      <style jsx="true">{`
         @keyframes float-1 {
           0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.7; }
           25% { transform: translate(20px, -30px) scale(1.2); opacity: 1; }
