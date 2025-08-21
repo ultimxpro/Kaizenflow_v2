@@ -11,26 +11,9 @@ import {
   IshikawaDiagram,
   IshikawaBranch,
   IshikawaCause,
-  IshikawaMType
+  IshikawaMType,
+  FiveWhyAnalysis
 } from '../types/database';
-
-// Interface pour les analyses 5Pourquoi
-interface FiveWhyAnalysis {
-  id: string;
-  module_id: string;
-  problem_title: string;
-  why_1?: string;
-  why_2?: string;
-  why_3?: string;
-  why_4?: string;
-  why_5?: string;
-  root_cause?: string;
-  intermediate_cause?: string;
-  intermediate_cause_level?: number;
-  position: number;
-  created_at: string;
-  updated_at: string;
-}
 
 interface DatabaseContextType {
   projects: Project[];
@@ -124,14 +107,20 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
         { data: actionsData, error: actionsError },
         { data: assigneesData, error: assigneesError },
         { data: membersData, error: membersError },
-        { data: fiveWhyData, error: fiveWhyError }
+        { data: fiveWhyData, error: fiveWhyError },
+        { data: ishikawaDiagramsData, error: ishikawaDiagramsError },
+        { data: ishikawaBranchesData, error: ishikawaBranchesError },
+        { data: ishikawaCausesData, error: ishikawaCausesError }
       ] = await Promise.all([
         supabase.from('projects').select('*').order('created_at', { ascending: false }),
         supabase.from('a3_modules').select('*').order('position'),
         supabase.from('actions').select('*').order('created_at', { ascending: false }),
         supabase.from('action_assignees').select('*'),
         supabase.from('project_members').select('*'),
-        supabase.from('five_why_analyses').select('*').order('position')
+        supabase.from('five_why_analyses').select('*').order('position'),
+        supabase.from('ishikawa_diagrams').select('*').order('position'),
+        supabase.from('ishikawa_branches').select('*').order('position'),
+        supabase.from('ishikawa_causes').select('*').order('position')
       ]);
 
       if (projectsError) throw projectsError;
@@ -140,6 +129,9 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
       if (assigneesError) throw assigneesError;
       if (membersError) throw membersError;
       if (fiveWhyError) throw fiveWhyError;
+      if (ishikawaDiagramsError) throw ishikawaDiagramsError;
+      if (ishikawaBranchesError) throw ishikawaBranchesError;
+      if (ishikawaCausesError) throw ishikawaCausesError;
 
       setProjects(projectsData || []);
       setA3Modules(modulesData || []);
@@ -147,28 +139,9 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
       setActionAssignees(assigneesData || []);
       setProjectMembers(membersData || []);
       setFiveWhyAnalyses(fiveWhyData || []);
-
-      // Charger les données Ishikawa si les tables existent
-      try {
-        const [
-          { data: ishikawaDiagramsData, error: ishikawaDiagramsError },
-          { data: ishikawaBranchesData, error: ishikawaBranchesError },
-          { data: ishikawaCausesData, error: ishikawaCausesError }
-        ] = await Promise.all([
-          supabase.from('ishikawa_diagrams').select('*').order('position'),
-          supabase.from('ishikawa_branches').select('*').order('position'),
-          supabase.from('ishikawa_causes').select('*').order('position')
-        ]);
-
-        if (!ishikawaDiagramsError) setIshikawaDiagrams(ishikawaDiagramsData || []);
-        if (!ishikawaBranchesError) setIshikawaBranches(ishikawaBranchesData || []);
-        if (!ishikawaCausesError) setIshikawaCauses(ishikawaCausesData || []);
-      } catch (error) {
-        console.warn('Tables Ishikawa pas encore créées:', error);
-        setIshikawaDiagrams([]);
-        setIshikawaBranches([]);
-        setIshikawaCauses([]);
-      }
+      setIshikawaDiagrams(ishikawaDiagramsData || []);
+      setIshikawaBranches(ishikawaBranchesData || []);
+      setIshikawaCauses(ishikawaCausesData || []);
       
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -324,7 +297,144 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     const { data, error } = await supabase
       .from('actions')
       .insert({
-        ...action,
+        .insert({
+          branch_id: branchId,
+          parent_cause_id: parentCauseId || null,
+          text,
+          level,
+          position
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setIshikawaCauses(prev => [...prev, data]);
+      
+      return data.id;
+    } catch (error) {
+      console.error('Erreur lors de la création de la cause:', error);
+      throw error;
+    }
+  };
+
+  const updateIshikawaCause = async (id: string, updates: Partial<IshikawaCause>): Promise<void> => {
+    try {
+      const { error } = await supabase
+        .from('ishikawa_causes')
+        .update(updates)
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setIshikawaCauses(prev => 
+        prev.map(cause => 
+          cause.id === id ? { ...cause, ...updates } : cause
+        )
+      );
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la cause:', error);
+      throw error;
+    }
+  };
+
+  const deleteIshikawaCause = async (id: string): Promise<void> => {
+    try {
+      const { error } = await supabase
+        .from('ishikawa_causes')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setIshikawaCauses(prev => {
+        const deleteRecursive = (causeId: string): string[] => {
+          const childCauses = prev.filter(c => c.parent_cause_id === causeId);
+          let toDelete = [causeId];
+          childCauses.forEach(child => {
+            toDelete = [...toDelete, ...deleteRecursive(child.id)];
+          });
+          return toDelete;
+        };
+        
+        const causesToDelete = deleteRecursive(id);
+        return prev.filter(cause => !causesToDelete.includes(cause.id));
+      });
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la cause:', error);
+      throw error;
+    }
+  };
+
+  // REFRESH DATA FUNCTION
+  const refreshData = async (): Promise<void> => {
+    await fetchData();
+  };
+
+  const contextValue: DatabaseContextType = {
+    projects,
+    a3Modules,
+    actions,
+    actionAssignees,
+    projectMembers,
+    loading,
+    
+    // Project operations
+    createProject,
+    updateProject,
+    deleteProject,
+    
+    // Project member operations
+    addProjectMember,
+    updateProjectMember,
+    removeProjectMember,
+    
+    // A3 Module operations
+    createA3Module,
+    updateA3Module,
+    deleteA3Module,
+    
+    // Action operations
+    createAction,
+    updateAction,
+    deleteAction,
+    
+    // Action assignee operations
+    addActionAssignee,
+    removeActionAssignee,
+    
+    // FiveWhy Analysis operations
+    getFiveWhyAnalyses,
+    createFiveWhyAnalysis,
+    updateFiveWhyAnalysis,
+    deleteFiveWhyAnalysis,
+    
+    // Ishikawa operations
+    getIshikawaDiagrams,
+    createIshikawaDiagram,
+    updateIshikawaDiagram,
+    deleteIshikawaDiagram,
+    
+    getIshikawaBranches,
+    createIshikawaBranch,
+    updateIshikawaBranch,
+    deleteIshikawaBranch,
+    
+    getIshikawaCauses,
+    createIshikawaCause,
+    updateIshikawaCause,
+    deleteIshikawaCause,
+    
+    // Refresh data
+    refreshData
+  };
+
+  return (
+    <DatabaseContext.Provider value={contextValue}>
+      {children}
+    </DatabaseContext.Provider>
+  );
+};..action,
         created_by: user.id
       })
       .select()
@@ -613,141 +723,4 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     try {
       const { data, error } = await supabase
         .from('ishikawa_causes')
-        .insert({
-          branch_id: branchId,
-          parent_cause_id: parentCauseId || null,
-          text,
-          level,
-          position
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setIshikawaCauses(prev => [...prev, data]);
-      
-      return data.id;
-    } catch (error) {
-      console.error('Erreur lors de la création de la cause:', error);
-      throw error;
-    }
-  };
-
-  const updateIshikawaCause = async (id: string, updates: Partial<IshikawaCause>): Promise<void> => {
-    try {
-      const { error } = await supabase
-        .from('ishikawa_causes')
-        .update(updates)
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setIshikawaCauses(prev => 
-        prev.map(cause => 
-          cause.id === id ? { ...cause, ...updates } : cause
-        )
-      );
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour de la cause:', error);
-      throw error;
-    }
-  };
-
-  const deleteIshikawaCause = async (id: string): Promise<void> => {
-    try {
-      const { error } = await supabase
-        .from('ishikawa_causes')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setIshikawaCauses(prev => {
-        const deleteRecursive = (causeId: string): string[] => {
-          const childCauses = prev.filter(c => c.parent_cause_id === causeId);
-          let toDelete = [causeId];
-          childCauses.forEach(child => {
-            toDelete = [...toDelete, ...deleteRecursive(child.id)];
-          });
-          return toDelete;
-        };
-        
-        const causesToDelete = deleteRecursive(id);
-        return prev.filter(cause => !causesToDelete.includes(cause.id));
-      });
-    } catch (error) {
-      console.error('Erreur lors de la suppression de la cause:', error);
-      throw error;
-    }
-  };
-
-  // REFRESH DATA FUNCTION
-  const refreshData = async (): Promise<void> => {
-    await fetchData();
-  };
-
-  const contextValue: DatabaseContextType = {
-    projects,
-    a3Modules,
-    actions,
-    actionAssignees,
-    projectMembers,
-    loading,
-    
-    // Project operations
-    createProject,
-    updateProject,
-    deleteProject,
-    
-    // Project member operations
-    addProjectMember,
-    updateProjectMember,
-    removeProjectMember,
-    
-    // A3 Module operations
-    createA3Module,
-    updateA3Module,
-    deleteA3Module,
-    
-    // Action operations
-    createAction,
-    updateAction,
-    deleteAction,
-    
-    // Action assignee operations
-    addActionAssignee,
-    removeActionAssignee,
-    
-    // FiveWhy Analysis operations
-    getFiveWhyAnalyses,
-    createFiveWhyAnalysis,
-    updateFiveWhyAnalysis,
-    deleteFiveWhyAnalysis,
-    
-    // Ishikawa operations
-    getIshikawaDiagrams,
-    createIshikawaDiagram,
-    updateIshikawaDiagram,
-    deleteIshikawaDiagram,
-    
-    getIshikawaBranches,
-    createIshikawaBranch,
-    updateIshikawaBranch,
-    deleteIshikawaBranch,
-    
-    getIshikawaCauses,
-    createIshikawaCause,
-    updateIshikawaCause,
-    deleteIshikawaCause,
-    
-    // Refresh data
-    refreshData
-  };
-
-  return (
-    <DatabaseContext.Provider value={contextValue}>
-      {children}
-    </DatabaseContext.Provider>
-  );
-};
+        .
