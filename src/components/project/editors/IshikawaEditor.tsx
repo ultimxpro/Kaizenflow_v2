@@ -414,8 +414,30 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
           </div>
 
           {/* Zone principale - Grille des branches */}
-          <div className="flex-1 p-6 overflow-y-auto">
-            {selectedDiagram ? (
+          {/* Zone principale - Grille des branches */}
+<div className="flex-1 p-6 overflow-y-auto">
+  {diagrams.length === 0 ? (
+    // État vide - première utilisation
+    <div className="flex items-center justify-center h-full">
+      <div className="text-center p-12 max-w-md">
+        <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <GitBranch className="w-12 h-12 text-gray-400" />
+        </div>
+        <h3 className="text-2xl font-semibold text-gray-900 mb-3">Créez votre première analyse Ishikawa</h3>
+        <p className="text-gray-600 mb-6 leading-relaxed">
+          Le diagramme d'Ishikawa vous permet d'analyser les causes racines d'un problème. 
+          Commencez par créer votre première analyse.
+        </p>
+        <button
+          onClick={handleCreateDiagram}
+          className="bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 hover:from-red-700 hover:via-rose-700 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 mx-auto"
+        >
+          <Plus className="w-5 h-5" />
+          Créer ma première analyse
+        </button>
+      </div>
+    </div>
+  ) : selectedDiagram ? (
               <div>
                 {/* En-tête */}
                 <div className="mb-6">
