@@ -88,8 +88,7 @@ const diagrams = getIshikawaDiagrams(module.id);
 const selectedDiagram = diagrams.find(d => d.id === selectedDiagramId) || diagrams[0];
 const branches = selectedDiagram ? getIshikawaBranches(selectedDiagram.id) : [];
 
-  const [diagrams, setDiagrams] = useState<IshikawaDiagram[]>(initializeData);
-  const selectedDiagram = diagrams.find(d => d.id === selectedDiagramId) || diagrams[0];
+
 
   useEffect(() => {
     if (diagrams.length > 0 && !selectedDiagramId) {
