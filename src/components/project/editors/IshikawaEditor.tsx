@@ -450,7 +450,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
                     className="text-2xl font-bold bg-transparent border-none outline-none focus:bg-white focus:border-2 focus:border-red-300 focus:rounded-lg px-3 py-2 text-gray-900"
                   />
                   <p className="text-gray-600 mt-1">
-                    Modifié le {selectedDiagram.updatedAt.toLocaleString('fr-FR', { 
+                    Modifié le {new Date(selectedDiagram.updated_at).toLocaleString('fr-FR', { 
                       day: '2-digit', 
                       month: '2-digit', 
                       hour: '2-digit', 
