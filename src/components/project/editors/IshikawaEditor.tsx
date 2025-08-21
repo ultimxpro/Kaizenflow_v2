@@ -847,7 +847,9 @@ const BranchCard: React.FC<{
             className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
             style={{ backgroundColor: branch.color }}
           >
-            <span className="text-white">{branch.icon}</span>
+            <div className="text-white">
+              {branch.icon}
+            </div>
           </div>
           <div>
             <h3 className="font-bold text-gray-800 text-lg">{branch.name}</h3>
