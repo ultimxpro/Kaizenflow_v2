@@ -302,86 +302,61 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
                   </button>
                 </div>
                 <div className="space-y-2">
-  {diagrams.length === 0 ? (
-    <div className="text-center p-4">
-      <p className="text-gray-500 text-sm mb-3">Aucune analyse créée</p>
-      <button
-        onClick={handleCreateDiagram}
-        className="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-2 px-3 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
-      >
-        <Plus className="w-4 h-4" />
-        Créer une analyse
-      </button>
-    </div>
-  ) : (
-    <>
-      {diagrams.map(diag => (
-        <div
-          key={diag.id}
-          className={`p-3 rounded-xl cursor-pointer transition-all duration-200 border-2 ${
-            diag.id === selectedDiagramId
-              ? 'border-red-500 bg-gradient-to-r from-red-50 to-pink-50 text-red-700'
-              : 'border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50'
-          }`}
-          onClick={() => setSelectedDiagramId(diag.id)}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-medium text-gray-900 text-sm">{diag.name}</h4>
-              <p className="text-xs text-gray-500 mt-1">
-                {diag.m_type} • {stats.totalCauses} cause{stats.totalCauses !== 1 ? 's' : ''}
-              </p>
-            </div>
-            <div className="flex items-center space-x-1">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteDiagram(diag.id);
-                }}
-                className="p-1 hover:bg-red-100 rounded"
-              >
-                <Trash2 className="w-3 h-3 text-red-400" />
-              </button>
-            </div>
-          </div>
-        </div>
-      ))}
-      
-      {/* Bouton pour ajouter un nouveau diagramme */}
-      <button
-        onClick={handleCreateDiagram}
-        className="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-2 px-3 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 mt-2"
-      >
-        <Plus className="w-4 h-4" />
-        Nouvelle analyse
-      </button>
-    </>
-  )}
-</div> 
-                          : 'bg-white/80 hover:bg-gray-50 border-gray-200 hover:border-gray-300'
-                      }`}
-                      onClick={() => setSelectedDiagramId(diag.id)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900 text-sm">{diag.name}</h4>
-                          <p className="text-xs text-gray-500">{diag.mType} - {stats.totalCauses} causes</p>
-                        </div>
-                        {diagrams.length > 1 && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteDiagram(diag.id);
-                            }}
-                            className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-                            title="Supprimer"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
+                  {diagrams.length === 0 ? (
+                    <div className="text-center p-4">
+                      <p className="text-gray-500 text-sm mb-3">Aucune analyse créée</p>
+                      <button
+                        onClick={handleCreateDiagram}
+                        className="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-2 px-3 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Créer une analyse
+                      </button>
                     </div>
-                  ))}
+                  ) : (
+                    <>
+                      {diagrams.map(diag => (
+                        <div
+                          key={diag.id}
+                          className={`p-3 rounded-xl cursor-pointer transition-all duration-200 border-2 ${
+                            diag.id === selectedDiagramId
+                              ? 'bg-gradient-to-r from-red-50 to-pink-50 border-red-300 shadow-lg'
+                              : 'bg-white/80 hover:bg-gray-50 border-gray-200 hover:border-gray-300'
+                          }`}
+                          onClick={() => setSelectedDiagramId(diag.id)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-medium text-gray-900 text-sm">{diag.name}</h4>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {diag.m_type} • {stats.totalCauses} cause{stats.totalCauses !== 1 ? 's' : ''}
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteDiagram(diag.id);
+                                }}
+                                className="p-1 hover:bg-red-100 rounded"
+                              >
+                                <Trash2 className="w-3 h-3 text-red-400" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {/* Bouton pour ajouter un nouveau diagramme */}
+                      <button
+                        onClick={handleCreateDiagram}
+                        className="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-2 px-3 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 mt-2"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Nouvelle analyse
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
 
