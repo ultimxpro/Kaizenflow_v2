@@ -305,7 +305,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold text-gray-800 text-lg">Diagrammes</h3>
                   <button
-                    onClick={addDiagram}
+                    onClick={handleCreateDiagram}
                     className="w-8 h-8 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-lg hover:from-red-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center"
                     title="Nouveau diagramme"
                   >
