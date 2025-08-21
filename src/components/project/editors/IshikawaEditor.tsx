@@ -840,6 +840,11 @@ const BranchCard: React.FC<{
   setEditingCause: (id: string | null) => void;
 }> = ({ branch, onAddCause, onUpdateCause, onDeleteCause, editingCause, setEditingCause }) => {
   const mainCauses = branch.causes.filter(c => c.level === 0);
+
+  // TROUVER LA CONFIGURATION CORRESPONDANTE
+  // On parcourt toutes les configurations pour trouver celle qui correspond à l'ID de la branche
+  const branchConfig = Object.values(M_CONFIGS).flat().find(c => c.id === branch.id);
+  const icon = branchConfig ? branchConfig.icon : null;
   
   return (
     <div 
@@ -860,7 +865,7 @@ const BranchCard: React.FC<{
             style={{ backgroundColor: branch.color }}
           >
             <div className="text-white">
-              {branch.icon}
+              {icon} {/* AFFICHER L'ICÔNE TROUVÉE */}
             </div>
           </div>
           <div>
