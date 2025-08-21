@@ -8,6 +8,25 @@ import {
 } from 'lucide-react';
 
 
+// Initialisation automatique si aucun diagramme
+useEffect(() => {
+  const initializeDiagramsIfNeeded = async () => {
+    if (diagrams.length === 0) {
+      try {
+        console.log('Aucun diagramme trouvé, création automatique...');
+        const diagramId = await createIshikawaDiagram(module.id, 'Analyse Ishikawa #1', '5M');
+        setSelectedDiagramId(diagramId);
+      } catch (error) {
+        console.error('Erreur lors de la création automatique du diagramme:', error);
+      }
+    }
+  };
+  
+  initializeDiagramsIfNeeded();
+}, [diagrams.length, module.id, createIshikawaDiagram]);
+
+
+
 // Configuration des différents types de M
 const M_CONFIGS = {
   '4M': [
@@ -225,16 +244,20 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
 
   // Calcul des statistiques
   const stats = useMemo(() => {
-    const totalCauses = selectedDiagram.branches.reduce((sum, branch) => 
-      sum + branch.causes.length, 0
-    );
-    const branchesWithCauses = selectedDiagram.branches.filter(b => b.causes.length > 0).length;
-    const avgCausesPerBranch = branchesWithCauses > 0 
-      ? Math.round((totalCauses / branchesWithCauses) * 10) / 10 
-      : 0;
-
-    return { totalCauses, branchesWithCauses, avgCausesPerBranch };
-  }, [selectedDiagram]);
+  if (!selectedDiagram || !branches) {
+    return { totalCauses: 0, branchesWithCauses: 0, avgCausesPerBranch: '0' };
+  }
+  
+  const allCauses = branches.flatMap(branch => getIshikawaCauses(branch.id));
+  const branchesWithCauses = branches.filter(branch => getIshikawaCauses(branch.id).length > 0).length;
+  const avgCausesPerBranch = branches.length > 0 ? (allCauses.length / branches.length).toFixed(1) : '0';
+  
+  return {
+    totalCauses: allCauses.length,
+    branchesWithCauses,
+    avgCausesPerBranch
+  };
+}, [selectedDiagram, branches, getIshikawaCauses]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-8 z-50">
@@ -360,8 +383,8 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
                       Branches du {selectedDiagram.mType} :
                     </p>
                     <ul className="text-xs text-gray-600 space-y-1">
-                      {M_CONFIGS[selectedDiagram.mType].map(config => (
-                        <li key={config.id} className="flex items-center space-x-2">
+                      {M_CONFIGS[selectedDiagram.m_type].map(config => (
+                        <li key={config.key} className="flex items-center space-x-2">
                           <span style={{ color: config.color }}>{config.icon}</span>
                           <span>{config.name}</span>
                         </li>
@@ -382,7 +405,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Branches utilisées :</span>
-                      <span className="font-semibold text-blue-700">{stats.branchesWithCauses}/{selectedDiagram.branches.length}</span>
+                      <span className="font-semibold text-blue-700">{stats.branchesWithCauses}/{branches.length}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Moy. par branche :</span>
