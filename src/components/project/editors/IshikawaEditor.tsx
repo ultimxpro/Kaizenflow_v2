@@ -650,13 +650,12 @@ const changeMType = async (newType: IshikawaMType) => {
                   {/* Grille des cartes de branches */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {branches.map(branch => (
-  <div
+                    <div
     key={branch.id}
     className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border-2 hover:shadow-xl transition-all duration-300"
     style={{ borderColor: `${branch.color}30` }}
   >
-                  </div>
-            ) : (
+            
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
                   <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
