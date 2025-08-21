@@ -186,66 +186,6 @@ const changeMType = async (newType: IshikawaMType) => {
   }
 };
 
-  // Gestion des causes
-  const addCause = (branchId: string, parentId?: string) => {
-    const newCause: Cause = {
-      id: `cause-${Date.now()}`,
-      text: '',
-      level: parentId ? 1 : 0,
-      parentId
-    };
-
-    const updatedBranches = branches.map(branch => {
-      if (branch.id === branchId) {
-        return { ...branch, causes: [...getIshikawaCauses(branch.id), newCause] };
-      }
-      return branch;
-    });
-
-    updateDiagram({ branches: updatedBranches });
-    setEditingCause(newCause.id);
-  };
-
-  const updateCause = (branchId: string, causeId: string, text: string) => {
-    const updatedBranches = branches.map(branch => {
-      if (branch.id === branchId) {
-        return {
-          ...branch,
-          causes: getIshikawaCauses(branch.id).map(cause =>
-            cause.id === causeId ? { ...cause, text } : cause
-          )
-        };
-      }
-      return branch;
-    });
-    updateDiagram({ branches: updatedBranches });
-  };
-
-  const deleteCause = (branchId: string, causeId: string) => {
-    const updatedBranches = branches.map(branch => {
-      if (branch.id === branchId) {
-        // Supprimer la cause et ses sous-causes
-        const causesToDelete = new Set([causeId]);
-        const findChildren = (parentId: string) => {
-          getIshikawaCauses(branch.id).forEach(c => {
-            if (c.parentId === parentId) {
-              causesToDelete.add(c.id);
-              findChildren(c.id);
-            }
-          });
-        };
-        findChildren(causeId);
-        
-        return {
-          ...branch,
-          causes: getIshikawaCauses(branch.id).filter(c => !causesToDelete.has(c.id))
-        };
-      }
-      return branch;
-    });
-    updateDiagram({ branches: updatedBranches });
-  };
-
   // Export
   const exportDiagram = () => {
     const dataStr = JSON.stringify(selectedDiagram, null, 2);
