@@ -1,36 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { A3Module } from '../../../types/database';
+import { A3Module, IshikawaDiagram, IshikawaBranch, IshikawaCause, IshikawaMType } from '../../../types/database';
 import { useDatabase } from '../../../contexts/DatabaseContext';
 import { 
   GitBranch, Plus, X, HelpCircle, Settings, ChevronRight, 
   Trash2, Edit2, Save, Download, Upload, Users, Factory, 
   DollarSign, Package, Gauge, Clock, Shield, Briefcase, Network
 } from 'lucide-react';
-
-// Types
-interface Cause {
-  id: string;
-  text: string;
-  level: number; // 0 = branche principale, 1 = sous-cause, 2 = sous-sous-cause
-  parentId?: string;
-}
-
-interface Branch {
-  id: string; // Conservez l'identifiant comme 'main-oeuvre'
-  name: string;
-  color: string; // La couleur est une donnée, donc on la garde
-  causes: Cause[];
-}
-
-interface IshikawaDiagram {
-  id: string;
-  name: string;
-  problem: string;
-  mType: '4M' | '5M' | '6M' | '7M' | '8M' | '9M';
-  branches: Branch[]; // Ne contient plus l'icône
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 
 // Configuration des différents types de M
@@ -89,39 +64,29 @@ const M_CONFIGS = {
 };
 
 export const IshikawaEditor: React.FC<{ module: A3Module; onClose: () => void }> = ({ module, onClose }) => {
-  const { updateA3Module } = useDatabase();
+  const {
+  getIshikawaDiagrams,
+  createIshikawaDiagram,
+  updateIshikawaDiagram,
+  deleteIshikawaDiagram,
+  getIshikawaBranches,
+  updateIshikawaBranch,
+  deleteIshikawaBranch,
+  getIshikawaCauses,
+  createIshikawaCause,
+  updateIshikawaCause,
+  deleteIshikawaCause
+} = useDatabase();
   const [showHelp, setShowHelp] = useState(false);
   const [selectedDiagramId, setSelectedDiagramId] = useState<string | null>(null);
   const [editingCause, setEditingCause] = useState<string | null>(null);
 
   // Initialisation des données
   // Initialisation des données
-const initializeData = (): IshikawaDiagram[] => {
-  if (module.content?.diagrams && Array.isArray(module.content.diagrams)) {
-    // Il est crucial ici de s'assurer que les anciennes données sont compatibles
-    // Cette simple vérification suffit pour les nouvelles données, 
-    // mais les anciennes données corrompues peuvent nécessiter une migration.
-    return module.content.diagrams;
-  }
-  
-  const defaultDiagram: IshikawaDiagram = {
-    id: `diag-${Date.now()}`,
-    name: 'Analyse Ishikawa #1',
-    problem: '',
-    mType: '5M',
-    // On ne copie que les données, pas l'icône
-    branches: M_CONFIGS['5M'].map(config => ({
-      id: config.id,
-      name: config.name,
-      color: config.color,
-      causes: []
-    })),
-    createdAt: new Date(),
-    updatedAt: new Date()
-  };
-  
-  return [defaultDiagram];
-};
+// Récupération des données depuis la base de données
+const diagrams = getIshikawaDiagrams(module.id);
+const selectedDiagram = diagrams.find(d => d.id === selectedDiagramId) || diagrams[0];
+const branches = selectedDiagram ? getIshikawaBranches(selectedDiagram.id) : [];
 
   const [diagrams, setDiagrams] = useState<IshikawaDiagram[]>(initializeData);
   const selectedDiagram = diagrams.find(d => d.id === selectedDiagramId) || diagrams[0];
@@ -132,50 +97,45 @@ const initializeData = (): IshikawaDiagram[] => {
     }
   }, [diagrams, selectedDiagramId]);
 
-  // Sauvegarde automatique
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      updateA3Module(module.id, { content: { diagrams } });
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [diagrams, module.id, updateA3Module]);
 
   // Gestion des diagrammes
-  const addDiagram = () => {
-    const newDiagram: IshikawaDiagram = {
-      id: `diag-${Date.now()}`,
-      name: `Analyse Ishikawa #${diagrams.length + 1}`,
-      problem: '',
-      mType: '5M',
-      branches: M_CONFIGS['5M'].map(config => ({
-        ...config,
-        causes: []
-      })),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    setDiagrams([...diagrams, newDiagram]);
-    setSelectedDiagramId(newDiagram.id);
-  };
+const handleCreateDiagram = async () => {
+  try {
+    const diagramName = `Analyse Ishikawa #${diagrams.length + 1}`;
+    const diagramId = await createIshikawaDiagram(module.id, diagramName, '5M');
+    setSelectedDiagramId(diagramId);
+  } catch (error) {
+    console.error('Erreur lors de la création du diagramme:', error);
+    alert('Erreur lors de la création du diagramme');
+  }
+};
 
-  const updateDiagram = (updates: Partial<IshikawaDiagram>) => {
-    setDiagrams(diagrams.map(d => 
-      d.id === selectedDiagram.id 
-        ? { ...d, ...updates, updatedAt: new Date() }
-        : d
-    ));
-  };
+const handleUpdateDiagram = async (updates: Partial<IshikawaDiagram>) => {
+  if (!selectedDiagram) return;
+  try {
+    await updateIshikawaDiagram(selectedDiagram.id, updates);
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du diagramme:', error);
+    alert('Erreur lors de la mise à jour du diagramme');
+  }
+};
 
-  const deleteDiagram = (id: string) => {
-    if (diagrams.length === 1) {
-      alert('Vous devez conserver au moins un diagramme');
-      return;
-    }
-    setDiagrams(diagrams.filter(d => d.id !== id));
+const handleDeleteDiagram = async (id: string) => {
+  if (diagrams.length === 1) {
+    alert('Vous devez conserver au moins un diagramme');
+    return;
+  }
+  if (!confirm('Êtes-vous sûr de vouloir supprimer ce diagramme ?')) return;
+  try {
+    await deleteIshikawaDiagram(id);
     if (selectedDiagramId === id) {
-      setSelectedDiagramId(diagrams[0].id);
+      setSelectedDiagramId(diagrams[0]?.id || null);
     }
-  };
+  } catch (error) {
+    console.error('Erreur lors de la suppression du diagramme:', error);
+    alert('Erreur lors de la suppression du diagramme');
+  }
+};
 
   // Changement du type de M
 const changeMType = (newType: IshikawaDiagram['mType']) => {
