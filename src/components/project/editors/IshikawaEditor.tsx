@@ -16,10 +16,9 @@ interface Cause {
 }
 
 interface Branch {
-  id: string;
+  id: string; // Conservez l'identifiant comme 'main-oeuvre'
   name: string;
-  icon: React.ReactNode;
-  color: string;
+  color: string; // La couleur est une donnée, donc on la garde
   causes: Cause[];
 }
 
@@ -28,10 +27,11 @@ interface IshikawaDiagram {
   name: string;
   problem: string;
   mType: '4M' | '5M' | '6M' | '7M' | '8M' | '9M';
-  branches: Branch[];
+  branches: Branch[]; // Ne contient plus l'icône
   createdAt: Date;
   updatedAt: Date;
 }
+
 
 // Configuration des différents types de M
 const M_CONFIGS = {
