@@ -95,27 +95,33 @@ export const IshikawaEditor: React.FC<{ module: A3Module; onClose: () => void }>
   const [editingCause, setEditingCause] = useState<string | null>(null);
 
   // Initialisation des données
-  const initializeData = (): IshikawaDiagram[] => {
-    if (module.content?.diagrams && Array.isArray(module.content.diagrams)) {
-      return module.content.diagrams;
-    }
-    
-    // Créer un diagramme par défaut
-    const defaultDiagram: IshikawaDiagram = {
-      id: `diag-${Date.now()}`,
-      name: 'Analyse Ishikawa #1',
-      problem: '',
-      mType: '5M',
-      branches: M_CONFIGS['5M'].map(config => ({
-        ...config,
-        causes: []
-      })),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    
-    return [defaultDiagram];
+  // Initialisation des données
+const initializeData = (): IshikawaDiagram[] => {
+  if (module.content?.diagrams && Array.isArray(module.content.diagrams)) {
+    // Il est crucial ici de s'assurer que les anciennes données sont compatibles
+    // Cette simple vérification suffit pour les nouvelles données, 
+    // mais les anciennes données corrompues peuvent nécessiter une migration.
+    return module.content.diagrams;
+  }
+  
+  const defaultDiagram: IshikawaDiagram = {
+    id: `diag-${Date.now()}`,
+    name: 'Analyse Ishikawa #1',
+    problem: '',
+    mType: '5M',
+    // On ne copie que les données, pas l'icône
+    branches: M_CONFIGS['5M'].map(config => ({
+      id: config.id,
+      name: config.name,
+      color: config.color,
+      causes: []
+    })),
+    createdAt: new Date(),
+    updatedAt: new Date()
   };
+  
+  return [defaultDiagram];
+};
 
   const [diagrams, setDiagrams] = useState<IshikawaDiagram[]>(initializeData);
   const selectedDiagram = diagrams.find(d => d.id === selectedDiagramId) || diagrams[0];
@@ -172,13 +178,19 @@ export const IshikawaEditor: React.FC<{ module: A3Module; onClose: () => void }>
   };
 
   // Changement du type de M
-  const changeMType = (newType: IshikawaDiagram['mType']) => {
-    const newBranches = M_CONFIGS[newType].map(config => {
-      const existingBranch = selectedDiagram.branches.find(b => b.id === config.id);
-      return existingBranch || { ...config, causes: [] };
-    });
-    updateDiagram({ mType: newType, branches: newBranches });
-  };
+const changeMType = (newType: IshikawaDiagram['mType']) => {
+  const newBranches = M_CONFIGS[newType].map(config => {
+    const existingBranch = selectedDiagram.branches.find(b => b.id === config.id);
+    // On ne recrée que les données nécessaires
+    return existingBranch || { 
+        id: config.id, 
+        name: config.name, 
+        color: config.color, 
+        causes: [] 
+    };
+  });
+  updateDiagram({ mType: newType, branches: newBranches });
+};
 
   // Gestion des causes
   const addCause = (branchId: string, parentId?: string) => {
