@@ -129,6 +129,12 @@ const handleUpdateDiagram = async (updates: Partial<IshikawaDiagram>) => {
   }
 };
 
+// Fonction de raccourci pour updateDiagram
+const updateDiagram = (updates: Partial<IshikawaDiagram>) => {
+  if (!selectedDiagram) return;
+  handleUpdateDiagram(updates);
+};  
+
 const handleDeleteDiagram = async (id: string) => {
   if (!confirm('Êtes-vous sûr de vouloir supprimer cette analyse ?')) return;
   
