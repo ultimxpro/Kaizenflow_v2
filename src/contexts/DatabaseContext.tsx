@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { supabase } from '../Lib/supabase';
 import { useAuth } from './AuthContext';
 import { Project, A3Module, Action, ActionAssignee, ProjectMember } from '../types/database';
+import { IshikawaDiagram, IshikawaBranch, IshikawaCause, IshikawaMType } from '../types/database';
 
 // Interface pour les analyses 5Pourquoi
 interface FiveWhyAnalysis {
@@ -59,10 +60,275 @@ interface DatabaseContextType {
   createFiveWhyAnalysis: (moduleId: string, problemTitle: string) => Promise<string>;
   updateFiveWhyAnalysis: (id: string, updates: Partial<FiveWhyAnalysis>) => Promise<void>;
   deleteFiveWhyAnalysis: (id: string) => Promise<void>;
+
+  // Ishikawa operations
+  getIshikawaDiagrams: (moduleId: string) => IshikawaDiagram[];
+  createIshikawaDiagram: (moduleId: string, name: string, mType: IshikawaMType) => Promise<string>;
+  updateIshikawaDiagram: (id: string, updates: Partial<IshikawaDiagram>) => Promise<void>;
+  deleteIshikawaDiagram: (id: string) => Promise<void>;
+  
+  getIshikawaBranches: (diagramId: string) => IshikawaBranch[];
+  createIshikawaBranch: (diagramId: string, branchKey: string, name: string, color: string, position: number) => Promise<string>;
+  updateIshikawaBranch: (id: string, updates: Partial<IshikawaBranch>) => Promise<void>;
+  deleteIshikawaBranch: (id: string) => Promise<void>;
+  
+  getIshikawaCauses: (branchId: string) => IshikawaCause[];
+  createIshikawaCause: (branchId: string, text: string, level: number, parentCauseId?: string, position?: number) => Promise<string>;
+  updateIshikawaCause: (id: string, updates: Partial<IshikawaCause>) => Promise<void>;
+  deleteIshikawaCause: (id: string) => Promise<void>;
   
   // Refresh data
   refreshData: () => Promise<void>;
 }
+
+// FONCTIONS POUR LES DIAGRAMMES ISHIKAWA
+const getIshikawaDiagrams = (moduleId: string): IshikawaDiagram[] => {
+  return ishikawaDiagrams.filter(diagram => diagram.module_id === moduleId);
+};
+
+const createIshikawaDiagram = async (moduleId: string, name: string, mType: IshikawaMType): Promise<string> => {
+  try {
+    // Créer le diagramme
+    const { data: diagram, error: diagramError } = await supabase
+      .from('ishikawa_diagrams')
+      .insert({
+        module_id: moduleId,
+        name,
+        m_type: mType,
+        problem: '',
+        position: ishikawaDiagrams.filter(d => d.module_id === moduleId).length
+      })
+      .select()
+      .single();
+
+    if (diagramError) throw diagramError;
+
+    // Créer les branches par défaut via la fonction SQL
+    const { error: branchesError } = await supabase.rpc('create_default_branches', {
+      diagram_id_param: diagram.id,
+      m_type_param: mType
+    });
+
+    if (branchesError) throw branchesError;
+
+    // Recharger les données
+    await loadIshikawaData();
+    
+    return diagram.id;
+  } catch (error) {
+    console.error('Erreur lors de la création du diagramme Ishikawa:', error);
+    throw error;
+  }
+};
+
+const updateIshikawaDiagram = async (id: string, updates: Partial<IshikawaDiagram>): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('ishikawa_diagrams')
+      .update(updates)
+      .eq('id', id);
+
+    if (error) throw error;
+
+    // Mettre à jour l'état local
+    setIshikawaDiagrams(prev => 
+      prev.map(diagram => 
+        diagram.id === id ? { ...diagram, ...updates } : diagram
+      )
+    );
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du diagramme:', error);
+    throw error;
+  }
+};
+
+const deleteIshikawaDiagram = async (id: string): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('ishikawa_diagrams')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    // Mettre à jour l'état local
+    setIshikawaDiagrams(prev => prev.filter(diagram => diagram.id !== id));
+    setIshikawaBranches(prev => prev.filter(branch => branch.diagram_id !== id));
+    setIshikawaCauses(prev => {
+      const branchesToDelete = ishikawaBranches.filter(b => b.diagram_id === id).map(b => b.id);
+      return prev.filter(cause => !branchesToDelete.includes(cause.branch_id));
+    });
+  } catch (error) {
+    console.error('Erreur lors de la suppression du diagramme:', error);
+    throw error;
+  }
+};
+
+// FONCTIONS POUR LES BRANCHES ISHIKAWA
+const getIshikawaBranches = (diagramId: string): IshikawaBranch[] => {
+  return ishikawaBranches.filter(branch => branch.diagram_id === diagramId);
+};
+
+const createIshikawaBranch = async (
+  diagramId: string, 
+  branchKey: string, 
+  name: string, 
+  color: string, 
+  position: number
+): Promise<string> => {
+  try {
+    const { data, error } = await supabase
+      .from('ishikawa_branches')
+      .insert({
+        diagram_id: diagramId,
+        branch_key: branchKey,
+        name,
+        color,
+        position
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Mettre à jour l'état local
+    setIshikawaBranches(prev => [...prev, data]);
+    
+    return data.id;
+  } catch (error) {
+    console.error('Erreur lors de la création de la branche:', error);
+    throw error;
+  }
+};
+
+const updateIshikawaBranch = async (id: string, updates: Partial<IshikawaBranch>): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('ishikawa_branches')
+      .update(updates)
+      .eq('id', id);
+
+    if (error) throw error;
+
+    // Mettre à jour l'état local
+    setIshikawaBranches(prev => 
+      prev.map(branch => 
+        branch.id === id ? { ...branch, ...updates } : branch
+      )
+    );
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de la branche:', error);
+    throw error;
+  }
+};
+
+const deleteIshikawaBranch = async (id: string): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('ishikawa_branches')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    // Mettre à jour l'état local
+    setIshikawaBranches(prev => prev.filter(branch => branch.id !== id));
+    setIshikawaCauses(prev => prev.filter(cause => cause.branch_id !== id));
+  } catch (error) {
+    console.error('Erreur lors de la suppression de la branche:', error);
+    throw error;
+  }
+};
+
+// FONCTIONS POUR LES CAUSES ISHIKAWA
+const getIshikawaCauses = (branchId: string): IshikawaCause[] => {
+  return ishikawaCauses.filter(cause => cause.branch_id === branchId);
+};
+
+const createIshikawaCause = async (
+  branchId: string, 
+  text: string, 
+  level: number, 
+  parentCauseId?: string, 
+  position: number = 0
+): Promise<string> => {
+  try {
+    const { data, error } = await supabase
+      .from('ishikawa_causes')
+      .insert({
+        branch_id: branchId,
+        parent_cause_id: parentCauseId || null,
+        text,
+        level,
+        position
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Mettre à jour l'état local
+    setIshikawaCauses(prev => [...prev, data]);
+    
+    return data.id;
+  } catch (error) {
+    console.error('Erreur lors de la création de la cause:', error);
+    throw error;
+  }
+};
+
+const updateIshikawaCause = async (id: string, updates: Partial<IshikawaCause>): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('ishikawa_causes')
+      .update(updates)
+      .eq('id', id);
+
+    if (error) throw error;
+
+    // Mettre à jour l'état local
+    setIshikawaCauses(prev => 
+      prev.map(cause => 
+        cause.id === id ? { ...cause, ...updates } : cause
+      )
+    );
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de la cause:', error);
+    throw error;
+  }
+};
+
+const deleteIshikawaCause = async (id: string): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('ishikawa_causes')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    // Mettre à jour l'état local
+    setIshikawaCauses(prev => {
+      // Supprimer aussi toutes les sous-causes
+      const deleteRecursive = (causeId: string): string[] => {
+        const childCauses = prev.filter(c => c.parent_cause_id === causeId);
+        let toDelete = [causeId];
+        childCauses.forEach(child => {
+          toDelete = [...toDelete, ...deleteRecursive(child.id)];
+        });
+        return toDelete;
+      };
+      
+      const causesToDelete = deleteRecursive(id);
+      return prev.filter(cause => !causesToDelete.includes(cause.id));
+    });
+  } catch (error) {
+    console.error('Erreur lors de la suppression de la cause:', error);
+    throw error;
+  }
+};
+
+
 
 const DatabaseContext = createContext<DatabaseContextType | undefined>(undefined);
 
@@ -433,6 +699,22 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     createFiveWhyAnalysis,
     updateFiveWhyAnalysis,
     deleteFiveWhyAnalysis,
+
+    // Nouvelles fonctions Ishikawa
+    getIshikawaDiagrams,
+    createIshikawaDiagram,
+    updateIshikawaDiagram,
+    deleteIshikawaDiagram,
+  
+    getIshikawaBranches,
+    createIshikawaBranch,
+    updateIshikawaBranch,
+    deleteIshikawaBranch,
+  
+    getIshikawaCauses,
+    createIshikawaCause,
+    updateIshikawaCause,
+    deleteIshikawaCause
   };
 
   return <DatabaseContext.Provider value={value}>{children}</DatabaseContext.Provider>;
