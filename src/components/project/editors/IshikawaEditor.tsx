@@ -196,7 +196,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
 
     const updatedBranches = selectedDiagram.branches.map(branch => {
       if (branch.id === branchId) {
-        return { ...branch, causes: [...branch.causes, newCause] };
+        return { ...branch, causes: [...getIshikawaCauses(branch.id), newCause] };
       }
       return branch;
     });
@@ -210,7 +210,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
       if (branch.id === branchId) {
         return {
           ...branch,
-          causes: branch.causes.map(cause =>
+          causes: getIshikawaCauses(branch.id).map(cause =>
             cause.id === causeId ? { ...cause, text } : cause
           )
         };
@@ -226,7 +226,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
         // Supprimer la cause et ses sous-causes
         const causesToDelete = new Set([causeId]);
         const findChildren = (parentId: string) => {
-          branch.causes.forEach(c => {
+          getIshikawaCauses(branch.id).forEach(c => {
             if (c.parentId === parentId) {
               causesToDelete.add(c.id);
               findChildren(c.id);
@@ -237,7 +237,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
         
         return {
           ...branch,
-          causes: branch.causes.filter(c => !causesToDelete.has(c.id))
+          causes: getIshikawaCauses(branch.id).filter(c => !causesToDelete.has(c.id))
         };
       }
       return branch;
@@ -491,7 +491,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
                         {/* Branches supérieures */}
                         {branches.slice(0, Math.ceil(branches.length / 2)).map((branch, index) => {
                           const x = 150 + (index * 140);
-                          const mainCauses = branch.causes.filter(c => c.level === 0);
+                          const mainCauses = getIshikawaCauses(branch.id).filter(c => c.level === 0);
                           
                           return (
                             <g key={`top-${branch.id}`}>
@@ -566,7 +566,7 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
                         {/* Branches inférieures */}
                         {branches.slice(Math.ceil(branches.length / 2)).map((branch, index) => {
                           const x = 150 + (index * 140);
-                          const mainCauses = branch.causes.filter(c => c.level === 0);
+                          const mainCauses = getIshikawaCauses(branch.id).filter(c => c.level === 0);
                           
                           return (
                             <g key={`bottom-${branch.id}`}>
@@ -641,8 +641,8 @@ const changeMType = (newType: IshikawaDiagram['mType']) => {
                       
                       {/* Légende */}
                       <div className="mt-4 flex flex-wrap gap-3 justify-center">
-                        {branches.map(branch => {
-                          const mainCauses = branch.causes.filter(c => c.level === 0);
+                        {selectedDiagram.branches.map(branch => {
+                          const mainCauses = getIshikawaCauses(branch.id).filter(c => c.level === 0);
                           return (
                             <div key={branch.id} className="flex items-center space-x-2 bg-white/80 px-3 py-1 rounded-lg">
                               <div 
@@ -840,7 +840,7 @@ const BranchCard: React.FC<{
   editingCause: string | null;
   setEditingCause: (id: string | null) => void;
 }> = ({ branch, onAddCause, onUpdateCause, onDeleteCause, editingCause, setEditingCause }) => {
-  const mainCauses = branch.causes.filter(c => c.level === 0);
+  const mainCauses = getIshikawaCauses(branch.id).filter(c => c.level === 0);
 
   // TROUVER LA CONFIGURATION CORRESPONDANTE
   // On parcourt toutes les configurations pour trouver celle qui correspond à l'ID de la branche
@@ -912,7 +912,7 @@ const BranchCard: React.FC<{
                 key={cause.id}
                 cause={cause}
                 branch={branch}
-                allCauses={branch.causes}
+                allCauses={getIshikawaCauses(branch.id)}
                 onAddCause={onAddCause}
                 onUpdateCause={onUpdateCause}
                 onDeleteCause={onDeleteCause}
