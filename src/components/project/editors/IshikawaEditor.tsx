@@ -650,12 +650,34 @@ const changeMType = async (newType: IshikawaMType) => {
                   {/* Grille des cartes de branches */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {branches.map(branch => (
-                    <div
+  <div
     key={branch.id}
-    className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border-2 hover:shadow-xl transition-all duration-300"
+    className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border-2"
     style={{ borderColor: `${branch.color}30` }}
   >
-            
+    <div 
+      className="px-6 py-4 flex items-center justify-between"
+      style={{ backgroundColor: `${branch.color}10` }}
+    >
+      <h3 className="font-bold text-gray-800">{branch.name}</h3>
+      <div 
+        className="w-8 h-8 rounded-lg flex items-center justify-center"
+        style={{ backgroundColor: branch.color }}
+      >
+        <Plus className="w-4 h-4 text-white" />
+      </div>
+    </div>
+    <div className="p-6">
+      <p className="text-gray-600 text-sm">
+        {getIshikawaCauses(branch.id).length} cause(s) identifiée(s)
+      </p>
+    </div>
+  </div>
+))}
+                  </div>
+                </div>
+              </div>
+            ) : (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
                   <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
