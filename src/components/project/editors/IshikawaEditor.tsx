@@ -8,23 +8,6 @@ import {
 } from 'lucide-react';
 
 
-// Initialisation automatique si aucun diagramme
-useEffect(() => {
-  const initializeDiagramsIfNeeded = async () => {
-    if (diagrams.length === 0) {
-      try {
-        console.log('Aucun diagramme trouvé, création automatique...');
-        const diagramId = await createIshikawaDiagram(module.id, 'Analyse Ishikawa #1', '5M');
-        setSelectedDiagramId(diagramId);
-      } catch (error) {
-        console.error('Erreur lors de la création automatique du diagramme:', error);
-      }
-    }
-  };
-  
-  initializeDiagramsIfNeeded();
-}, [diagrams.length, module.id, createIshikawaDiagram]);
-
 
 
 // Configuration des différents types de M
@@ -114,6 +97,25 @@ const branches = selectedDiagram ? getIshikawaBranches(selectedDiagram.id) : [];
       setSelectedDiagramId(diagrams[0].id);
     }
   }, [diagrams, selectedDiagramId]);
+
+
+// Initialisation automatique si aucun diagramme
+useEffect(() => {
+  const initializeDiagramsIfNeeded = async () => {
+    if (diagrams.length === 0) {
+      try {
+        console.log('Aucun diagramme trouvé, création automatique...');
+        const diagramId = await createIshikawaDiagram(module.id, 'Analyse Ishikawa #1', '5M');
+        setSelectedDiagramId(diagramId);
+      } catch (error) {
+        console.error('Erreur lors de la création automatique du diagramme:', error);
+      }
+    }
+  };
+  
+  initializeDiagramsIfNeeded();
+}, [diagrams.length, module.id, createIshikawaDiagram]);
+
 
 
   // Gestion des diagrammes
