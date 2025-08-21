@@ -130,15 +130,14 @@ const handleUpdateDiagram = async (updates: Partial<IshikawaDiagram>) => {
 };
 
 const handleDeleteDiagram = async (id: string) => {
-  if (diagrams.length === 1) {
-    alert('Vous devez conserver au moins un diagramme');
-    return;
-  }
-  if (!confirm('Êtes-vous sûr de vouloir supprimer ce diagramme ?')) return;
+  if (!confirm('Êtes-vous sûr de vouloir supprimer cette analyse ?')) return;
+  
   try {
     await deleteIshikawaDiagram(id);
+    // Si c'était le diagramme sélectionné, sélectionner le premier disponible
     if (selectedDiagramId === id) {
-      setSelectedDiagramId(diagrams[0]?.id || null);
+      const remainingDiagrams = diagrams.filter(d => d.id !== id);
+      setSelectedDiagramId(remainingDiagrams.length > 0 ? remainingDiagrams[0].id : null);
     }
   } catch (error) {
     console.error('Erreur lors de la suppression du diagramme:', error);
