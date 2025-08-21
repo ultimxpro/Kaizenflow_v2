@@ -655,76 +655,7 @@ const changeMType = async (newType: IshikawaMType) => {
     className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border-2 hover:shadow-xl transition-all duration-300"
     style={{ borderColor: `${branch.color}30` }}
   >
-    {/* En-tête de la carte */}
-    <div 
-      className="px-6 py-4 flex items-center justify-between border-b-2"
-      style={{ 
-        backgroundColor: `${branch.color}10`, 
-        borderBottomColor: branch.color 
-      }}
-    >
-      <div className="flex items-center space-x-3">
-        <div 
-          className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
-          style={{ backgroundColor: branch.color }}
-        >
-          <div className="text-white">
-            {M_CONFIGS[selectedDiagram.m_type]?.find(c => c.key === branch.branch_key)?.icon}
-          </div>
-        </div>
-        <div>
-          <h3 className="font-bold text-gray-800 text-lg">{branch.name}</h3>
-          <p className="text-sm text-gray-600">
-            {getIshikawaCauses(branch.id).length} cause{getIshikawaCauses(branch.id).length > 1 ? 's' : ''}
-          </p>
-        </div>
-      </div>
-      <button
-        onClick={() => {
-          // TODO: Implémenter l'ajout de cause avec la nouvelle architecture
-          console.log('Ajouter une cause pour la branche:', branch.id);
-        }}
-        className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl"
-        style={{ backgroundColor: branch.color }}
-        title={`Ajouter une cause ${branch.name}`}
-      >
-        <Plus className="w-4 h-4 text-white" />
-      </button>
-    </div>
-
-    {/* Liste des causes */}
-    <div className="p-6">
-      {getIshikawaCauses(branch.id).length === 0 ? (
-        <div className="text-center py-8">
-          <div 
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 opacity-20"
-            style={{ backgroundColor: branch.color }}
-          >
-            {M_CONFIGS[selectedDiagram.m_type]?.find(c => c.key === branch.branch_key)?.icon}
-          </div>
-          <p className="text-gray-500 text-sm mb-4">Aucune cause identifiée</p>
-          <button
-            onClick={() => {
-              // TODO: Implémenter l'ajout de cause
-              console.log('Ajouter la première cause pour:', branch.id);
-            }}
-            className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
-            style={{ backgroundColor: branch.color }}
-          >
-            Ajouter la première cause
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {getIshikawaCauses(branch.id).map(cause => (
-            <div
-              key={cause.id}
-              className="p-3 bg-gray-50 rounded-lg border-l-4"
-              style={{ borderLeftColor: branch.color }}
-            >
                   </div>
-                </div>
-              </div>
             ) : (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
