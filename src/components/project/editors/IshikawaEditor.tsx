@@ -13,55 +13,55 @@ import {
 // Configuration des différents types de M
 const M_CONFIGS = {
   '4M': [
-    { id: 'main-oeuvre', name: 'Main d\'œuvre', icon: <Users size={16} />, color: '#3B82F6' },
-    { id: 'methode', name: 'Méthode', icon: <Briefcase size={16} />, color: '#10B981' },
-    { id: 'materiel', name: 'Matériel', icon: <Factory size={16} />, color: '#F59E0B' },
-    { id: 'matiere', name: 'Matière', icon: <Package size={16} />, color: '#EF4444' }
+    { key: 'main-oeuvre', name: 'Main d\'œuvre', icon: <Users size={16} />, color: '#3B82F6' },
+    { key: 'methode', name: 'Méthode', icon: <Briefcase size={16} />, color: '#10B981' },
+    { key: 'materiel', name: 'Matériel', icon: <Factory size={16} />, color: '#F59E0B' },
+    { key: 'matiere', name: 'Matière', icon: <Package size={16} />, color: '#EF4444' }
   ],
   '5M': [
-    { id: 'main-oeuvre', name: 'Main d\'œuvre', icon: <Users size={16} />, color: '#3B82F6' },
-    { id: 'methode', name: 'Méthode', icon: <Briefcase size={16} />, color: '#10B981' },
-    { id: 'materiel', name: 'Matériel', icon: <Factory size={16} />, color: '#F59E0B' },
-    { id: 'matiere', name: 'Matière', icon: <Package size={16} />, color: '#EF4444' },
-    { id: 'milieu', name: 'Milieu', icon: <Shield size={16} />, color: '#8B5CF6' }
+    { key: 'main-oeuvre', name: 'Main d\'œuvre', icon: <Users size={16} />, color: '#3B82F6' },
+    { key: 'methode', name: 'Méthode', icon: <Briefcase size={16} />, color: '#10B981' },
+    { key: 'materiel', name: 'Matériel', icon: <Factory size={16} />, color: '#F59E0B' },
+    { key: 'matiere', name: 'Matière', icon: <Package size={16} />, color: '#EF4444' },
+    { key: 'milieu', name: 'Milieu', icon: <Shield size={16} />, color: '#8B5CF6' }
   ],
   '6M': [
-    { id: 'main-oeuvre', name: 'Main d\'œuvre', icon: <Users size={16} />, color: '#3B82F6' },
-    { id: 'methode', name: 'Méthode', icon: <Briefcase size={16} />, color: '#10B981' },
-    { id: 'materiel', name: 'Matériel', icon: <Factory size={16} />, color: '#F59E0B' },
-    { id: 'matiere', name: 'Matière', icon: <Package size={16} />, color: '#EF4444' },
-    { id: 'milieu', name: 'Milieu', icon: <Shield size={16} />, color: '#8B5CF6' },
-    { id: 'mesure', name: 'Mesure', icon: <Gauge size={16} />, color: '#EC4899' }
+    { key: 'main-oeuvre', name: 'Main d\'œuvre', icon: <Users size={16} />, color: '#3B82F6' },
+    { key: 'methode', name: 'Méthode', icon: <Briefcase size={16} />, color: '#10B981' },
+    { key: 'materiel', name: 'Matériel', icon: <Factory size={16} />, color: '#F59E0B' },
+    { key: 'matiere', name: 'Matière', icon: <Package size={16} />, color: '#EF4444' },
+    { key: 'milieu', name: 'Milieu', icon: <Shield size={16} />, color: '#8B5CF6' },
+    { key: 'mesure', name: 'Mesure', icon: <Gauge size={16} />, color: '#EC4899' }
   ],
   '7M': [
-    { id: 'main-oeuvre', name: 'Main d\'œuvre', icon: <Users size={16} />, color: '#3B82F6' },
-    { id: 'methode', name: 'Méthode', icon: <Briefcase size={16} />, color: '#10B981' },
-    { id: 'materiel', name: 'Matériel', icon: <Factory size={16} />, color: '#F59E0B' },
-    { id: 'matiere', name: 'Matière', icon: <Package size={16} />, color: '#EF4444' },
-    { id: 'milieu', name: 'Milieu', icon: <Shield size={16} />, color: '#8B5CF6' },
-    { id: 'mesure', name: 'Mesure', icon: <Gauge size={16} />, color: '#EC4899' },
-    { id: 'management', name: 'Management', icon: <Briefcase size={16} />, color: '#06B6D4' }
+    { key: 'main-oeuvre', name: 'Main d\'œuvre', icon: <Users size={16} />, color: '#3B82F6' },
+    { key: 'methode', name: 'Méthode', icon: <Briefcase size={16} />, color: '#10B981' },
+    { key: 'materiel', name: 'Matériel', icon: <Factory size={16} />, color: '#F59E0B' },
+    { key: 'matiere', name: 'Matière', icon: <Package size={16} />, color: '#EF4444' },
+    { key: 'milieu', name: 'Milieu', icon: <Shield size={16} />, color: '#8B5CF6' },
+    { key: 'mesure', name: 'Mesure', icon: <Gauge size={16} />, color: '#EC4899' },
+    { key: 'management', name: 'Management', icon: <Briefcase size={16} />, color: '#06B6D4' }
   ],
   '8M': [
-    { id: 'main-oeuvre', name: 'Main d\'œuvre', icon: <Users size={16} />, color: '#3B82F6' },
-    { id: 'methode', name: 'Méthode', icon: <Briefcase size={16} />, color: '#10B981' },
-    { id: 'materiel', name: 'Matériel', icon: <Factory size={16} />, color: '#F59E0B' },
-    { id: 'matiere', name: 'Matière', icon: <Package size={16} />, color: '#EF4444' },
-    { id: 'milieu', name: 'Milieu', icon: <Shield size={16} />, color: '#8B5CF6' },
-    { id: 'mesure', name: 'Mesure', icon: <Gauge size={16} />, color: '#EC4899' },
-    { id: 'management', name: 'Management', icon: <Briefcase size={16} />, color: '#06B6D4' },
-    { id: 'moyens-financiers', name: 'Moyens financiers', icon: <DollarSign size={16} />, color: '#84CC16' }
+    { key: 'main-oeuvre', name: 'Main d\'œuvre', icon: <Users size={16} />, color: '#3B82F6' },
+    { key: 'methode', name: 'Méthode', icon: <Briefcase size={16} />, color: '#10B981' },
+    { key: 'materiel', name: 'Matériel', icon: <Factory size={16} />, color: '#F59E0B' },
+    { key: 'matiere', name: 'Matière', icon: <Package size={16} />, color: '#EF4444' },
+    { key: 'milieu', name: 'Milieu', icon: <Shield size={16} />, color: '#8B5CF6' },
+    { key: 'mesure', name: 'Mesure', icon: <Gauge size={16} />, color: '#EC4899' },
+    { key: 'management', name: 'Management', icon: <Briefcase size={16} />, color: '#06B6D4' },
+    { key: 'moyens-financiers', name: 'Moyens financiers', icon: <DollarSign size={16} />, color: '#84CC16' }
   ],
   '9M': [
-    { id: 'main-oeuvre', name: 'Main d\'œuvre', icon: <Users size={16} />, color: '#3B82F6' },
-    { id: 'methode', name: 'Méthode', icon: <Briefcase size={16} />, color: '#10B981' },
-    { id: 'materiel', name: 'Matériel', icon: <Factory size={16} />, color: '#F59E0B' },
-    { id: 'matiere', name: 'Matière', icon: <Package size={16} />, color: '#EF4444' },
-    { id: 'milieu', name: 'Milieu', icon: <Shield size={16} />, color: '#8B5CF6' },
-    { id: 'mesure', name: 'Mesure', icon: <Gauge size={16} />, color: '#EC4899' },
-    { id: 'management', name: 'Management', icon: <Briefcase size={16} />, color: '#06B6D4' },
-    { id: 'moyens-financiers', name: 'Moyens financiers', icon: <DollarSign size={16} />, color: '#84CC16' },
-    { id: 'maintenance', name: 'Maintenance', icon: <Clock size={16} />, color: '#F97316' }
+    { key: 'main-oeuvre', name: 'Main d\'œuvre', icon: <Users size={16} />, color: '#3B82F6' },
+    { key: 'methode', name: 'Méthode', icon: <Briefcase size={16} />, color: '#10B981' },
+    { key: 'materiel', name: 'Matériel', icon: <Factory size={16} />, color: '#F59E0B' },
+    { key: 'matiere', name: 'Matière', icon: <Package size={16} />, color: '#EF4444' },
+    { key: 'milieu', name: 'Milieu', icon: <Shield size={16} />, color: '#8B5CF6' },
+    { key: 'mesure', name: 'Mesure', icon: <Gauge size={16} />, color: '#EC4899' },
+    { key: 'management', name: 'Management', icon: <Briefcase size={16} />, color: '#06B6D4' },
+    { key: 'moyens-financiers', name: 'Moyens financiers', icon: <DollarSign size={16} />, color: '#84CC16' },
+    { key: 'maintenance', name: 'Maintenance', icon: <Clock size={16} />, color: '#F97316' }
   ]
 };
 
