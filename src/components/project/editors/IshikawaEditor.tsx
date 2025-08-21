@@ -129,30 +129,11 @@ const handleUpdateDiagram = async (updates: Partial<IshikawaDiagram>) => {
   }
 };
 
-// Fonction de raccourci pour updateDiagram avec debounce
+// Fonction de raccourci pour updateDiagram
 const updateDiagram = (updates: Partial<IshikawaDiagram>) => {
   if (!selectedDiagram) return;
-  
-  // Filtrer les propriétés qui existent réellement dans la table
-  const validUpdates: Partial<IshikawaDiagram> = {};
-  
-  // Propriétés autorisées dans ishikawa_diagrams
-  const allowedFields = ['name', 'problem', 'm_type', 'position'];
-  
-  Object.keys(updates).forEach(key => {
-    if (allowedFields.includes(key)) {
-      validUpdates[key as keyof IshikawaDiagram] = updates[key as keyof IshikawaDiagram];
-    }
-  });
-  
-  // Ignore les updates vides ou interdites
-  if (Object.keys(validUpdates).length === 0) {
-    return;
-  }
-  
-  // Appel direct sans debounce pour l'instant
-  handleUpdateDiagram(validUpdates);
-};
+  handleUpdateDiagram(updates);
+};  
 
 const handleDeleteDiagram = async (id: string) => {
   if (!confirm('Êtes-vous sûr de vouloir supprimer cette analyse ?')) return;
@@ -170,24 +151,80 @@ const handleDeleteDiagram = async (id: string) => {
   }
 };
 
-
-// Changement du type de M
-const changeMType = async (newType: IshikawaMType) => {
-  if (!selectedDiagram) return;
-  
-  try {
-    // Mettre à jour seulement le type du diagramme
-    await updateIshikawaDiagram(selectedDiagram.id, { m_type: newType });
-    
-    // AJOUTER CETTE LIGNE pour forcer le rechargement des données
-    window.location.reload();
-    
-    console.log(`Type de diagramme changé vers ${newType}`);
-  } catch (error) {
-    console.error('Erreur lors du changement de type:', error);
-    alert('Erreur lors du changement de type');
-  }
+  // Changement du type de M
+const changeMType = (newType: IshikawaDiagram['mType']) => {
+  const newBranches = M_CONFIGS[newType].map(config => {
+    const existingBranch = branches.find(b => b.id === config.id);
+    // On ne recrée que les données nécessaires
+    return existingBranch || { 
+        id: config.id, 
+        name: config.name, 
+        color: config.color, 
+        causes: [] 
+    };
+  });
+  updateDiagram({ mType: newType, branches: newBranches });
 };
+
+  // Gestion des causes
+  const addCause = (branchId: string, parentId?: string) => {
+    const newCause: Cause = {
+      id: `cause-${Date.now()}`,
+      text: '',
+      level: parentId ? 1 : 0,
+      parentId
+    };
+
+    const updatedBranches = branches.map(branch => {
+      if (branch.id === branchId) {
+        return { ...branch, causes: [...getIshikawaCauses(branch.id), newCause] };
+      }
+      return branch;
+    });
+
+    updateDiagram({ branches: updatedBranches });
+    setEditingCause(newCause.id);
+  };
+
+  const updateCause = (branchId: string, causeId: string, text: string) => {
+    const updatedBranches = branches.map(branch => {
+      if (branch.id === branchId) {
+        return {
+          ...branch,
+          causes: getIshikawaCauses(branch.id).map(cause =>
+            cause.id === causeId ? { ...cause, text } : cause
+          )
+        };
+      }
+      return branch;
+    });
+    updateDiagram({ branches: updatedBranches });
+  };
+
+  const deleteCause = (branchId: string, causeId: string) => {
+    const updatedBranches = branches.map(branch => {
+      if (branch.id === branchId) {
+        // Supprimer la cause et ses sous-causes
+        const causesToDelete = new Set([causeId]);
+        const findChildren = (parentId: string) => {
+          getIshikawaCauses(branch.id).forEach(c => {
+            if (c.parentId === parentId) {
+              causesToDelete.add(c.id);
+              findChildren(c.id);
+            }
+          });
+        };
+        findChildren(causeId);
+        
+        return {
+          ...branch,
+          causes: getIshikawaCauses(branch.id).filter(c => !causesToDelete.has(c.id))
+        };
+      }
+      return branch;
+    });
+    updateDiagram({ branches: updatedBranches });
+  };
 
   // Export
   const exportDiagram = () => {
@@ -334,12 +371,7 @@ const changeMType = async (newType: IshikawaMType) => {
                   <h3 className="font-bold text-gray-800 mb-3">Problème à analyser</h3>
                   <textarea
                     value={selectedDiagram.problem}
-                    onChange={(e) => {
-  // Mise à jour immédiate de l'affichage
-  const newValue = e.target.value;
-  // TODO: implémenter le debounce
-  updateDiagram({ problem: newValue });
-}}
+                    onChange={(e) => updateDiagram({ problem: e.target.value })}
                     placeholder="Décrivez le problème ou l'effet à analyser..."
                     className="w-full h-24 p-3 border border-red-200 rounded-lg resize-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white/80"
                   />
@@ -658,30 +690,17 @@ const changeMType = async (newType: IshikawaMType) => {
                   {/* Grille des cartes de branches */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {branches.map(branch => (
-  <div
-    key={branch.id}
-    className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border-2"
-    style={{ borderColor: `${branch.color}30` }}
-  >
-    <div 
-      className="px-6 py-4 flex items-center justify-between"
-      style={{ backgroundColor: `${branch.color}10` }}
-    >
-      <h3 className="font-bold text-gray-800">{branch.name}</h3>
-      <div 
-        className="w-8 h-8 rounded-lg flex items-center justify-center"
-        style={{ backgroundColor: branch.color }}
-      >
-        <Plus className="w-4 h-4 text-white" />
-      </div>
-    </div>
-    <div className="p-6">
-      <p className="text-gray-600 text-sm">
-        {getIshikawaCauses(branch.id).length} cause(s) identifiée(s)
-      </p>
-    </div>
-  </div>
-))}
+                    <BranchCard
+                      key={branch.id}
+                      branch={branch}
+                      onAddCause={(branchId, parentId) => addCause(branchId, parentId)}
+                      onUpdateCause={updateCause}
+                      onDeleteCause={deleteCause}
+                      editingCause={editingCause}
+                      setEditingCause={setEditingCause}
+                      getIshikawaCauses={getIshikawaCauses}
+                    />
+                  ))}
                   </div>
                 </div>
               </div>
