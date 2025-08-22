@@ -162,9 +162,9 @@ useEffect(() => {
 
 // Sauvegarde immédiate sur perte de focus
 const handleBlur = () => {
-  if (saveTimeoutRef) {
-    clearTimeout(saveTimeoutRef);
-    setSaveTimeoutRef(null);
+  if (saveTimeoutRef.current) {
+    clearTimeout(saveTimeoutRef.current);
+    setSaveTimeoutRef.current(null);
   }
   smartSave(problemText);
 };
