@@ -72,6 +72,7 @@ export const IshikawaEditor: React.FC<{ module: A3Module; onClose: () => void }>
   updateIshikawaDiagram,
   deleteIshikawaDiagram,
   getIshikawaBranches,
+  createIshikawaBranch,  
   updateIshikawaBranch,
   deleteIshikawaBranch,
   getIshikawaCauses,
