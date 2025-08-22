@@ -1323,5 +1323,3 @@ const deleteCause = async (causeId: string) => {
 };
 
 
-
-};
