@@ -694,9 +694,9 @@ const deleteCause = async (causeId: string) => {
                                 <line
                                   key={causeIndex}
                                   x1={x - 20 - (causeIndex * 15)}
-                                  y1="120 - (causeIndex * 10)"
+                                  y1={120 - (causeIndex * 10)}
                                   x2={x - 35 - (causeIndex * 15)}
-                                  y2="105 - (causeIndex * 10)"
+                                  y2={105 - (causeIndex * 10)}
                                   stroke={branch.color}
                                   strokeWidth="1"
                                   opacity="0.7"
