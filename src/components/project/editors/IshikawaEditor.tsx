@@ -1077,7 +1077,11 @@ const BranchCard: React.FC<{
   editingCause: string | null;
   setEditingCause: (id: string | null) => void;
   getIshikawaCauses: (branchId: string) => IshikawaCause[];
-}> = ({ branch, onAddCause, onUpdateCause, onDeleteCause, editingCause, setEditingCause, getIshikawaCauses }) => {
+  causeTexts: Map<string, string>;
+  causeSaveStatus: Map<string, 'saved' | 'saving' | 'error'>;
+  onCauseBlur: (causeId: string) => void;
+}> = ({ branch, onAddCause, onUpdateCause, onDeleteCause, editingCause, setEditingCause, getIshikawaCauses, causeTexts, causeSaveStatus, onCauseBlur 
+      }) => {
   const mainCauses = getIshikawaCauses(branch.id).filter(c => c.level === 0);
 
   // TROUVER LA CONFIGURATION CORRESPONDANTE
@@ -1157,6 +1161,9 @@ const BranchCard: React.FC<{
                 editingCause={editingCause}
                 setEditingCause={setEditingCause}
                 level={0}
+                causeTexts={causeTexts}
+                causeSaveStatus={causeSaveStatus}
+                onCauseBlur={onCauseBlur}
               />
             ))
           )}
@@ -1302,6 +1309,9 @@ const CauseItem: React.FC<{
               editingCause={editingCause}
               setEditingCause={setEditingCause}
               level={level + 1}
+              causeTexts={causeTexts}
+              causeSaveStatus={causeSaveStatus}
+              onCauseBlur={onCauseBlur}
             />
           ))}
         </div>
