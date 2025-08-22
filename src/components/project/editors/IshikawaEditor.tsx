@@ -1226,10 +1226,10 @@ const CauseItem: React.FC<{
               <input
               type="text"
               value={causeTexts.get(cause.id) || cause.text || ''}
-              onChange={(e) => handleCauseTextChange(cause.id, e.target.value)}
+              onChange={(e) => onUpdateCause(cause.id, e.target.value)}
               onBlur={() => {
                 setEditingCause(null);
-                handleCauseBlur(cause.id);
+                onCauseBlur(cause.id);
                }}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
