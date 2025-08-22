@@ -899,12 +899,15 @@ const deleteCause = async (causeId: string) => {
                       key={branch.id}
                       branch={branch}
                       onAddCause={(branchId, parentId) => addCause(branchId, parentId)}
-                      onUpdateCause={updateCauseText}
+                      onUpdateCause={handleCauseTextChange}
                       onDeleteCause={deleteCause}
                       editingCause={editingCause}
                       setEditingCause={setEditingCause}
                       getIshikawaCauses={getIshikawaCauses}
-                    />
+                      causeTexts={causeTexts} // ← Passe les textes des causes
+                      causeSaveStatus={causeSaveStatus} // ← Passe les statuts de sauvegarde
+                      onCauseBlur={handleCauseBlur} 
+                     />
                   ))}
                   </div>
                 </div>
