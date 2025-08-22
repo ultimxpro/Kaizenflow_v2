@@ -108,7 +108,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ project, onUpdateProject }
               <label className="block text-sm font-medium text-gray-700 mb-2">Date du problème</label>
               <input
                 type="date"
-                value={project?.date_probleme || ''}
+                value={project?.date_probleme ? new Date(project.date_probleme).toISOString().split('T')[0] : ''}
                 onChange={(e) => handleFieldChange('date_probleme', e.target.value)}
                 className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/80"
               />
