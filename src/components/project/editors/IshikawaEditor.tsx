@@ -152,18 +152,35 @@ const handleDeleteDiagram = async (id: string) => {
 };
 
   // Changement du type de M
-const changeMType = (newType: IshikawaDiagram['mType']) => {
-  const newBranches = M_CONFIGS[newType].map(config => {
-    const existingBranch = branches.find(b => b.id === config.id);
-    // On ne recrée que les données nécessaires
-    return existingBranch || { 
-        id: config.id, 
-        name: config.name, 
-        color: config.color, 
-        causes: [] 
-    };
-  });
-  updateDiagram({ mType: newType, branches: newBranches });
+const changeMType = async (newType: IshikawaDiagram['m_type']) => {
+  if (!selectedDiagram) return;
+  
+  try {
+    // 1. Mettre à jour seulement le m_type du diagramme
+    await updateIshikawaDiagram(selectedDiagram.id, { m_type: newType });
+    
+    // 2. Supprimer les anciennes branches
+    const currentBranches = getIshikawaBranches(selectedDiagram.id);
+    for (const branch of currentBranches) {
+      await deleteIshikawaBranch(branch.id);
+    }
+    
+    // 3. Créer les nouvelles branches selon la configuration
+    const configs = M_CONFIGS[newType];
+    for (let i = 0; i < configs.length; i++) {
+      const config = configs[i];
+      await createIshikawaBranch(
+        selectedDiagram.id,
+        config.key,
+        config.name,
+        config.color,
+        i
+      );
+    }
+  } catch (error) {
+    console.error('Erreur lors du changement de type M:', error);
+    alert('Erreur lors du changement de type d\'analyse');
+  }
 };
 
   // Gestion des causes
