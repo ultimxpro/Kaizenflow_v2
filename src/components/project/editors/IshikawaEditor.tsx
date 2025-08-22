@@ -879,7 +879,7 @@ const BranchCard: React.FC<{
   
   return (
     <div 
-      className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border-2 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+      className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border-2 hover:shadow-xl transition-all duration-300"
       style={{ borderColor: `${branch.color}30` }}
     >
       {/* En-tête de la carte */}
