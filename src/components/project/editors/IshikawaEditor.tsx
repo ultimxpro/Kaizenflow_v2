@@ -82,6 +82,7 @@ export const IshikawaEditor: React.FC<{ module: A3Module; onClose: () => void }>
   const [showHelp, setShowHelp] = useState(false);
   const [selectedDiagramId, setSelectedDiagramId] = useState<string | null>(null);
   const [editingCause, setEditingCause] = useState<string | null>(null);
+  const [problemText, setProblemText] = useState(''); 
 
   // Initialisation des données
   // Initialisation des données
@@ -104,8 +105,24 @@ const branches = selectedDiagram ? getIshikawaBranches(selectedDiagram.id) : [];
   }
 }, [diagrams, selectedDiagramId]);
 
+// Synchronisation du problemText avec le diagramme sélectionné
+useEffect(() => {
+  if (selectedDiagram) {
+    setProblemText(selectedDiagram.problem);
+  }
+}, [selectedDiagram]);
 
+// Debounce pour sauvegarder le problème
+useEffect(() => {
+  if (!selectedDiagram || problemText === selectedDiagram.problem) return;
+  
+  const timer = setTimeout(() => {
+    updateIshikawaDiagram(selectedDiagram.id, { problem: problemText });
+  }, 500); // Attend 500ms après la dernière saisie
 
+  return () => clearTimeout(timer);
+}, [problemText, selectedDiagram]);
+  
   // Gestion des diagrammes
 // Dans le composant IshikawaEditor, ajoutez ces logs
 const handleCreateDiagram = async () => {
@@ -355,8 +372,8 @@ const deleteCause = async (causeId: string) => {
                 <div className="bg-gradient-to-br from-red-50 to-pink-50 p-4 rounded-xl border border-red-200">
                   <h3 className="font-bold text-gray-800 mb-3">Problème à analyser</h3>
                   <textarea
-                    value={selectedDiagram.problem}
-                    onChange={(e) => updateDiagram({ problem: e.target.value })}
+                    value={problemText}
+                    onChange={(e) => setProblemText(e.target.value)}
                     placeholder="Décrivez le problème ou l'effet à analyser..."
                     className="w-full h-24 p-3 border border-red-200 rounded-lg resize-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white/80"
                   />
