@@ -1207,50 +1207,58 @@ const CauseItem: React.FC<{
           style={{ borderColor: level === 0 ? branch.color : `${branch.color}50` }}
         >
           {editingCause === cause.id ? (
-            <input
+            <div className="flex-1 relative">
+              <input
               type="text"
-              value={cause.text}
-              onChange={(e) => onUpdateCause(cause.id, e.target.value)}
-              onBlur={() => setEditingCause(null)}
+              value={causeTexts.get(cause.id) || cause.text || ''}
+              onChange={(e) => handleCauseTextChange(cause.id, e.target.value)}
+              onBlur={() => {
+                setEditingCause(null);
+                handleCauseBlur(cause.id);
+               }}
               onKeyPress={(e) => {
-                if (e.key === 'Enter') setEditingCause(null);
+                if (e.key === 'Enter') {
+                  setEditingCause(null);
+                  handleCauseBlur(cause.id);
+                }
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Escape') setEditingCause(null);
-              }}
-              className="flex-1 px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-sm"
-              style={{ 
-                focusRingColor: branch.color,
-                '--tw-ring-color': branch.color
-              }}
-              autoFocus
-              placeholder="Décrivez la cause..."
-            />
-            {/* Indicateur de sauvegarde pour la cause */}
-            {causeSaveStatus.get(cause.id) && (
-              <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                 {causeSaveStatus.get(cause.id) === 'saving' && (
-                  <div className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                }}
+                className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-sm pr-8"
+                style={{ 
+                  focusRingColor: branch.color,
+                  '--tw-ring-color': branch.color
+                }}
+                autoFocus
+                placeholder="Décrivez la cause..."
+              />
+    
+              {/* Indicateur de sauvegarde pour la cause */}
+              {causeSaveStatus.get(cause.id) && (
+                <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                  {causeSaveStatus.get(cause.id) === 'saving' && (
+                    <div className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                  )}
+                  {causeSaveStatus.get(cause.id) === 'saved' && (
+                    <span className="text-green-500 text-sm">✓</span>
+                  )}
+                  {causeSaveStatus.get(cause.id) === 'error' && (
+                    <span className="text-red-500 text-sm">⚠</span>
+                  )}
+                </div>
                 )}
-                {causeSaveStatus.get(cause.id) === 'saved' && (
-                  <span className="text-green-500 text-sm">✓</span>
-                 )}
-                 {causeSaveStatus.get(cause.id) === 'error' && (
-                   <span className="text-red-500 text-sm">⚠</span>
-                 )}
+              </div>
+            ) : (
+              <div
+                className="flex-1 cursor-pointer py-1 px-2 rounded hover:bg-gray-50 transition-colors"
+                onClick={() => setEditingCause(cause.id)}
+              >
+                <span className={`text-sm ${cause.text ? 'text-gray-800' : 'text-gray-400 italic'}`}>
+                  {cause.text || 'Cliquez pour éditer...'}
+                </span>
               </div>
             )}
-           </div>
-          ) : (
-            <div
-              className="flex-1 cursor-pointer py-1 px-2 rounded hover:bg-gray-50 transition-colors"
-              onClick={() => setEditingCause(cause.id)}
-            >
-              <span className={`text-sm ${cause.text ? 'text-gray-800' : 'text-gray-400 italic'}`}>
-                {cause.text || 'Cliquez pour éditer...'}
-              </span>
-            </div>
-          )}
 
           {/* Boutons d'action */}
           <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
