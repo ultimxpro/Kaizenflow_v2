@@ -360,38 +360,39 @@ const changeMType = async (newType: IshikawaDiagram['m_type']) => {
         i
       );
       
-// 5. Restaurer les causes si elles existaient pour cette branch_key
-const oldCauses = savedCauses.get(config.key);
-if (oldCauses && oldCauses.length > 0) {
-  const causeIdMapping = new Map(); // Pour mapper ancien ID -> nouveau ID
+      // 5. Restaurer les causes si elles existaient pour cette branch_key
+      const oldCauses = savedCauses.get(config.key);
+      if (oldCauses && oldCauses.length > 0) {
+        const causeIdMapping = new Map(); // Pour mapper ancien ID -> nouveau ID
   
   // Déterminer le niveau maximum
-  const maxLevel = Math.max(...oldCauses.map(cause => cause.level));
+        const maxLevel = Math.max(...oldCauses.map(cause => cause.level));
   
   // Traiter niveau par niveau (0, puis 1, puis 2, etc.)
-  for (let currentLevel = 0; currentLevel <= maxLevel; currentLevel++) {
-    const causesAtLevel = oldCauses.filter(cause => cause.level === currentLevel);
+        for (let currentLevel = 0; currentLevel <= maxLevel; currentLevel++) {
+          const causesAtLevel = oldCauses.filter(cause => cause.level === currentLevel);
     
-    for (const oldCause of causesAtLevel) {
+          for (const oldCause of causesAtLevel) {
       // Pour niveau 0 : pas de parent
       // Pour niveau > 0 : chercher le nouveau ID du parent dans le mapping
-      const newParentId = currentLevel === 0 
-        ? undefined 
-        : causeIdMapping.get(oldCause.parent_cause_id);
+            const newParentId = currentLevel === 0 
+              ? undefined 
+              : causeIdMapping.get(oldCause.parent_cause_id);
       
-      const newCauseId = await createIshikawaCause(
-        newBranchId,
-        oldCause.text,
-        oldCause.level,
-        newParentId,
-        oldCause.position
-      );
+            const newCauseId = await createIshikawaCause(
+              newBranchId,
+              oldCause.text,
+              oldCause.level,
+              newParentId,
+              oldCause.position
+            );  
       
       // ✅ CRUCIAL : Ajouter ce nouveau ID au mapping pour les niveaux suivants
-      causeIdMapping.set(oldCause.id, newCauseId);
+            causeIdMapping.set(oldCause.id, newCauseId);
+          }
+        }
+      } 
     }
-  }
-}
   } catch (error) {
     console.error('Erreur lors du changement de type M:', error);
     alert('Erreur lors du changement de type d\'analyse');
