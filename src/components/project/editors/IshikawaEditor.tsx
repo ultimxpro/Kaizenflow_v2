@@ -477,52 +477,13 @@ const deleteCause = async (causeId: string) => {
                 <div className="bg-gradient-to-br from-red-50 to-pink-50 p-4 rounded-xl border border-red-200">
                   <h3 className="font-bold text-gray-800 mb-3">Problème à analyser</h3>
                   <div className="relative">
-                    // États simples
-const [problemText, setProblemText] = useState('');
-const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-// Fonction de sauvegarde simple
-const saveProblem = useCallback(async (text: string) => {
-  if (!selectedDiagram || text === selectedDiagram.problem) return;
-  
-  try {
-    await updateIshikawaDiagram(selectedDiagram.id, { problem: text });
-  } catch (error) {
-    console.error('Erreur sauvegarde:', error);
-  }
-}, [selectedDiagram, updateIshikawaDiagram]);
-
-// Synchronisation du problemText avec le diagramme sélectionné
-useEffect(() => {
-  if (selectedDiagram) {
-    setProblemText(selectedDiagram.problem || '');
-  }
-}, [selectedDiagram]);
-
-// Débounce simple
-useEffect(() => {
-  if (!selectedDiagram || problemText === selectedDiagram.problem) return;
-  
-  if (saveTimeoutRef.current) {
-    clearTimeout(saveTimeoutRef.current);
-  }
-  
-  const timer = setTimeout(() => saveProblem(problemText), 1000);
-  saveTimeoutRef.current = timer;
-
-  return () => {
-    if (timer) clearTimeout(timer);
-  };
-}, [problemText, selectedDiagram, saveProblem]);
-
-// Sauvegarde sur blur
-const handleBlur = () => {
-  if (saveTimeoutRef.current) {
-    clearTimeout(saveTimeoutRef.current);
-    saveTimeoutRef.current = null;
-  }
-  saveProblem(problemText);
-};
+                    <textarea
+                      value={problemText}
+                      onChange={(e) => setProblemText(e.target.value)}
+                      onBlur={handleBlur}
+                      placeholder="Décrivez le problème ou l'effet à analyser..."
+                      className="w-full h-24 p-3 border border-red-200 rounded-lg resize-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white/80"
+                    />
   
                     {/* Indicateur de sauvegarde */}
                     {saveStatus && (
