@@ -65,260 +65,6 @@ const M_CONFIGS = {
   ]
 };
 
-  // TROUVER LA CONFIGURATION CORRESPONDANTE
-  // On parcourt toutes les configurations pour trouver celle qui correspond à l'ID de la branche
-const BranchCard: React.FC<{
-  branch: IshikawaBranch;
-  onAddCause: (branchId: string, parentId?: string) => void;
-  onUpdateCause: (causeId: string, text: string) => void;
-  onDeleteCause: (causeId: string) => void;
-  editingCause: string | null;
-  setEditingCause: (id: string | null) => void;
-  getIshikawaCauses: (branchId: string) => IshikawaCause[];
-  causeTexts: Map<string, string>;
-  causeSaveStatus: Map<string, 'saved' | 'saving' | 'error'>;
-  onCauseBlur: (causeId: string) => void;
-}> = ({ branch, onAddCause, onUpdateCause, onDeleteCause, editingCause, setEditingCause, getIshikawaCauses, causeTexts, causeSaveStatus, onCauseBlur 
-      }) => {
-  const mainCauses = getIshikawaCauses(branch.id).filter(c => c.level === 0);
-
-  // TROUVER LA CONFIGURATION CORRESPONDANTE
-  // On parcourt toutes les configurations pour trouver celle qui correspond à l'ID de la branche
-  const branchConfig = Object.values(M_CONFIGS).flat().find(c => c.id === branch.id);
-  const icon = branchConfig ? branchConfig.icon : null;
-  
-  return (
-    <div 
-      className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border-2 hover:shadow-xl transition-all duration-300"
-      style={{ borderColor: `${branch.color}30` }}
-    >
-      {/* En-tête de la carte */}
-      <div 
-        className="px-6 py-4 flex items-center justify-between border-b-2"
-        style={{ 
-          backgroundColor: `${branch.color}10`, 
-          borderBottomColor: branch.color 
-        }}
-      >
-        <div className="flex items-center space-x-3">
-          <div 
-            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
-            style={{ backgroundColor: branch.color }}
-          >
-            <div className="text-white">
-              {icon} {/* AFFICHER L'ICÔNE TROUVÉE */}
-            </div>
-          </div>
-          <div>
-            <h3 className="font-bold text-gray-800 text-lg">{branch.name}</h3>
-            <p className="text-sm text-gray-600">
-              {mainCauses.length} cause{mainCauses.length > 1 ? 's' : ''} principale{mainCauses.length > 1 ? 's' : ''}
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={() => onAddCause(branch.id)}
-          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl"
-          style={{ backgroundColor: branch.color }}
-          title={`Ajouter une cause ${branch.name}`}
-        >
-          <Plus className="w-4 h-4 text-white" />
-        </button>
-      </div>
-
-      {/* Liste des causes avec scroll */}
-      <div className="p-6 max-h-80 overflow-y-auto">
-        <div className="space-y-3">
-          {mainCauses.length === 0 ? (
-            <div className="text-center py-8">
-              <div 
-                className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 opacity-20"
-                style={{ backgroundColor: branch.color }}
-              >
-                {branch.icon}
-              </div>
-              <p className="text-gray-500 text-sm mb-4">Aucune cause identifiée</p>
-              <button
-                onClick={() => onAddCause(branch.id)}
-                className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-                style={{ backgroundColor: branch.color }}
-              >
-                Ajouter la première cause
-              </button>
-            </div>
-          ) : (
-            mainCauses.map(cause => (
-              <CauseItem
-                key={cause.id}
-                cause={cause}
-                branch={branch}
-                allCauses={getIshikawaCauses(branch.id)}
-                onAddCause={onAddCause}
-                onUpdateCause={onUpdateCause}
-                onDeleteCause={onDeleteCause}
-                editingCause={editingCause}
-                setEditingCause={setEditingCause}
-                level={0}
-                causeTexts={causeTexts}
-                causeSaveStatus={causeSaveStatus}
-                onCauseBlur={onCauseBlur}
-              />
-            ))
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Composant CauseItem pour afficher une cause avec ses sous-causes
-const CauseItem: React.FC<{
-  cause: IshikawaCause;
-  branch: IshikawaBranch;
-  allCauses: IshikawaCause[];
-  onAddCause: (branchId: string, parentId?: string) => void;
-  onUpdateCause: (causeId: string, text: string) => void;
-  onDeleteCause: (causeId: string) => void;
-  editingCause: string | null;
-  setEditingCause: (id: string | null) => void;
-  level: number;
-  causeTexts: Map<string, string>;
-  causeSaveStatus: Map<string, 'saved' | 'saving' | 'error'>;
-  onCauseBlur: (causeId: string) => void;
-}> = ({ 
-  cause, 
-  branch, 
-  allCauses, 
-  onAddCause, 
-  onUpdateCause, 
-  onDeleteCause, 
-  editingCause, 
-  setEditingCause, 
-  level,
-  causeTexts,
-  causeSaveStatus,
-  onCauseBlur
-}) => {
-  const subCauses = allCauses.filter(c => c.parent_cause_id === cause.id);
-  const marginLeft = level * 20;
-
-  return (
-    <div style={{ marginLeft: `${marginLeft}px` }}>
-      <div className="group relative">
-        {/* Barre de connexion pour les sous-causes */}
-        {level > 0 && (
-          <div 
-            className="absolute -left-4 top-0 bottom-0 w-0.5 opacity-30"
-            style={{ backgroundColor: branch.color }}
-          />
-        )}
-        
-        <div 
-          className="flex items-center space-x-2 p-3 rounded-xl border-2 bg-white hover:shadow-lg transition-all duration-200"
-          style={{ borderColor: level === 0 ? branch.color : `${branch.color}50` }}
-        >
-          {editingCause === cause.id ? (
-            <div className="flex-1 relative">
-              <input
-              type="text"
-              value={causeTexts.get(cause.id) || cause.text || ''}
-              onChange={(e) => handleCauseTextChange(cause.id, e.target.value)}
-              onBlur={() => {
-                setEditingCause(null);
-                handleCauseBlur(cause.id);
-               }}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  setEditingCause(null);
-                  handleCauseBlur(cause.id);
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Escape') setEditingCause(null);
-                }}
-                className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-sm pr-8"
-                style={{ 
-                  focusRingColor: branch.color,
-                  '--tw-ring-color': branch.color
-                }}
-                autoFocus
-                placeholder="Décrivez la cause..."
-              />
-    
-              {/* Indicateur de sauvegarde pour la cause */}
-              {causeSaveStatus.get(cause.id) && (
-                <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                  {causeSaveStatus.get(cause.id) === 'saving' && (
-                    <div className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                  )}
-                  {causeSaveStatus.get(cause.id) === 'saved' && (
-                    <span className="text-green-500 text-sm">✓</span>
-                  )}
-                  {causeSaveStatus.get(cause.id) === 'error' && (
-                    <span className="text-red-500 text-sm">⚠</span>
-                  )}
-                </div>
-                )}
-              </div>
-            ) : (
-              <div
-                className="flex-1 cursor-pointer py-1 px-2 rounded hover:bg-gray-50 transition-colors"
-                onClick={() => setEditingCause(cause.id)}
-              >
-                <span className={`text-sm ${cause.text ? 'text-gray-800' : 'text-gray-400 italic'}`}>
-                  {cause.text || 'Cliquez pour éditer...'}
-                </span>
-              </div>
-            )}
-
-          {/* Boutons d'action */}
-          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-              onClick={() => onAddCause(branch.id, cause.id)}
-              className="w-6 h-6 rounded-md flex items-center justify-center text-white transition-all duration-200 hover:scale-110"
-              style={{ backgroundColor: branch.color }}
-              title="Ajouter une sous-cause"
-            >
-              <Plus className="w-3 h-3" />
-            </button>
-            <button
-              onClick={() => onDeleteCause(cause.id)}
-              className="w-6 h-6 bg-red-500 text-white rounded-md flex items-center justify-center hover:bg-red-600 transition-all duration-200 hover:scale-110"
-              title="Supprimer"
-            >
-              <Trash2 className="w-3 h-3" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Sous-causes */}
-      {subCauses.length > 0 && (
-        <div className="mt-2 space-y-2">
-          {subCauses.map(subCause => (
-            <CauseItem
-              key={subCause.id}
-              cause={subCause}
-              branch={branch}
-              allCauses={allCauses}
-              onAddCause={onAddCause}
-              onUpdateCause={onUpdateCause}
-              onDeleteCause={onDeleteCause}
-              editingCause={editingCause}
-              setEditingCause={setEditingCause}
-              level={level + 1}
-              causeTexts={causeTexts}
-              causeSaveStatus={causeSaveStatus}
-              onCauseBlur={onCauseBlur}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-
-
-
 export const IshikawaEditor: React.FC<{ module: A3Module; onClose: () => void }> = ({ module, onClose }) => {
   const {
   getIshikawaDiagrams,
@@ -399,57 +145,7 @@ const getDebounceDelay = (text: string) => {
 };
 
 
-// Fonction de sauvegarde intelligente pour les causes
-const saveCause = useCallback(async (causeId: string, text: string) => {
-  try {
-    setCauseSaveStatus(prev => new Map(prev.set(causeId, 'saving')));
-    await updateIshikawaCause(causeId, { text });
-    setCauseSaveStatus(prev => new Map(prev.set(causeId, 'saved')));
-    
-    // Effacer le statut après 2s
-    setTimeout(() => {
-      setCauseSaveStatus(prev => {
-        const newMap = new Map(prev);
-        newMap.delete(causeId);
-        return newMap;
-      });
-    }, 2000);
-  } catch (error) {
-    console.error('Erreur sauvegarde cause:', error);
-    setCauseSaveStatus(prev => new Map(prev.set(causeId, 'error')));
-  }
-}, [updateIshikawaCause]);
-
-// Fonction pour gérer les changements de texte des causes
-const handleCauseTextChange = (causeId: string, newText: string) => {
-  // Mettre à jour le texte local
-  setCauseTexts(prev => new Map(prev.set(causeId, newText)));
-  
-  // Annuler le timer précédent
-  const currentTimer = causeTimeoutRefs.current.get(causeId);
-  if (currentTimer) {
-    clearTimeout(currentTimer);
-  }
-  
-  // Nouveau timer avec débounce
-  const timer = setTimeout(() => saveCause(causeId, newText), 1000);
-  causeTimeoutRefs.current.set(causeId, timer);
-};
-
-// Sauvegarde immédiate sur blur
-const handleCauseBlur = (causeId: string) => {
-  const currentTimer = causeTimeoutRefs.current.get(causeId);
-  if (currentTimer) {
-    clearTimeout(currentTimer);
-    causeTimeoutRefs.current.delete(causeId);
-  }
-  
-  const text = causeTexts.get(causeId);
-  if (text !== undefined) {
-    saveCause(causeId, text);
-  }
-};
-  
+//
 // Effet principal avec débounce adaptatif
 useEffect(() => {
   if (!selectedDiagram || problemText === selectedDiagram.problem) return;
@@ -1323,3 +1019,255 @@ const deleteCause = async (causeId: string) => {
 };
 
 
+  // TROUVER LA CONFIGURATION CORRESPONDANTE
+  // On parcourt toutes les configurations pour trouver celle qui correspond à l'ID de la branche
+const BranchCard: React.FC<{
+  branch: IshikawaBranch;
+  onAddCause: (branchId: string, parentId?: string) => void;
+  onUpdateCause: (causeId: string, text: string) => void;
+  onDeleteCause: (causeId: string) => void;
+  editingCause: string | null;
+  setEditingCause: (id: string | null) => void;
+  getIshikawaCauses: (branchId: string) => IshikawaCause[];
+  causeTexts: Map<string, string>;
+  causeSaveStatus: Map<string, 'saved' | 'saving' | 'error'>;
+  onCauseBlur: (causeId: string) => void;
+}> = ({ branch, onAddCause, onUpdateCause, onDeleteCause, editingCause, setEditingCause, getIshikawaCauses, causeTexts, causeSaveStatus, onCauseBlur 
+      }) => {
+  const mainCauses = getIshikawaCauses(branch.id).filter(c => c.level === 0);
+
+  // TROUVER LA CONFIGURATION CORRESPONDANTE
+  // On parcourt toutes les configurations pour trouver celle qui correspond à l'ID de la branche
+  const branchConfig = Object.values(M_CONFIGS).flat().find(c => c.id === branch.id);
+  const icon = branchConfig ? branchConfig.icon : null;
+  
+  return (
+    <div 
+      className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border-2 hover:shadow-xl transition-all duration-300"
+      style={{ borderColor: `${branch.color}30` }}
+    >
+      {/* En-tête de la carte */}
+      <div 
+        className="px-6 py-4 flex items-center justify-between border-b-2"
+        style={{ 
+          backgroundColor: `${branch.color}10`, 
+          borderBottomColor: branch.color 
+        }}
+      >
+        <div className="flex items-center space-x-3">
+          <div 
+            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
+            style={{ backgroundColor: branch.color }}
+          >
+            <div className="text-white">
+              {icon} {/* AFFICHER L'ICÔNE TROUVÉE */}
+            </div>
+          </div>
+          <div>
+            <h3 className="font-bold text-gray-800 text-lg">{branch.name}</h3>
+            <p className="text-sm text-gray-600">
+              {mainCauses.length} cause{mainCauses.length > 1 ? 's' : ''} principale{mainCauses.length > 1 ? 's' : ''}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => onAddCause(branch.id)}
+          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl"
+          style={{ backgroundColor: branch.color }}
+          title={`Ajouter une cause ${branch.name}`}
+        >
+          <Plus className="w-4 h-4 text-white" />
+        </button>
+      </div>
+
+      {/* Liste des causes avec scroll */}
+      <div className="p-6 max-h-80 overflow-y-auto">
+        <div className="space-y-3">
+          {mainCauses.length === 0 ? (
+            <div className="text-center py-8">
+              <div 
+                className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 opacity-20"
+                style={{ backgroundColor: branch.color }}
+              >
+                {branch.icon}
+              </div>
+              <p className="text-gray-500 text-sm mb-4">Aucune cause identifiée</p>
+              <button
+                onClick={() => onAddCause(branch.id)}
+                className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                style={{ backgroundColor: branch.color }}
+              >
+                Ajouter la première cause
+              </button>
+            </div>
+          ) : (
+            mainCauses.map(cause => (
+              <CauseItem
+                key={cause.id}
+                cause={cause}
+                branch={branch}
+                allCauses={getIshikawaCauses(branch.id)}
+                onAddCause={onAddCause}
+                onUpdateCause={onUpdateCause}
+                onDeleteCause={onDeleteCause}
+                editingCause={editingCause}
+                setEditingCause={setEditingCause}
+                level={0}
+                causeTexts={causeTexts}
+                causeSaveStatus={causeSaveStatus}
+                onCauseBlur={onCauseBlur}
+              />
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Composant CauseItem pour afficher une cause avec ses sous-causes
+const CauseItem: React.FC<{
+  cause: IshikawaCause;
+  branch: IshikawaBranch;
+  allCauses: IshikawaCause[];
+  onAddCause: (branchId: string, parentId?: string) => void;
+  onUpdateCause: (causeId: string, text: string) => void;
+  onDeleteCause: (causeId: string) => void;
+  editingCause: string | null;
+  setEditingCause: (id: string | null) => void;
+  level: number;
+  causeTexts: Map<string, string>;
+  causeSaveStatus: Map<string, 'saved' | 'saving' | 'error'>;
+  onCauseBlur: (causeId: string) => void;
+}> = ({ 
+  cause, 
+  branch, 
+  allCauses, 
+  onAddCause, 
+  onUpdateCause, 
+  onDeleteCause, 
+  editingCause, 
+  setEditingCause, 
+  level,
+  causeTexts,
+  causeSaveStatus,
+  onCauseBlur
+}) => {
+  const subCauses = allCauses.filter(c => c.parent_cause_id === cause.id);
+  const marginLeft = level * 20;
+
+  return (
+    <div style={{ marginLeft: `${marginLeft}px` }}>
+      <div className="group relative">
+        {/* Barre de connexion pour les sous-causes */}
+        {level > 0 && (
+          <div 
+            className="absolute -left-4 top-0 bottom-0 w-0.5 opacity-30"
+            style={{ backgroundColor: branch.color }}
+          />
+        )}
+        
+        <div 
+          className="flex items-center space-x-2 p-3 rounded-xl border-2 bg-white hover:shadow-lg transition-all duration-200"
+          style={{ borderColor: level === 0 ? branch.color : `${branch.color}50` }}
+        >
+          {editingCause === cause.id ? (
+            <div className="flex-1 relative">
+              <input
+              type="text"
+              value={causeTexts.get(cause.id) || cause.text || ''}
+              onChange={(e) => handleCauseTextChange(cause.id, e.target.value)}
+              onBlur={() => {
+                setEditingCause(null);
+                handleCauseBlur(cause.id);
+               }}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  setEditingCause(null);
+                  handleCauseBlur(cause.id);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') setEditingCause(null);
+                }}
+                className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent text-sm pr-8"
+                style={{ 
+                  focusRingColor: branch.color,
+                  '--tw-ring-color': branch.color
+                }}
+                autoFocus
+                placeholder="Décrivez la cause..."
+              />
+    
+              {/* Indicateur de sauvegarde pour la cause */}
+              {causeSaveStatus.get(cause.id) && (
+                <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                  {causeSaveStatus.get(cause.id) === 'saving' && (
+                    <div className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                  )}
+                  {causeSaveStatus.get(cause.id) === 'saved' && (
+                    <span className="text-green-500 text-sm">✓</span>
+                  )}
+                  {causeSaveStatus.get(cause.id) === 'error' && (
+                    <span className="text-red-500 text-sm">⚠</span>
+                  )}
+                </div>
+                )}
+              </div>
+            ) : (
+              <div
+                className="flex-1 cursor-pointer py-1 px-2 rounded hover:bg-gray-50 transition-colors"
+                onClick={() => setEditingCause(cause.id)}
+              >
+                <span className={`text-sm ${cause.text ? 'text-gray-800' : 'text-gray-400 italic'}`}>
+                  {cause.text || 'Cliquez pour éditer...'}
+                </span>
+              </div>
+            )}
+
+          {/* Boutons d'action */}
+          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={() => onAddCause(branch.id, cause.id)}
+              className="w-6 h-6 rounded-md flex items-center justify-center text-white transition-all duration-200 hover:scale-110"
+              style={{ backgroundColor: branch.color }}
+              title="Ajouter une sous-cause"
+            >
+              <Plus className="w-3 h-3" />
+            </button>
+            <button
+              onClick={() => onDeleteCause(cause.id)}
+              className="w-6 h-6 bg-red-500 text-white rounded-md flex items-center justify-center hover:bg-red-600 transition-all duration-200 hover:scale-110"
+              title="Supprimer"
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Sous-causes */}
+      {subCauses.length > 0 && (
+        <div className="mt-2 space-y-2">
+          {subCauses.map(subCause => (
+            <CauseItem
+              key={subCause.id}
+              cause={subCause}
+              branch={branch}
+              allCauses={allCauses}
+              onAddCause={onAddCause}
+              onUpdateCause={onUpdateCause}
+              onDeleteCause={onDeleteCause}
+              editingCause={editingCause}
+              setEditingCause={setEditingCause}
+              level={level + 1}
+              causeTexts={causeTexts}
+              causeSaveStatus={causeSaveStatus}
+              onCauseBlur={onCauseBlur}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
