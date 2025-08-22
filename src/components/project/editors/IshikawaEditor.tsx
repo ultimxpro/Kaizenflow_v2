@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { A3Module, IshikawaDiagram, IshikawaBranch, IshikawaCause, IshikawaMType } from '../../../types/database';
 import { useDatabase } from '../../../contexts/DatabaseContext';
 import { 
@@ -83,7 +83,9 @@ export const IshikawaEditor: React.FC<{ module: A3Module; onClose: () => void }>
   const [showHelp, setShowHelp] = useState(false);
   const [selectedDiagramId, setSelectedDiagramId] = useState<string | null>(null);
   const [editingCause, setEditingCause] = useState<string | null>(null);
-  const [problemText, setProblemText] = useState(''); 
+  const [problemText, setProblemText] = useState('');
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error' | null>(null);
+  const [saveTimeoutRef, setSaveTimeoutRef] = useState<NodeJS.Timeout | null>(null);
 
   // Initialisation des données
   // Initialisation des données
@@ -107,22 +109,100 @@ const branches = selectedDiagram ? getIshikawaBranches(selectedDiagram.id) : [];
 }, [diagrams, selectedDiagramId]);
 
 // Synchronisation du problemText avec le diagramme sélectionné
+// Fonction de sauvegarde intelligente
+const smartSave = useCallback(async (newText: string) => {
+  if (!selectedDiagram || newText === selectedDiagram.problem) return;
+  
+  setSaveStatus('saving');
+  
+  try {
+    await updateIshikawaDiagram(selectedDiagram.id, { problem: newText });
+    setSaveStatus('saved');
+    
+    // Effacer le statut après 2s
+    setTimeout(() => setSaveStatus(null), 2000);
+  } catch (error) {
+    console.error('Erreur sauvegarde:', error);
+    setSaveStatus('error');
+  }
+}, [selectedDiagram, updateIshikawaDiagram]);
+
+// Synchronisation du problemText avec le diagramme sélectionné
 useEffect(() => {
   if (selectedDiagram) {
     setProblemText(selectedDiagram.problem);
   }
 }, [selectedDiagram]);
 
-// Debounce pour sauvegarder le problème
+// Débounce intelligent basé sur la longueur du texte
+const getDebounceDelay = (text: string) => {
+  if (text.length < 50) return 300;   // Court texte : 300ms
+  if (text.length < 200) return 600;  // Moyen : 600ms
+  return 1000;                        // Long : 1000ms
+};
+
+// Effet principal avec débounce adaptatif
 useEffect(() => {
   if (!selectedDiagram || problemText === selectedDiagram.problem) return;
   
-  const timer = setTimeout(() => {
-    updateIshikawaDiagram(selectedDiagram.id, { problem: problemText });
-  }, 500); // Attend 500ms après la dernière saisie
+  // Annuler le timer précédent
+  if (saveTimeoutRef) {
+    clearTimeout(saveTimeoutRef);
+  }
+  
+  // Nouveau timer avec délai adaptatif
+  const delay = getDebounceDelay(problemText);
+  const timer = setTimeout(() => smartSave(problemText), delay);
+  setSaveTimeoutRef(timer);
 
-  return () => clearTimeout(timer);
-}, [problemText, selectedDiagram]);
+  return () => {
+    if (timer) clearTimeout(timer);
+  };
+}, [problemText, selectedDiagram, smartSave, saveTimeoutRef]);
+
+// Sauvegarde immédiate sur perte de focus
+const handleBlur = () => {
+  if (saveTimeoutRef) {
+    clearTimeout(saveTimeoutRef);
+    setSaveTimeoutRef(null);
+  }
+  smartSave(problemText);
+};
+
+// Sauvegarde avant fermeture de page
+useEffect(() => {
+  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    if (problemText !== selectedDiagram?.problem) {
+      // Sauvegarde synchrone rapide
+      smartSave(problemText);
+      
+      // Message de confirmation (optionnel)
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  };
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
+  
+  return () => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+  };
+}, [problemText, selectedDiagram, smartSave]);
+
+// Sauvegarde quand on change d'onglet
+useEffect(() => {
+  const handleVisibilityChange = () => {
+    if (document.hidden && problemText !== selectedDiagram?.problem) {
+      smartSave(problemText);
+    }
+  };
+
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+  
+  return () => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+  };
+}, [problemText, selectedDiagram, smartSave]);
   
   // Gestion des diagrammes
 // Dans le composant IshikawaEditor, ajoutez ces logs
