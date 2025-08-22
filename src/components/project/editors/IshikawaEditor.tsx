@@ -696,7 +696,7 @@ const deleteCause = async (causeId: string) => {
                       key={branch.id}
                       branch={branch}
                       onAddCause={(branchId, parentId) => addCause(branchId, parentId)}
-                      onUpdateCause={updateCause}
+                      onUpdateCause={updateCauseText}
                       onDeleteCause={deleteCause}
                       editingCause={editingCause}
                       setEditingCause={setEditingCause}
@@ -864,10 +864,10 @@ const deleteCause = async (causeId: string) => {
   // TROUVER LA CONFIGURATION CORRESPONDANTE
   // On parcourt toutes les configurations pour trouver celle qui correspond à l'ID de la branche
 const BranchCard: React.FC<{
-  branch: Branch;
+  branch: IshikawaBranch;
   onAddCause: (branchId: string, parentId?: string) => void;
-  onUpdateCause: (branchId: string, causeId: string, text: string) => void;
-  onDeleteCause: (branchId: string, causeId: string) => void;
+  onUpdateCause: (causeId: string, text: string) => void;
+  onDeleteCause: (causeId: string) => void;
   editingCause: string | null;
   setEditingCause: (id: string | null) => void;
   getIshikawaCauses: (branchId: string) => IshikawaCause[];
@@ -962,12 +962,12 @@ const BranchCard: React.FC<{
 
 // Composant CauseItem pour afficher une cause avec ses sous-causes
 const CauseItem: React.FC<{
-  cause: Cause;
-  branch: Branch;
-  allCauses: Cause[];
+  cause: IshikawaCause;
+  branch: IshikawaBranch;
+  allCauses: IshikawaCause[];
   onAddCause: (branchId: string, parentId?: string) => void;
-  onUpdateCause: (branchId: string, causeId: string, text: string) => void;
-  onDeleteCause: (branchId: string, causeId: string) => void;
+  onUpdateCause: (causeId: string, text: string) => void;
+  onDeleteCause: (causeId: string) => void;
   editingCause: string | null;
   setEditingCause: (id: string | null) => void;
   level: number;
@@ -982,7 +982,7 @@ const CauseItem: React.FC<{
   setEditingCause, 
   level 
 }) => {
-  const subCauses = allCauses.filter(c => c.parentId === cause.id);
+  const subCauses = allCauses.filter(c => c.parent_cause_id === cause.id);
   const marginLeft = level * 20;
 
   return (
@@ -1004,7 +1004,7 @@ const CauseItem: React.FC<{
             <input
               type="text"
               value={cause.text}
-              onChange={(e) => onUpdateCause(branch.id, cause.id, e.target.value)}
+              onChange={(e) => onUpdateCause(cause.id, e.target.value)}
               onBlur={() => setEditingCause(null)}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') setEditingCause(null);
@@ -1042,7 +1042,7 @@ const CauseItem: React.FC<{
               <Plus className="w-3 h-3" />
             </button>
             <button
-              onClick={() => onDeleteCause(branch.id, cause.id)}
+              onClick={() => onDeleteCause(cause.id)}
               className="w-6 h-6 bg-red-500 text-white rounded-md flex items-center justify-center hover:bg-red-600 transition-all duration-200 hover:scale-110"
               title="Supprimer"
             >
