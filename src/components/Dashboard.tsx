@@ -223,7 +223,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
 
         {/* Layout 4 colonnes avec compteurs ajoutés */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-4 gap-6">
           
           {/* Mes Kaizens avec compteur */}
           <div className="bg-gradient-to-br from-white to-gray-50 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 flex flex-col max-h-[70vh]">
