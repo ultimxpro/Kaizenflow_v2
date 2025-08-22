@@ -363,16 +363,33 @@ const changeMType = async (newType: IshikawaDiagram['m_type']) => {
       // 5. Restaurer les causes si elles existaient pour cette branch_key
       const oldCauses = savedCauses.get(config.key);
       if (oldCauses && oldCauses.length > 0) {
-        for (const oldCause of oldCauses) {
+        // Créer d'abord les causes de niveau 0 (causes principales)
+        const level0Causes = oldCauses.filter(cause => cause.level === 0);
+        const causeIdMapping = new Map(); // Pour mapper ancien ID -> nouveau ID
+  
+        for (const oldCause of level0Causes) {
+          const newCauseId = await createIshikawaCause(
+            newBranchId,
+            oldCause.text,
+            0, // niveau 0 = cause principale
+            undefined, // pas de parent
+            oldCause.position
+          );
+          causeIdMapping.set(oldCause.id, newCauseId);
+        }
+
+        const subCauses = oldCauses.filter(cause => cause.level > 0);
+        for (const oldCause of subCauses) {
+          const newParentId = causeIdMapping.get(oldCause.parent_cause_id);
           await createIshikawaCause(
             newBranchId,
             oldCause.text,
             oldCause.level,
-            oldCause.parent_cause_id, // On va ignorer les relations parent pour simplifier
+            newParentId, // Utiliser le nouveau parent ID si disponible
             oldCause.position
           );
         }
-      }
+      }  
     }
   } catch (error) {
     console.error('Erreur lors du changement de type M:', error);
