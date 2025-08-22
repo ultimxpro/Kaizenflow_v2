@@ -164,7 +164,7 @@ useEffect(() => {
 const handleBlur = () => {
   if (saveTimeoutRef.current) {
     clearTimeout(saveTimeoutRef.current);
-    setSaveTimeoutRef.current(null);
+    saveTimeoutRef.current = null;
   }
   smartSave(problemText);
 };
