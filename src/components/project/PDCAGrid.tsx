@@ -137,7 +137,6 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
                 ${quadrant.hoverShadow}
                 rounded-2xl flex flex-col h-full 
                 transition-all duration-500 ease-out 
-                hover:scale-[1.02]
                 border border-white/40 
                 backdrop-blur-sm
                 group relative overflow-hidden
