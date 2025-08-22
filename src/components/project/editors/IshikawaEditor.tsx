@@ -174,26 +174,50 @@ const changeMType = async (newType: IshikawaDiagram['m_type']) => {
   if (!selectedDiagram) return;
   
   try {
-    // 1. Mettre à jour seulement le m_type du diagramme
+    // 1. Sauvegarder les causes existantes par branch_key
+    const currentBranches = getIshikawaBranches(selectedDiagram.id);
+    const savedCauses = new Map();
+    
+    for (const branch of currentBranches) {
+      const causes = getIshikawaCauses(branch.id);
+      if (causes.length > 0) {
+        savedCauses.set(branch.branch_key, causes);
+      }
+    }
+
+    // 2. Mettre à jour le type du diagramme
     await updateIshikawaDiagram(selectedDiagram.id, { m_type: newType });
     
-    // 2. Supprimer les anciennes branches
-    const currentBranches = getIshikawaBranches(selectedDiagram.id);
+    // 3. Supprimer les anciennes branches
     for (const branch of currentBranches) {
       await deleteIshikawaBranch(branch.id);
     }
     
-    // 3. Créer les nouvelles branches selon la configuration
+    // 4. Créer les nouvelles branches
     const configs = M_CONFIGS[newType];
     for (let i = 0; i < configs.length; i++) {
       const config = configs[i];
-      await createIshikawaBranch(
+      const newBranchId = await createIshikawaBranch(
         selectedDiagram.id,
         config.key,
         config.name,
         config.color,
         i
       );
+      
+      // 5. Restaurer les causes si elles existaient pour cette branch_key
+      const oldCauses = savedCauses.get(config.key);
+      if (oldCauses && oldCauses.length > 0) {
+        for (const oldCause of oldCauses) {
+          await createIshikawaCause(
+            newBranchId,
+            oldCause.text,
+            oldCause.level,
+            oldCause.parent_cause_id, // On va ignorer les relations parent pour simplifier
+            oldCause.position
+          );
+        }
+      }
     }
   } catch (error) {
     console.error('Erreur lors du changement de type M:', error);
