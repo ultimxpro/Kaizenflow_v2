@@ -153,12 +153,12 @@ useEffect(() => {
   // Nouveau timer avec délai adaptatif
   const delay = getDebounceDelay(problemText);
   const timer = setTimeout(() => smartSave(problemText), delay);
-  setSaveTimeoutRef(timer);
+  saveTimeoutRef.current = timer;
 
   return () => {
     if (timer) clearTimeout(timer);
   };
-}, [problemText, selectedDiagram, smartSave, saveTimeoutRef]);
+}, [problemText, selectedDiagram, smartSave]);
 
 // Sauvegarde immédiate sur perte de focus
 const handleBlur = () => {
