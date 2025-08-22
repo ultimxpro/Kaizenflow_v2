@@ -495,7 +495,7 @@ const deleteCause = async (causeId: string) => {
                         {saveStatus === 'saving' && (
                           <>
                             <div className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                            <span>Sauvegarde...</span>
+                            <span>...</span>
                           </>
                         )}
                         {saveStatus === 'saved' && (
