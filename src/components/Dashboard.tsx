@@ -179,7 +179,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         </div>
         
         {/* Stats rapides - Version avec couleurs grises élégantes */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-4 gap-6 mb-8">
           {/* Total Kaizens - Gris foncé */}
           <div className="bg-gradient-to-br from-gray-700 to-gray-800 backdrop-blur-sm rounded-2xl p-6 border border-gray-600/20 shadow-lg hover:shadow-xl transition-all group text-white">
             <div className="flex items-center justify-between">
