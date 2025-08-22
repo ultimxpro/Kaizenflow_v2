@@ -183,7 +183,34 @@ const changeMType = async (newType: IshikawaDiagram['m_type']) => {
   }
 };
 
+const addCause = async (branchId: string, parentCauseId?: string) => {
+  try {
+    const level = parentCauseId ? 1 : 0;
+    const position = getIshikawaCauses(branchId).length;
+    const causeId = await createIshikawaCause(branchId, '', level, parentCauseId, position);
+    setEditingCause(causeId);
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout de la cause:', error);
+  }
+};
 
+const updateCauseText = async (causeId: string, text: string) => {
+  try {
+    await updateIshikawaCause(causeId, { text });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de la cause:', error);
+  }
+};
+
+const deleteCause = async (causeId: string) => {
+  try {
+    await deleteIshikawaCause(causeId);
+  } catch (error) {
+    console.error('Erreur lors de la suppression de la cause:', error);
+  }
+};
+
+  
   // Export
   const exportDiagram = () => {
     const dataStr = JSON.stringify(selectedDiagram, null, 2);
