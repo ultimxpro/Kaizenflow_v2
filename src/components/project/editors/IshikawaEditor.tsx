@@ -1234,7 +1234,7 @@ const CauseItem: React.FC<{
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   setEditingCause(null);
-                  handleCauseBlur(cause.id);
+                  onCauseBlur(cause.id);
                 }
               }}
               onKeyDown={(e) => {
