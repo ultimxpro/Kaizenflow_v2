@@ -295,7 +295,7 @@ const ActionModal = React.memo(({ isOpen, onClose, onSave, action, projectMember
                     </PDCASection>
 
                     <PDCASection title="Planification" icon={<Calendar size={20} />}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-2 gap-6">
                             <div>
                                 <label className="text-sm font-semibold text-green-700 mb-3 block">Date de début</label>
                                 <input type="date" name="start_date" value={formData.start_date || ''} onChange={handleChange} className="p-3 w-full border-2 bg-white border-green-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all" required />
@@ -543,8 +543,8 @@ const MatrixView = ({ actions, setActions, users, onCardClick }: { actions: Acti
     const Quadrant = ({ title, emoji, items, bgColor, quadrantName }: { title: string, emoji: string, items: Action[], bgColor: string, quadrantName: string }) => (
         <div className={`${bgColor} rounded-2xl border-2 border-dashed border-gray-300 p-6 h-64 overflow-y-auto transition-all shadow-lg hover:shadow-xl`}
              onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, quadrantName)}
-             onDragEnter={(e) => (e.currentTarget as HTMLDivElement).classList.add('ring-4', 'ring-green-400', 'scale-105')}
-             onDragLeave={(e) => (e.currentTarget as HTMLDivElement).classList.remove('ring-4', 'ring-green-400', 'scale-105')}>
+             onDragEnter={(e) => (e.currentTarget as HTMLDivElement).classList.add('ring-4', 'ring-green-400')}
+             onDragLeave={(e) => (e.currentTarget as HTMLDivElement).classList.remove('ring-4', 'ring-green-400')}
             <h3 className="font-bold text-center mb-6 text-gray-800 text-lg">{emoji} {title} <span className="bg-white/80 px-3 py-1 rounded-full text-sm ml-2">({items.length})</span></h3>
             {items.map(item => <ActionCard key={item.id} action={item} users={users} onDragStart={(e, action) => setDraggedItem(action)} onClick={onCardClick} />)}
         </div>
