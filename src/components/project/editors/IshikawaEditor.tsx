@@ -476,12 +476,43 @@ const deleteCause = async (causeId: string) => {
               {selectedDiagram && (
                 <div className="bg-gradient-to-br from-red-50 to-pink-50 p-4 rounded-xl border border-red-200">
                   <h3 className="font-bold text-gray-800 mb-3">Problème à analyser</h3>
-                  <textarea
-                    value={problemText}
-                    onChange={(e) => setProblemText(e.target.value)}
-                    placeholder="Décrivez le problème ou l'effet à analyser..."
-                    className="w-full h-24 p-3 border border-red-200 rounded-lg resize-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white/80"
-                  />
+                  <div className="relative">
+                    <textarea
+                      value={problemText}
+                      onChange={(e) => setProblemText(e.target.value)}
+                      onBlur={handleBlur}
+                      placeholder="Décrivez le problème ou l'effet à analyser..."
+                      className="w-full h-24 p-3 border border-red-200 rounded-lg resize-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white/80"
+                    />
+  
+                    {/* Indicateur de sauvegarde */}
+                    {saveStatus && (
+                      <div className={`absolute bottom-2 right-2 flex items-center space-x-1 text-xs px-2 py-1 rounded-full ${
+                        saveStatus === 'saving' ? 'bg-blue-100 text-blue-700' :
+                        saveStatus === 'saved' ? 'bg-green-100 text-green-700' :
+                        'bg-red-100 text-red-700'
+                      }`}>
+                        {saveStatus === 'saving' && (
+                          <>
+                            <div className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                            <span>Sauvegarde...</span>
+                          </>
+                        )}
+                        {saveStatus === 'saved' && (
+                          <>
+                            <span className="text-green-500">✓</span>
+                            <span>Sauvegardé</span>
+                          </>
+                        )}
+                        {saveStatus === 'error' && (
+                          <>
+                            <span className="text-red-500">⚠</span>
+                            <span>Erreur</span>
+                          </>
+                        )}
+                      </div>
+                     )}
+                    </div>
                 </div>
               )}
 
