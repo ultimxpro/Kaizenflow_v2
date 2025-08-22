@@ -501,7 +501,7 @@ const deleteCause = async (causeId: string) => {
                         {saveStatus === 'saved' && (
                           <>
                             <span className="text-green-500">✓</span>
-                            <span>Sauvegardé</span>
+                            <span>✓</span>
                           </>
                         )}
                         {saveStatus === 'error' && (
