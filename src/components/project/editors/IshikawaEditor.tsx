@@ -1177,6 +1177,9 @@ const CauseItem: React.FC<{
   editingCause: string | null;
   setEditingCause: (id: string | null) => void;
   level: number;
+  causeTexts: Map<string, string>;
+  causeSaveStatus: Map<string, 'saved' | 'saving' | 'error'>;
+  onCauseBlur: (causeId: string) => void;
 }> = ({ 
   cause, 
   branch, 
@@ -1186,7 +1189,10 @@ const CauseItem: React.FC<{
   onDeleteCause, 
   editingCause, 
   setEditingCause, 
-  level 
+  level,
+  causeTexts,
+  causeSaveStatus,
+  onCauseBlur
 }) => {
   const subCauses = allCauses.filter(c => c.parent_cause_id === cause.id);
   const marginLeft = level * 20;
