@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { A3Module, IshikawaDiagram, IshikawaBranch, IshikawaCause, IshikawaMType } from '../../../types/database';
 import { useDatabase } from '../../../contexts/DatabaseContext';
 import { 
@@ -85,7 +85,7 @@ export const IshikawaEditor: React.FC<{ module: A3Module; onClose: () => void }>
   const [editingCause, setEditingCause] = useState<string | null>(null);
   const [problemText, setProblemText] = useState('');
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error' | null>(null);
-  const [saveTimeoutRef, setSaveTimeoutRef] = useState<NodeJS.Timeout | null>(null);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialisation des données
   // Initialisation des données
