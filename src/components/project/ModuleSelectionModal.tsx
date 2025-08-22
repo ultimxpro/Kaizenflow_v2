@@ -147,7 +147,7 @@ export const ModuleSelectionModal: React.FC<ModuleSelectionModalProps> = ({
                   <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-white/20 group-hover:from-white/60 group-hover:to-white/30 transition-all"></div>
                   
                   <div className="relative z-10 flex items-start space-x-4">
-                    <div className={`${tool.gradient} text-white p-3 rounded-xl flex-shrink-0 group-hover:scale-110 transition-transform shadow-lg`}>
+                    <div className={`${tool.gradient} text-white p-3 rounded-xl flex-shrink-0 transition-colors shadow-lg`}>
                       {tool.icon}
                     </div>
                     <div className="flex-1 min-w-0">
