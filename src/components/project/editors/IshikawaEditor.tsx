@@ -492,23 +492,17 @@ const deleteCause = async (causeId: string) => {
                         saveStatus === 'saved' ? 'bg-green-100 text-green-700' :
                         'bg-red-100 text-red-700'
                       }`}>
+                        
                         {saveStatus === 'saving' && (
-                          <>
                             <div className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                            <span>...</span>
-                          </>
                         )}
+                        
                         {saveStatus === 'saved' && (
-                          <>
-                            <span className="text-green-500">✓</span>
-                            <span>✓</span>
-                          </>
+                          <span className="text-green-500">✓</span> // ← Juste l'icône verte
                         )}
+                        
                         {saveStatus === 'error' && (
-                          <>
                             <span className="text-red-500">⚠</span>
-                            <span>Erreur</span>
-                          </>
                         )}
                       </div>
                      )}
