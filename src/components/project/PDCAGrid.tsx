@@ -114,13 +114,13 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
   };
 
   // Debug: log des props au montage
-  React.useEffect(() => {
-    console.log('🏗️ PDCAGrid rendered:', {
-      projectId,
-      modulesCount: modules.length,
-      hasDeleteFunction: !!deleteA3Module
-    });
-  }, [projectId, modules.length, deleteA3Module]);
+//  React.useEffect(() => {
+//    console.log('🏗️ PDCAGrid rendered:', {
+//      projectId,
+//      modulesCount: modules.length,
+//      hasDeleteFunction: !!deleteA3Module
+//    });
+//  }, [projectId, modules.length, deleteA3Module]);
 
   return (
     <div className="h-full p-4 relative">
