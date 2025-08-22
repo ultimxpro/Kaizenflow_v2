@@ -150,7 +150,7 @@ export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditMo
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                 <div className="flex items-center space-x-4 relative z-10">
                   <div>
-                    <h3 className="font-bold text-lg text-white tracking-wide group-hover:scale-105 transition-transform duration-300">
+                    <h3 className="font-bold text-lg text-white tracking-wide transition-colors duration-300">
                       {quadrant.title}
                     </h3>
                     <p className="text-white/80 text-xs font-medium mt-0.5">
