@@ -908,7 +908,7 @@ const BranchCard: React.FC<{
         </div>
         <button
           onClick={() => onAddCause(branch.id)}
-          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl"
           style={{ backgroundColor: branch.color }}
           title={`Ajouter une cause ${branch.name}`}
         >
