@@ -1233,8 +1233,7 @@ const CauseItem: React.FC<{
                }}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
-                  setEditingCause(null);
-                  onCauseBlur(cause.id);
+                  (e.target as HTMLInputElement).blur();
                 }
               }}
               onKeyDown={(e) => {
