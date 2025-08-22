@@ -86,6 +86,9 @@ export const IshikawaEditor: React.FC<{ module: A3Module; onClose: () => void }>
   const [problemText, setProblemText] = useState('');
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error' | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [causeSaveStatus, setCauseSaveStatus] = useState<Map<string, 'saved' | 'saving' | 'error'>>(new Map());
+  const [causeTexts, setCauseTexts] = useState<Map<string, string>>(new Map());
+  const causeTimeoutRefs = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   // Initialisation des données
   // Initialisation des données
