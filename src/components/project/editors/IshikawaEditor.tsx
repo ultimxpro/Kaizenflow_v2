@@ -208,6 +208,24 @@ useEffect(() => {
 }, [problemText, selectedDiagram, smartSave]);
 
 
+// Initialiser les textes des causes quand elles changent
+useEffect(() => {
+  if (!selectedDiagram) return;
+  
+  const allBranches = getIshikawaBranches(selectedDiagram.id);
+  const newCauseTexts = new Map();
+  
+  allBranches.forEach(branch => {
+    const causes = getIshikawaCauses(branch.id);
+    causes.forEach(cause => {
+      newCauseTexts.set(cause.id, cause.text || '');
+    });
+  });
+  
+  setCauseTexts(newCauseTexts);
+}, [selectedDiagram, getIshikawaBranches, getIshikawaCauses]);
+
+  
 // Fonction de sauvegarde intelligente pour les causes
 const saveCause = useCallback(async (causeId: string, text: string) => {
   try {
@@ -1205,6 +1223,21 @@ const CauseItem: React.FC<{
               autoFocus
               placeholder="Décrivez la cause..."
             />
+              {/* Indicateur de sauvegarde pour la cause */}
+              {causeSaveStatus.get(cause.id) && (
+                <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                  {causeSaveStatus.get(cause.id) === 'saving' && (
+                    <div className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                  )}
+                  {causeSaveStatus.get(cause.id) === 'saved' && (
+                    <span className="text-green-500 text-sm">✓</span>
+                  )}
+                  {causeSaveStatus.get(cause.id) === 'error' && (
+                    <span className="text-red-500 text-sm">⚠</span>
+                  )}
+                </div>
+              )}
+            </div>
           ) : (
             <div
               className="flex-1 cursor-pointer py-1 px-2 rounded hover:bg-gray-50 transition-colors"
