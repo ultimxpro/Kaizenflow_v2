@@ -206,6 +206,58 @@ useEffect(() => {
     document.removeEventListener('visibilitychange', handleVisibilityChange);
   };
 }, [problemText, selectedDiagram, smartSave]);
+
+
+// Fonction de sauvegarde intelligente pour les causes
+const saveCause = useCallback(async (causeId: string, text: string) => {
+  try {
+    setCauseSaveStatus(prev => new Map(prev.set(causeId, 'saving')));
+    await updateIshikawaCause(causeId, { text });
+    setCauseSaveStatus(prev => new Map(prev.set(causeId, 'saved')));
+    
+    // Effacer le statut après 2s
+    setTimeout(() => {
+      setCauseSaveStatus(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(causeId);
+        return newMap;
+      });
+    }, 2000);
+  } catch (error) {
+    console.error('Erreur sauvegarde cause:', error);
+    setCauseSaveStatus(prev => new Map(prev.set(causeId, 'error')));
+  }
+}, [updateIshikawaCause]);
+
+// Fonction pour gérer les changements de texte des causes
+const handleCauseTextChange = (causeId: string, newText: string) => {
+  // Mettre à jour le texte local
+  setCauseTexts(prev => new Map(prev.set(causeId, newText)));
+  
+  // Annuler le timer précédent
+  const currentTimer = causeTimeoutRefs.current.get(causeId);
+  if (currentTimer) {
+    clearTimeout(currentTimer);
+  }
+  
+  // Nouveau timer avec débounce
+  const timer = setTimeout(() => saveCause(causeId, newText), 1000);
+  causeTimeoutRefs.current.set(causeId, timer);
+};
+
+// Sauvegarde immédiate sur blur
+const handleCauseBlur = (causeId: string) => {
+  const currentTimer = causeTimeoutRefs.current.get(causeId);
+  if (currentTimer) {
+    clearTimeout(currentTimer);
+    causeTimeoutRefs.current.delete(causeId);
+  }
+  
+  const text = causeTexts.get(causeId);
+  if (text !== undefined) {
+    saveCause(causeId, text);
+  }
+};
   
   // Gestion des diagrammes
 // Dans le composant IshikawaEditor, ajoutez ces logs
