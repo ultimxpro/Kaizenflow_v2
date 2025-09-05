@@ -940,22 +940,51 @@ useEffect(() => {
     setLoading(false);
 }, []);
 
-    const saveActionsToDb = useCallback((updatedActions: Action[]) => {
-        setActions(updatedActions);
-        updateA3Module(module.id, { content: { ...module.content, actions: updatedActions } });
-    }, [module, updateA3Module, setActions]);
+  
 
-    const handleSaveAction = useCallback((actionData: Action) => {
-        let updatedActions;
+    const handleSaveAction = useCallback(async (actionData: Action) => {
+    try {
         if (actionData.id && actions.some(a => a.id === actionData.id)) {
-            updatedActions = actions.map(a => a.id === actionData.id ? actionData : a);
+            // Modifier une action existante
+            await updateAction(actionData.id, {
+                title: actionData.title,
+                description: actionData.description,
+                type: actionData.type,
+                start_date: actionData.start_date,
+                due_date: actionData.due_date,
+                status: actionData.status,
+                effort: actionData.effort,
+                gain: actionData.gain
+            });
         } else {
-            updatedActions = [...actions, { ...actionData, id: Date.now().toString() }];
+            // Créer une nouvelle action
+            const newActionId = await createAction({
+                project_id: module.project_id,
+                title: actionData.title,
+                description: actionData.description,
+                type: actionData.type,
+                start_date: actionData.start_date,
+                due_date: actionData.due_date,
+                status: actionData.status,
+                effort: actionData.effort,
+                gain: actionData.gain,
+                position: actions.length
+            });
+            
+            // Ajouter les assignations
+            if (actionData.assignee_ids && actionData.assignee_ids.length > 0) {
+                for (const userId of actionData.assignee_ids) {
+                    await addActionAssignee(newActionId, userId, userId === actionData.leader_id);
+                }
+            }
         }
-        saveActionsToDb(updatedActions);
+        
         setIsActionModalOpen(false);
         setEditingAction(null);
-    }, [actions, saveActionsToDb]);
+    } catch (error) {
+        console.error('Erreur lors de la sauvegarde:', error);
+    }
+}, [actions, createAction, updateAction, addActionAssignee, module.project_id]);
 
     const handleUpdateAction = useCallback((actionId: string, updates: Partial<Action>) => {
         const updatedActions = actions.map(a => 
