@@ -378,7 +378,7 @@ const HomeView = ({ actions, onUpdateAction, users, onCardClick }: { actions: Ac
     );
 };
 
-const KanbanByPersonView = ({ actions, setActions, users, onCardClick }: { actions: Action[], setActions: (actions: Action[], changedItem: Action) => void, users: User[], onCardClick: (action: Action) => void }) => {
+const KanbanByPersonView = ({ actions, onUpdateAction, users, onCardClick }: { actions: Action[], onUpdateAction: (actionId: string, updates: Partial<Action>) => void, users: User[], onCardClick: (action: Action) => void }) => {
     const [selectedUser, setSelectedUser] = useState(users[0]?.id || '');
     const [draggedItem, setDraggedItem] = useState<Action | null>(null);
 
