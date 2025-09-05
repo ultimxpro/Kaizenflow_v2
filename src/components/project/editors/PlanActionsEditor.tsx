@@ -390,11 +390,11 @@ const KanbanByPersonView = ({ actions, onUpdateAction, users, onCardClick }: { a
     }, [filteredActions]);
 
     const handleDrop = (e: React.DragEvent, targetStatus: ActionStatus) => {
-        e.preventDefault();
-        (e.currentTarget as HTMLDivElement).classList.remove('bg-blue-50', 'ring-2', 'ring-blue-400', 'scale-105');
-        if (!draggedItem || draggedItem.status === targetStatus) return;
-        setActions(actions.map(act => act.id === draggedItem.id ? { ...act, status: targetStatus } : act), { ...draggedItem, status: targetStatus });
-    };
+    e.preventDefault();
+    (e.currentTarget as HTMLDivElement).classList.remove('bg-blue-50', 'ring-2', 'ring-blue-400', 'scale-105');
+    if (!draggedItem || draggedItem.status === targetStatus) return;
+    onUpdateAction(draggedItem.id, { status: targetStatus });
+};
 
     const selectedUserData = users.find(u => u.id === selectedUser);
 
