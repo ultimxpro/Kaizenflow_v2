@@ -903,10 +903,20 @@ const ViewButton: React.FC<{ children: React.ReactNode; icon: React.ReactNode; i
 
 export const PlanActionsEditor: React.FC<PlanActionsEditorProps> = ({ module, onClose }) => {
     const { users: allUsersInApp } = useAuth();
-    const { projectMembers, updateA3Module } = useDatabase();
+    const { 
+    projectMembers, 
+    updateA3Module, 
+    actions: allActions, 
+    actionAssignees, 
+    createAction, 
+    updateAction, 
+    deleteAction, 
+    addActionAssignee, 
+    removeActionAssignee 
+} = useDatabase();
 
     const [view, setView] = useState('gantt');
-    const [actions, setActions] = useState<Action[]>([]);
+
     const [loading, setLoading] = useState(true);
     const [isActionModalOpen, setIsActionModalOpen] = useState(false);
     const [editingAction, setEditingAction] = useState<Action | null>(null);
@@ -921,11 +931,14 @@ export const PlanActionsEditor: React.FC<PlanActionsEditorProps> = ({ module, on
         return allUsersInApp.filter(user => memberIds.includes(user.id));
     }, [projectMembers, allUsersInApp, module.project]);
 
-    useEffect(() => {
-        const savedActions = module.content?.actions || [];
-        setActions(savedActions);
-        setLoading(false);
-    }, [module]);
+// Récupérer les actions depuis la vraie base de données
+const actions = useMemo(() => {
+    return allActions.filter(action => action.project_id === module.project_id);
+}, [allActions, module.project_id]);
+
+useEffect(() => {
+    setLoading(false);
+}, []);
 
     const saveActionsToDb = useCallback((updatedActions: Action[]) => {
         setActions(updatedActions);
