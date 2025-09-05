@@ -1118,9 +1118,9 @@ const handleDragAction = useCallback(async (actionId: string, updates: Partial<A
                             </div>
                         ) : (
                             <>
-                                {view === 'home' && <HomeView actions={actions} setActions={handleSetActions} users={currentProjectMembers} onCardClick={openActionModal} />}
-                                {view === 'kanban' && <KanbanByPersonView actions={actions} setActions={handleSetActions} users={currentProjectMembers} onCardClick={openActionModal} />}
-                                {view === 'matrix' && <MatrixView actions={actions} setActions={handleSetActions} users={currentProjectMembers} onCardClick={openActionModal} />}
+                                {view === 'home' && <HomeView actions={actions} onUpdateAction={handleDragAction} users={currentProjectMembers} onCardClick={openActionModal} />}
+                                {view === 'kanban' && <KanbanByPersonView actions={actions} onUpdateAction={handleDragAction} users={currentProjectMembers} onCardClick={openActionModal} />}
+                                {view === 'matrix' && <MatrixView actions={actions} onUpdateAction={handleDragAction} users={currentProjectMembers} onCardClick={openActionModal} />}
                                 {view === 'gantt' && <GanttView 
                                     actions={actions} 
                                     users={currentProjectMembers} 
