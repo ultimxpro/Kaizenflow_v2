@@ -514,7 +514,7 @@ const KanbanByPersonView = ({ actions, onUpdateAction, users, onCardClick }: { a
     );
 };
 
-const MatrixView = ({ actions, setActions, users, onCardClick }: { actions: Action[], setActions: (actions: Action[], changedItem: Action) => void, users: User[], onCardClick: (action: Action) => void }) => {
+const MatrixView = ({ actions, onUpdateAction, users, onCardClick }: { actions: Action[], onUpdateAction: (actionId: string, updates: Partial<Action>) => void, users: User[], onCardClick: (action: Action) => void }) => {
     const [draggedItem, setDraggedItem] = useState<Action | null>(null);
     const matrix = useMemo(() => {
         const q: { [key: string]: Action[] } = { 'quick-wins': [], 'major-projects': [], 'fill-ins': [], 'thankless-tasks': [] };
