@@ -999,9 +999,6 @@ const handleDragAction = useCallback(async (actionId: string, updates: Partial<A
 }, [updateAction]);
 
 
-    const handleSetActions = useCallback((updatedActions: Action[], changedItem: Action) => {
-        saveActionsToDb(updatedActions);
-    }, [saveActionsToDb]);
 
     const openActionModal = (action: Action | null = null) => {
         setEditingAction(action);
