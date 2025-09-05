@@ -986,13 +986,19 @@ useEffect(() => {
     }
 }, [actions, createAction, updateAction, addActionAssignee, module.project_id]);
 
-    const handleUpdateAction = useCallback((actionId: string, updates: Partial<Action>) => {
-        const updatedActions = actions.map(a => 
-            a.id === actionId ? { ...a, ...updates } : a
-        );
-        saveActionsToDb(updatedActions);
-    }, [actions, saveActionsToDb]);
+   {view === 'home' && <HomeView actions={actions} onUpdateAction={handleDragAction} users={currentProjectMembers} onCardClick={openActionModal} />}
+{view === 'kanban' && <KanbanByPersonView actions={actions} onUpdateAction={handleDragAction} users={currentProjectMembers} onCardClick={openActionModal} />}
+{view === 'matrix' && <MatrixView actions={actions} onUpdateAction={handleDragAction} users={currentProjectMembers} onCardClick={openActionModal} />}
     
+const handleDragAction = useCallback(async (actionId: string, updates: Partial<Action>) => {
+    try {
+        await updateAction(actionId, updates);
+    } catch (error) {
+        console.error('Erreur lors du drag:', error);
+    }
+}, [updateAction]);
+
+
     const handleSetActions = useCallback((updatedActions: Action[], changedItem: Action) => {
         saveActionsToDb(updatedActions);
     }, [saveActionsToDb]);
