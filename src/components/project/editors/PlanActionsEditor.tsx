@@ -528,17 +528,17 @@ const MatrixView = ({ actions, onUpdateAction, users, onCardClick }: { actions: 
     }, [actions]);
 
     const handleDrop = (e: React.DragEvent, quadrant: string) => {
-        e.preventDefault();
-        (e.currentTarget as HTMLDivElement).classList.remove('ring-2', 'ring-blue-400');
-        if(!draggedItem) return;
-        const newValues = {
-            'quick-wins': { gain: 8, effort: 3 },
-            'major-projects': { gain: 8, effort: 8 },
-            'fill-ins': { gain: 3, effort: 3 },
-            'thankless-tasks': { gain: 3, effort: 8 }
-        }[quadrant] || { gain: 5, effort: 5 };
-        setActions(actions.map(a => a.id === draggedItem.id ? { ...a, ...newValues } : a), { ...draggedItem, ...newValues });
-    };
+    e.preventDefault();
+    (e.currentTarget as HTMLDivElement).classList.remove('ring-2', 'ring-blue-400');
+    if(!draggedItem) return;
+    const newValues = {
+        'quick-wins': { gain: 8, effort: 3 },
+        'major-projects': { gain: 8, effort: 8 },
+        'fill-ins': { gain: 3, effort: 3 },
+        'thankless-tasks': { gain: 3, effort: 8 }
+    }[quadrant] || { gain: 5, effort: 5 };
+    onUpdateAction(draggedItem.id, newValues);
+};
 
     const Quadrant = ({ title, emoji, items, bgColor, quadrantName }: { title: string, emoji: string, items: Action[], bgColor: string, quadrantName: string }) => (
         <div className={`${bgColor} rounded-2xl border-2 border-dashed border-gray-300 p-6 h-64 overflow-y-auto transition-all shadow-lg hover:shadow-xl`}
