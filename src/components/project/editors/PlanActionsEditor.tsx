@@ -339,7 +339,7 @@ const ActionModal = React.memo(({ isOpen, onClose, onSave, action, projectMember
 });
 
 // --- VUES SPÉCIFIQUES ---
-const HomeView = ({ actions, setActions, users, onCardClick }: { actions: Action[], setActions: (actions: Action[], changedItem: Action) => void, users: User[], onCardClick: (action: Action) => void }) => {
+const HomeView = ({ actions, onUpdateAction, users, onCardClick }: { actions: Action[], onUpdateAction: (actionId: string, updates: Partial<Action>) => void, users: User[], onCardClick: (action: Action) => void }) => {
     const [draggedItem, setDraggedItem] = useState<Action | null>(null);
     const columns = useMemo(() => {
         const grouped: { [key in ActionType]: Action[] } = { securisation: [], simple: [], 'poka-yoke': [] };
@@ -348,11 +348,11 @@ const HomeView = ({ actions, setActions, users, onCardClick }: { actions: Action
     }, [actions]);
 
     const handleDrop = (e: React.DragEvent, targetType: ActionType) => {
-        e.preventDefault();
-        (e.currentTarget as HTMLDivElement).classList.remove('bg-blue-50', 'border-blue-300');
-        if (!draggedItem || draggedItem.type === targetType) return;
-        setActions(actions.map(act => act.id === draggedItem.id ? { ...act, type: targetType } : act), { ...draggedItem, type: targetType });
-    };
+    e.preventDefault();
+    (e.currentTarget as HTMLDivElement).classList.remove('bg-blue-50', 'border-blue-300');
+    if (!draggedItem || draggedItem.type === targetType) return;
+    onUpdateAction(draggedItem.id, { type: targetType });
+};
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full" onDragEnd={() => setDraggedItem(null)}>
