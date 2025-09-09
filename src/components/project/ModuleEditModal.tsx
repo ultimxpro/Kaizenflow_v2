@@ -5,19 +5,17 @@ import { FiveWhyEditor } from './editors/FiveWhyEditor';
 import { IshikawaEditor } from './editors/IshikawaEditor';
 // MODIFICATION ICI : L'import de FiveWOneHEditor a été supprimé
 import { OplEditor } from './editors/OplEditor';
-import { FiveSEditor } from './editors/FiveSEditor';
+import { FiveSEditorNew } from './editors/FiveSEditorNew';
 import { VSMEditor } from './editors/VSMEditor';
 import { IframeEditor } from './editors/IframeEditor';
 import { CroquisEditor } from './editors/CroquisEditor';
 import { PlanActionsEditor } from './editors/PlanActionsEditor';
 import { IndicatorsEditor } from './editors/IndicatorsEditor';
 import { SOPEditor } from './editors/SOPEditor';
-
 interface ModuleEditModalProps {
   module: A3Module;
   onClose: () => void;
 }
-
 export const ModuleEditModal: React.FC<ModuleEditModalProps> = ({ module, onClose }) => {
   const renderEditor = () => {
     switch (module.tool_type) {
@@ -29,7 +27,7 @@ export const ModuleEditModal: React.FC<ModuleEditModalProps> = ({ module, onClos
       case 'OPL':
         return <OplEditor module={module} onClose={onClose}/>;
       case '5S':
-        return <FiveSEditor module={module} onClose={onClose}/>;
+        return <FiveSEditorNew module={module} onClose={onClose}/>;
       case 'VSM':
         return <VSMEditor module={module} onClose={onClose}/>;
       case 'Iframe':
@@ -57,9 +55,7 @@ export const ModuleEditModal: React.FC<ModuleEditModalProps> = ({ module, onClos
         );
     }
   };
-
   const isVsmEditor = module.tool_type === 'VSM';
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className={`bg-white rounded-lg shadow-xl w-full flex flex-col ${isVsmEditor ? 'max-w-7xl h-5/6' : 'max-w-6xl h-5/6'}`}>
@@ -77,7 +73,6 @@ export const ModuleEditModal: React.FC<ModuleEditModalProps> = ({ module, onClos
                 </button>
             </div>
         )}
-
         {/* Content */}
         <div className={`flex-1 overflow-hidden ${isVsmEditor ? '' : 'p-6'}`}>
           {renderEditor()}

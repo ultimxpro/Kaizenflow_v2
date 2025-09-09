@@ -2,17 +2,15 @@ import React, { useState } from 'react';
 import { A3Module } from '../../../types/database';
 import { useDatabase } from '../../../contexts/DatabaseContext';
 import { Plus, X, HelpCircle } from 'lucide-react';
-
 interface FiveSEditorProps {
   module: A3Module;
+  onClose?: () => void;
 }
-
 interface FiveSItem {
   id: string;
   text: string;
   checked: boolean;
 }
-
 interface FiveSData {
   seiri: FiveSItem[];
   seiton: FiveSItem[];
@@ -20,11 +18,9 @@ interface FiveSData {
   seiketsu: FiveSItem[];
   shitsuke: FiveSItem[];
 }
-
 export const FiveSEditor: React.FC<FiveSEditorProps> = ({ module }) => {
   const { updateA3Module } = useDatabase();
   const [showHelp, setShowHelp] = useState(false);
-  
   const data: FiveSData = {
     seiri: module.content?.seiri || [],
     seiton: module.content?.seiton || [],
@@ -32,13 +28,11 @@ export const FiveSEditor: React.FC<FiveSEditorProps> = ({ module }) => {
     seiketsu: module.content?.seiketsu || [],
     shitsuke: module.content?.shitsuke || []
   };
-
   const updateData = (newData: Partial<FiveSData>) => {
     updateA3Module(module.id, {
       content: { ...data, ...newData }
     });
   };
-
   const addItem = (category: keyof FiveSData) => {
     const newItem: FiveSItem = {
       id: Date.now().toString(),
@@ -49,19 +43,16 @@ export const FiveSEditor: React.FC<FiveSEditorProps> = ({ module }) => {
       [category]: [...data[category], newItem]
     });
   };
-
   const updateItem = (category: keyof FiveSData, itemId: string, field: keyof FiveSItem, value: any) => {
     const updatedItems = data[category].map(item =>
       item.id === itemId ? { ...item, [field]: value } : item
     );
     updateData({ [category]: updatedItems });
   };
-
   const removeItem = (category: keyof FiveSData, itemId: string) => {
     const updatedItems = data[category].filter(item => item.id !== itemId);
     updateData({ [category]: updatedItems });
   };
-
   const sections = [
     {
       key: 'seiri' as const,
@@ -99,7 +90,6 @@ export const FiveSEditor: React.FC<FiveSEditorProps> = ({ module }) => {
       headerColor: 'bg-purple-200 text-purple-800'
     }
   ];
-
   return (
     <div className="h-full flex flex-col">
       {/* Header avec aide */}
@@ -117,7 +107,6 @@ export const FiveSEditor: React.FC<FiveSEditorProps> = ({ module }) => {
           <HelpCircle className="w-4 h-4 text-gray-600" />
         </button>
       </div>
-
       {/* Sections 5S */}
       <div className="flex-1 overflow-y-auto space-y-6">
         {sections.map((section) => (
@@ -138,7 +127,6 @@ export const FiveSEditor: React.FC<FiveSEditorProps> = ({ module }) => {
                 </button>
               </div>
             </div>
-
             {/* Liste des items */}
             <div className="p-4 space-y-3">
               {data[section.key].length === 0 ? (
@@ -174,7 +162,6 @@ export const FiveSEditor: React.FC<FiveSEditorProps> = ({ module }) => {
           </div>
         ))}
       </div>
-
       {/* Modal d'aide */}
       {showHelp && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

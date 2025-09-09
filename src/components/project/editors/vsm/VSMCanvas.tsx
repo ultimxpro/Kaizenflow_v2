@@ -1,6 +1,6 @@
 // src/components/project/editors/vsm/VSMCanvas.tsx
 
-import React, { forwardRef, useRef, useCallback } from 'react';
+import React, { forwardRef, useRef, useCallback, memo } from 'react';
 import { VSMContent, VSMElement, ViewState } from './VSMTypes';
 import { VSMNode } from './VSMNode';
 import { VSMConnectionLine } from './VSMConnectionLine';
@@ -17,10 +17,11 @@ interface VSMCanvasProps {
   showGrid: boolean;
   onUpdateElement: (id: string, updates: Partial<VSMElement>) => void;
   onDeleteConnection: (id: string) => void;
+  onReverseConnection?: (id: string) => void;
   onAnchorClick: (elementId: string, anchor: 'top' | 'bottom' | 'left' | 'right') => void;
 }
 
-export const VSMCanvas = forwardRef<HTMLDivElement, VSMCanvasProps>(({
+export const VSMCanvas = memo(forwardRef<HTMLDivElement, VSMCanvasProps>(({
   content,
   viewState,
   setViewState,
@@ -32,6 +33,7 @@ export const VSMCanvas = forwardRef<HTMLDivElement, VSMCanvasProps>(({
   showGrid,
   onUpdateElement,
   onDeleteConnection,
+  onReverseConnection,
   onAnchorClick
 }, ref) => {
   const isPanning = useRef(false);
@@ -79,6 +81,24 @@ export const VSMCanvas = forwardRef<HTMLDivElement, VSMCanvasProps>(({
     }
   }, [mode, setSelectedItemId, setConnectingFrom]);
 
+  // Enhanced connection creation with better UX
+  const handleConnectionStart = useCallback((elementId: string, anchor: 'top' | 'bottom' | 'left' | 'right') => {
+    if (mode === 'connect') {
+      if (!connectingFrom) {
+        // Start connection
+        setConnectingFrom({ elementId, anchor });
+        setSelectedItemId(elementId);
+      } else if (connectingFrom.elementId === elementId) {
+        // Cancel connection if clicking same element
+        setConnectingFrom(null);
+        setSelectedItemId(null);
+      } else {
+        // Complete connection
+        onAnchorClick(elementId, anchor);
+      }
+    }
+  }, [mode, connectingFrom, onAnchorClick, setSelectedItemId, setConnectingFrom]);
+
   return (
     <div 
       ref={ref}
@@ -112,34 +132,36 @@ export const VSMCanvas = forwardRef<HTMLDivElement, VSMCanvasProps>(({
         }}
       >
         {/* Connections */}
-        <svg 
-          className="absolute top-0 left-0 w-[10000px] h-[10000px] pointer-events-none" 
+        <svg
+          className="absolute top-0 left-0 w-[10000px] h-[10000px]"
           style={{ overflow: 'visible' }}
         >
           {content.connections.map(conn => (
-            <VSMConnectionLine 
-              key={conn.id} 
-              connection={conn} 
+            <VSMConnectionLine
+              key={conn.id}
+              connection={conn}
               elements={content.elements}
               isSelected={selectedItemId === conn.id}
               onSelect={() => setSelectedItemId(conn.id)}
               onDelete={() => onDeleteConnection(conn.id)}
+              onReverse={onReverseConnection ? () => onReverseConnection(conn.id) : undefined}
             />
           ))}
         </svg>
         
         {/* Elements */}
         {content.elements.map(el => (
-          <VSMNode 
-            key={el.id} 
-            element={el} 
-            isSelected={selectedItemId === el.id} 
-            onSelect={() => setSelectedItemId(el.id)} 
-            onUpdate={(updates) => onUpdateElement(el.id, updates)} 
-            zoom={viewState.zoom} 
-            onAnchorClick={onAnchorClick} 
+          <VSMNode
+            key={el.id}
+            element={el}
+            isSelected={selectedItemId === el.id}
+            onSelect={() => setSelectedItemId(el.id)}
+            onUpdate={(updates) => onUpdateElement(el.id, updates)}
+            zoom={viewState.zoom}
+            onAnchorClick={onAnchorClick}
             isConnecting={mode === 'connect'}
             connectingFrom={connectingFrom}
+            onConnectionStart={handleConnectionStart}
           />
         ))}
       </div>
@@ -159,6 +181,6 @@ export const VSMCanvas = forwardRef<HTMLDivElement, VSMCanvasProps>(({
       </div>
     </div>
   );
-});
+}));
 
 VSMCanvas.displayName = 'VSMCanvas';

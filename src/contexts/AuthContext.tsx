@@ -94,11 +94,13 @@ const generateSignedUrls = async (profiles: Profile[]): Promise<Profile[]> => {
 };
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  console.log('🔍 DEBUG: AuthProvider rendering');
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [signedAvatarUrl, setSignedAvatarUrl] = useState<string | null>(null);
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  console.log('🔍 DEBUG: AuthProvider initial state - loading:', loading);
 
 useEffect(() => {
   const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {

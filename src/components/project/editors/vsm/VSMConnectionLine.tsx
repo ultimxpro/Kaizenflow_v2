@@ -1,8 +1,9 @@
 // src/components/project/editors/vsm/VSMConnectionLine.tsx
 
-import React, { useMemo } from 'react';
+import React, { useMemo, memo } from 'react';
 import { VSMConnection, VSMElement } from './VSMTypes';
 import { getAnchorPoint } from './VSMUtils';
+import { RotateCcw } from 'lucide-react';
 
 interface VSMConnectionLineProps {
   connection: VSMConnection;
@@ -10,14 +11,16 @@ interface VSMConnectionLineProps {
   isSelected: boolean;
   onSelect: () => void;
   onDelete: () => void;
+  onReverse?: () => void;
 }
 
-export const VSMConnectionLine: React.FC<VSMConnectionLineProps> = ({
+export const VSMConnectionLine: React.FC<VSMConnectionLineProps> = memo(({
   connection,
   elements,
   isSelected,
   onSelect,
-  onDelete
+  onDelete,
+  onReverse
 }) => {
   const pathData = useMemo(() => {
     const fromEl = elements.find(el => el.id === connection.from.elementId);
@@ -168,6 +171,29 @@ export const VSMConnectionLine: React.FC<VSMConnectionLineProps> = ({
           {connection.data.label}
         </text>
       )}
+
+      {/* Bouton d'inversion du sens (visible quand sélectionné) */}
+      {isSelected && onReverse && (
+        <foreignObject
+          x={(pathData.p1.x + pathData.p2.x) / 2 - 12}
+          y={(pathData.p1.y + pathData.p2.y) / 2 + 5}
+          width="24"
+          height="24"
+        >
+          <div
+            className="bg-white border border-gray-300 rounded-full p-1 shadow-lg cursor-pointer hover:bg-gray-50 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              onReverse();
+            }}
+            title="Inverser le sens de la flèche"
+          >
+            <RotateCcw size={12} className="text-gray-600" />
+          </div>
+        </foreignObject>
+      )}
     </g>
   );
-};
+});
+
+VSMConnectionLine.displayName = 'VSMConnectionLine';

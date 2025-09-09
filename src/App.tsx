@@ -11,22 +11,27 @@ import { AdminDashboard } from './components/AdminDashboard';
 type Page = 'login' | 'dashboard' | 'project' | 'profile' | 'admin';
 
 function AppContent() {
+  console.log('🔍 DEBUG: AppContent rendering');
   const { user, loading } = useAuth();
+  console.log('🔍 DEBUG: Auth state - user:', user, 'loading:', loading);
   const [currentPage, setCurrentPage] = useState<Page>('login');
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('🔍 DEBUG: useEffect triggered - loading:', loading, 'user:', user);
     if (loading) return;
-    
+
     if (user) {
+      console.log('🔍 DEBUG: Setting page to dashboard');
       setCurrentPage('dashboard');
     } else {
+      console.log('🔍 DEBUG: Setting page to login');
       setCurrentPage('login');
     }
   }, [user, loading]);
 
-  const navigate = (page: Page, projectId?: string) => {
-    setCurrentPage(page);
+  const navigate = (page: string, projectId?: string) => {
+    setCurrentPage(page as Page);
     if (projectId) {
       setCurrentProjectId(projectId);
     }
@@ -47,22 +52,29 @@ function AppContent() {
   }
 
   const renderCurrentPage = () => {
+    console.log('🔍 DEBUG: renderCurrentPage - currentPage:', currentPage, 'user:', user, 'currentProjectId:', currentProjectId);
     switch (currentPage) {
       case 'login':
+        console.log('🔍 DEBUG: Rendering Login component');
         return <Login onNavigate={navigate} />;
       case 'dashboard':
+        console.log('🔍 DEBUG: Rendering Dashboard component');
         return user ? <Dashboard onNavigate={navigate} /> : <Login onNavigate={navigate} />;
       case 'project':
+        console.log('🔍 DEBUG: Rendering ProjectView component');
         return user && currentProjectId ? (
           <ProjectView projectId={currentProjectId} onNavigate={navigate} />
         ) : (
           <Login onNavigate={navigate} />
         );
       case 'profile':
+        console.log('🔍 DEBUG: Rendering ProfileSettings component');
         return user ? <ProfileSettings onNavigate={navigate} /> : <Login onNavigate={navigate} />;
       case 'admin':
+        console.log('🔍 DEBUG: Rendering AdminDashboard component');
         return user ? <AdminDashboard onNavigate={navigate} /> : <Login onNavigate={navigate} />;
       default:
+        console.log('🔍 DEBUG: Rendering default Login component');
         return <Login onNavigate={navigate} />;
     }
   };

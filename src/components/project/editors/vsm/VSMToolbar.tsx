@@ -1,10 +1,10 @@
 // src/components/project/editors/vsm/VSMToolbar.tsx
 
 import React, { useRef } from 'react';
-import { 
+import {
   Square, Triangle, User, Truck, ArrowRight, Type, Workflow, Zap,
   MousePointer, Link2, Move, Download, Upload, ZoomIn, ZoomOut,
-  Maximize2, Grid, Eye, EyeOff, Factory, Package
+  Maximize2, Grid, Eye, EyeOff, Factory, Package, RotateCcw, X
 } from 'lucide-react';
 import { VSMElementType } from './VSMTypes';
 
@@ -16,6 +16,8 @@ interface VSMToolbarProps {
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onResetView: () => void;
   onZoomToFit: () => void;
+  onResetWithExamples?: () => void;
+  onDeselectAll?: () => void;
   zoom: number;
   showGrid: boolean;
   setShowGrid: (show: boolean) => void;
@@ -31,6 +33,8 @@ export const VSMToolbar: React.FC<VSMToolbarProps> = ({
   onImport,
   onResetView,
   onZoomToFit,
+  onResetWithExamples,
+  onDeselectAll,
   zoom,
   showGrid,
   setShowGrid,
@@ -137,10 +141,36 @@ export const VSMToolbar: React.FC<VSMToolbarProps> = ({
         >
           {showMetrics ? <Eye size={18} /> : <EyeOff size={18} />}
         </button>
+        {onDeselectAll && (
+          <button
+            onClick={onDeselectAll}
+            className="p-2 hover:bg-red-100 rounded transition-colors text-red-600 hover:text-red-700"
+            title="Désélectionner tout (Échap)"
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
 
       {/* Separator */}
       <div className="w-px h-8 bg-gray-300" />
+
+      {/* Reset with examples */}
+      {onResetWithExamples && (
+        <>
+          <div className="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg">
+            <button
+              onClick={onResetWithExamples}
+              className="p-2 hover:bg-orange-100 rounded transition-colors text-orange-600 hover:text-orange-700"
+              title="Réinitialiser avec des exemples"
+            >
+              <RotateCcw size={18} />
+            </button>
+          </div>
+          {/* Separator */}
+          <div className="w-px h-8 bg-gray-300" />
+        </>
+      )}
 
       {/* Export/Import */}
       <div className="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg">
