@@ -1,7 +1,9 @@
 // src/components/project/editors/FiveSEditorNew.tsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { A3Module, FiveSItem as DBFiveSItem, FiveSPhoto } from '../../../types/database';
+import { A3Module, FiveSItem as DBFiveSItem, FiveSPhoto, FiveSCategory } from '../../../types/database';
 import { useDatabase } from '../../../contexts/DatabaseContext';
+import { useAuth } from '../../../contexts/AuthContext';
+import { supabase } from '../../../Lib/supabase';
 import {
   Plus,
   HelpCircle,
@@ -98,16 +100,17 @@ const FIVE_S_PILLARS = [
   }
 ];
 export const FiveSEditorNew: React.FC<FiveSEditorNewProps> = ({ module, onClose }) => {
-  const {
-    updateA3Module,
-    getFiveSChecklists,
-    createFiveSChecklist,
-    updateFiveSChecklist,
-    getFiveSItems,
-    createFiveSItem,
-    updateFiveSItem,
-    deleteFiveSItem
-  } = useDatabase();
+   const { user } = useAuth();
+   const {
+     updateA3Module,
+     getFiveSChecklists,
+     createFiveSChecklist,
+     updateFiveSChecklist,
+     getFiveSItems,
+     createFiveSItem,
+     updateFiveSItem,
+     deleteFiveSItem
+   } = useDatabase();
   const [showHelp, setShowHelp] = useState(false);
   const [checklist, setChecklist] = useState<FiveSChecklist | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -253,48 +256,66 @@ export const FiveSEditorNew: React.FC<FiveSEditorNewProps> = ({ module, onClose 
     debouncedSave(newChecklist);
   }, [debouncedSave]);
   // Gestion des items
-  const addItem = (pillar: keyof FiveSChecklist) => {
-    if (!checklist) return;
-    const pillarItems = checklist[pillar] as FiveSItem[];
-    const newItem: FiveSItem = {
-      id: `item_${Date.now()}`,
-      title: '',
-      description: '',
-      status: 'pending',
-      priority: 'medium',
-      position: pillarItems.length,
-      photos: []
-    };
-    const updatedChecklist = {
-      ...checklist,
-      [pillar]: [...pillarItems, newItem],
-      updated_at: new Date().toISOString()
-    };
-    updateChecklist(updatedChecklist);
+  const addItem = async (pillar: keyof FiveSChecklist) => {
+    if (!checklist || !user) return;
+    try {
+      const pillarItems = checklist[pillar] as FiveSItem[];
+      const itemId = await createFiveSItem(checklist.id, pillar as FiveSCategory, '', '');
+      const newItem: FiveSItem = {
+        id: itemId,
+        title: '',
+        description: '',
+        status: 'pending',
+        priority: 'medium',
+        position: pillarItems.length,
+        photos: []
+      };
+      const updatedChecklist = {
+        ...checklist,
+        [pillar]: [...pillarItems, newItem],
+        updated_at: new Date().toISOString()
+      };
+      updateChecklist(updatedChecklist);
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'item:', error);
+      alert('Erreur lors de la création de l\'item.');
+    }
   };
-  const updateItem = (pillar: keyof FiveSChecklist, itemId: string, updates: Partial<FiveSItem>) => {
+  const updateItem = async (pillar: keyof FiveSChecklist, itemId: string, updates: Partial<FiveSItem>) => {
     if (!checklist) return;
-    const pillarItems = checklist[pillar] as FiveSItem[];
-    const updatedItems = pillarItems.map(item =>
-      item.id === itemId ? { ...item, ...updates } : item
-    );
-    const updatedChecklist = {
-      ...checklist,
-      [pillar]: updatedItems,
-      updated_at: new Date().toISOString()
-    };
-    updateChecklist(updatedChecklist);
+    try {
+      await updateFiveSItem(itemId, updates);
+      const pillarItems = checklist[pillar] as FiveSItem[];
+      const updatedItems = pillarItems.map(item =>
+        item.id === itemId ? { ...item, ...updates } : item
+      );
+      const updatedChecklist = {
+        ...checklist,
+        [pillar]: updatedItems,
+        updated_at: new Date().toISOString()
+      };
+      updateChecklist(updatedChecklist);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de l\'item:', error);
+      alert('Erreur lors de la mise à jour de l\'item.');
+    }
   };
-  const removeItem = (pillar: keyof FiveSChecklist, itemId: string) => {
+  const removeItem = async (pillar: keyof FiveSChecklist, itemId: string) => {
     if (!checklist) return;
-    const pillarItems = checklist[pillar] as FiveSItem[];
-    const updatedItems = pillarItems.filter(item => item.id !== itemId);
-    const updatedChecklist = {
-      ...checklist,
-      [pillar]: updatedItems,
-      updated_at: new Date().toISOString()
-    };
-    updateChecklist(updatedChecklist);
+    try {
+      await deleteFiveSItem(itemId);
+      const pillarItems = checklist[pillar] as FiveSItem[];
+      const updatedItems = pillarItems.filter(item => item.id !== itemId);
+      const updatedChecklist = {
+        ...checklist,
+        [pillar]: updatedItems,
+        updated_at: new Date().toISOString()
+      };
+      updateChecklist(updatedChecklist);
+    } catch (error) {
+      console.error('Erreur lors de la suppression de l\'item:', error);
+      alert('Erreur lors de la suppression de l\'item.');
+    }
   };
   // Calcul des statistiques
   const getStats = () => {
@@ -687,6 +708,7 @@ export const FiveSEditorNew: React.FC<FiveSEditorNewProps> = ({ module, onClose 
           <PhotoManagerModal
             item={selectedItem}
             checklistId={checklist.id}
+            userId={user?.id}
             onClose={() => {
               setShowPhotoModal(false);
               setSelectedItem(null);
@@ -701,9 +723,10 @@ export const FiveSEditorNew: React.FC<FiveSEditorNewProps> = ({ module, onClose 
 interface PhotoManagerModalProps {
   item: FiveSItem;
   checklistId: string;
+  userId?: string;
   onClose: () => void;
 }
-const PhotoManagerModal: React.FC<PhotoManagerModalProps> = ({ item, checklistId, onClose }) => {
+const PhotoManagerModal: React.FC<PhotoManagerModalProps> = ({ item, checklistId, userId, onClose }) => {
   const { getFiveSPhotos, createFiveSPhoto, deleteFiveSPhoto, getFiveSPhotoComments, createFiveSPhotoComment } = useDatabase();
   const [photos, setPhotos] = useState<FiveSPhoto[]>([]);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
@@ -760,14 +783,26 @@ const PhotoManagerModal: React.FC<PhotoManagerModalProps> = ({ item, checklistId
     }, 'image/jpeg', 0.8);
   };
   const uploadPhoto = async (blob: Blob) => {
+    if (!userId) {
+      alert('Vous devez être connecté pour uploader des photos.');
+      return;
+    }
     setIsUploading(true);
     try {
       // Créer un nom de fichier unique
       const filename = `5s_${item.id}_${Date.now()}.jpg`;
       const file = new File([blob], filename, { type: 'image/jpeg' });
-      // Upload vers Supabase Storage (simulation pour l'instant)
-      // Dans un vrai projet, vous utiliseriez l'API Supabase Storage
+      // Upload vers Supabase Storage
       const filePath = `5s_photos/${filename}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('5s-photos')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+      if (uploadError) {
+        throw uploadError;
+      }
       // Créer l'entrée dans la base de données
       await createFiveSPhoto({
         item_id: item.id,
@@ -780,7 +815,7 @@ const PhotoManagerModal: React.FC<PhotoManagerModalProps> = ({ item, checklistId
         photo_type: photoType,
         description: description || undefined,
         taken_at: new Date().toISOString(),
-        uploaded_by: 'current-user-id' // À remplacer par l'utilisateur actuel
+        uploaded_by: userId
       });
       // Recharger les photos
       const updatedPhotos = getFiveSPhotos(item.id);
@@ -800,7 +835,24 @@ const PhotoManagerModal: React.FC<PhotoManagerModalProps> = ({ item, checklistId
   const deletePhoto = async (photoId: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette photo ?')) {
       try {
+        // Récupérer les informations de la photo avant suppression
+        const photoToDelete = photos.find(p => p.id === photoId);
+        if (!photoToDelete) {
+          throw new Error('Photo non trouvée');
+        }
+        // Supprimer d'abord de la base de données
         await deleteFiveSPhoto(photoId);
+        // Supprimer le fichier du storage Supabase si le chemin existe
+        if (photoToDelete.file_path) {
+          const { error: storageError } = await supabase.storage
+            .from('5s-photos')
+            .remove([photoToDelete.file_path]);
+          if (storageError) {
+            console.warn('Erreur lors de la suppression du fichier storage:', storageError);
+            // Ne pas échouer complètement si la suppression du storage échoue
+          }
+        }
+        // Recharger les photos
         const updatedPhotos = getFiveSPhotos(item.id);
         setPhotos(updatedPhotos);
       } catch (error) {
@@ -912,8 +964,20 @@ const PhotoManagerModal: React.FC<PhotoManagerModalProps> = ({ item, checklistId
                 {photos.map((photo) => (
                   <div key={photo.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                     <div className="aspect-video bg-gray-200 flex items-center justify-center">
-                      {/* Placeholder pour l'image - dans un vrai projet, afficher l'image depuis Supabase Storage */}
-                      <ImageIcon className="w-12 h-12 text-gray-400" />
+                      {photo.file_path ? (
+                        <img
+                          src={supabase.storage.from('5s-photos').getPublicUrl(photo.file_path).data.publicUrl}
+                          alt={photo.description || 'Photo 5S'}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            console.error('Erreur de chargement de l\'image:', e);
+                            // Fallback vers l'icône si l'image ne se charge pas
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                      ) : null}
+                      <ImageIcon className="w-12 h-12 text-gray-400 fallback-icon" />
                     </div>
                     <div className="p-4">
                       <div className="flex items-center justify-between mb-2">
