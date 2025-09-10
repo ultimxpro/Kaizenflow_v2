@@ -66,10 +66,10 @@ const toolsConfig = {
     gradient: 'bg-gradient-to-br from-gray-500 to-gray-600',
     lightBg: 'from-gray-50 to-gray-100'
   },
-  'Indicateurs': {
-    name: 'Indicateurs',
+  'Kamishibai': {
+    name: 'Kamishibai',
     icon: <Activity className="w-6 h-6" />,
-    description: 'Suivi et vérification des résultats',
+    description: 'Tableaux de bord visuels pour le suivi des performances',
     gradient: 'bg-gradient-to-br from-cyan-500 to-cyan-600',
     lightBg: 'from-cyan-50 to-cyan-100'
   },

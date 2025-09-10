@@ -43,7 +43,7 @@ export interface A3Module {
   id: string;
   project_id: string;
   quadrant: 'PLAN' | 'DO' | 'CHECK' | 'ACT';
-  tool_type: '5Pourquoi' | 'Image' | '4M' | 'OPL' | '5S' | 'VSM' | 'PlanActions' | 'Croquis' | 'Iframe' | 'Indicateurs' | 'SOP';
+  tool_type: '5Pourquoi' | 'Image' | '4M' | 'OPL' | '5S' | 'VSM' | 'PlanActions' | 'Croquis' | 'Iframe' | 'Kamishibai' | 'SOP';
   content: any;
   position: number;
   titre?: string;

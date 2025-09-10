@@ -24,7 +24,7 @@ const getToolIcon = (toolType: string) => {
     case 'PlanActions': return <CheckSquare className="w-4 h-4" />;
     case 'Croquis': return <PenTool className="w-4 h-4" />;
     case 'Iframe': return <Monitor className="w-4 h-4" />;
-    case 'Indicateurs': return <Activity className="w-4 h-4" />;
+    case 'Kamishibai': return <Activity className="w-4 h-4" />;
     case 'SOP': return <FileText className="w-4 h-4" />;
     default: return <FileText className="w-4 h-4" />;
   }
@@ -40,7 +40,7 @@ const getToolColor = (toolType: string) => {
     case 'PlanActions': return 'from-green-500 to-green-600';
     case 'Croquis': return 'from-yellow-500 to-yellow-600';
     case 'Iframe': return 'from-gray-500 to-gray-600';
-    case 'Indicateurs': return 'from-cyan-500 to-cyan-600';
+    case 'Kamishibai': return 'from-cyan-500 to-cyan-600';
     case 'SOP': return 'from-indigo-500 to-indigo-600';
     default: return 'from-gray-500 to-gray-600';
   }
@@ -56,7 +56,7 @@ const getToolName = (toolType: string) => {
     case 'PlanActions': return 'Plan d\'Actions';
     case 'Croquis': return 'Croquis';
     case 'Iframe': return 'Iframe';
-    case 'Indicateurs': return 'Indicateurs';
+    case 'Kamishibai': return 'Kamishibai';
     case 'SOP': return 'SOP';
     default: return toolType;
   }
