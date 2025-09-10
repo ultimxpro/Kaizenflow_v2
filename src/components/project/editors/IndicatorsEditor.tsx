@@ -5,12 +5,14 @@ import {
   TrendingUp, Plus, X, HelpCircle, Settings, Calendar, Tag,
   BarChart3, LineChart, PieChart, Activity, Target, AlertTriangle,
   CheckCircle2, XCircle, Clock, Save, Download, Upload, Eye,
-  ChevronLeft, ChevronRight, Trash2, Edit2, Link2, Filter
+  ChevronLeft, ChevronRight, Trash2, Edit2, Link2, Filter,
+  Zap, Gauge, Timer, DollarSign, Shield, Sparkles, LayoutGrid,
+  MousePointer, TrendingDown, Bell, PlayCircle, PauseCircle
 } from 'lucide-react';
 import { 
   Line, Bar, Area, ComposedChart, XAxis, YAxis, CartesianGrid, 
   Tooltip as RechartsTooltip, Legend, ResponsiveContainer, 
-  ReferenceLine, Scatter 
+  ReferenceLine, Scatter, LineChart as RechartsLineChart
 } from 'recharts';
 
 // Types
@@ -52,6 +54,8 @@ interface Indicator {
 interface IndicatorsContent {
   indicators: Indicator[];
   selectedIndicatorId: string | null;
+  viewMode?: ViewMode;
+  isQuickSetupOpen?: boolean;
 }
 
 // Configuration des couleurs
@@ -59,6 +63,80 @@ const CHART_COLORS = [
   '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
   '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1'
 ];
+
+// Templates d'indicateurs prédéfinis pour simplifier la création
+const INDICATOR_TEMPLATES = [
+  {
+    id: 'quality',
+    name: 'Qualité',
+    icon: CheckCircle2,
+    color: '#10B981',
+    gradient: 'from-green-500 to-emerald-500',
+    examples: ['Taux de défauts', 'Réclamations clients', 'Conformité'],
+    defaultUnit: '%',
+    defaultType: 'line' as const,
+    targetDirection: 'decrease' // decrease = mieux quand ça baisse, increase = mieux quand ça monte
+  },
+  {
+    id: 'productivity',
+    name: 'Productivité',
+    icon: TrendingUp,
+    color: '#3B82F6',
+    gradient: 'from-blue-500 to-indigo-500',
+    examples: ['Pièces/heure', 'Rendement', 'OEE'],
+    defaultUnit: 'unités/h',
+    defaultType: 'line' as const,
+    targetDirection: 'increase'
+  },
+  {
+    id: 'safety',
+    name: 'Sécurité',
+    icon: Shield,
+    color: '#EF4444',
+    gradient: 'from-red-500 to-rose-500',
+    examples: ['Accidents', 'Presqu\'accidents', 'Jours sans accident'],
+    defaultUnit: 'nb',
+    defaultType: 'bar' as const,
+    targetDirection: 'decrease'
+  },
+  {
+    id: 'cost',
+    name: 'Coût',
+    icon: DollarSign,
+    color: '#F59E0B',
+    gradient: 'from-yellow-500 to-amber-500',
+    examples: ['Coût par unité', 'Économies', 'Budget'],
+    defaultUnit: '€',
+    defaultType: 'line' as const,
+    targetDirection: 'decrease'
+  },
+  {
+    id: 'delivery',
+    name: 'Délai',
+    icon: Timer,
+    color: '#8B5CF6',
+    gradient: 'from-purple-500 to-violet-500',
+    examples: ['Temps de cycle', 'Retards', 'Respect délai'],
+    defaultUnit: 'jours',
+    defaultType: 'line' as const,
+    targetDirection: 'decrease'
+  },
+  {
+    id: 'custom',
+    name: 'Personnalisé',
+    icon: Settings,
+    color: '#6B7280',
+    gradient: 'from-gray-500 to-slate-500',
+    examples: ['Votre indicateur', 'Mesure spécifique'],
+    defaultUnit: '',
+    defaultType: 'line' as const,
+    targetDirection: 'increase'
+  }
+];
+
+// Types de modes d'affichage
+type ViewMode = 'dashboard' | 'focus' | 'create';
+type CreateStep = 'template' | 'setup' | 'firstMeasure';
 
 // Composant Tooltip personnalisé pour éviter les erreurs
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -85,12 +163,21 @@ export const IndicatorsEditor: React.FC<{ module: A3Module; onClose: () => void 
   const { updateA3Module, actions, a3Modules } = useDatabase();
   const [showHelp, setShowHelp] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [editingIndicator, setEditingIndicator] = useState<Indicator | null>(null);
-  const [showDataEntry, setShowDataEntry] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'detail'>('grid');
-  const [selectedIndicatorForData, setSelectedIndicatorForData] = useState<string | null>(null);
   
-  // État pour l'entrée de données
+  // États pour la nouvelle interface
+  const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
+  const [isQuickSetupOpen, setIsQuickSetupOpen] = useState(false);
+  const [currentCreateStep, setCurrentCreateStep] = useState<CreateStep>('template');
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const [quickSetupData, setQuickSetupData] = useState({
+    name: '',
+    target: '',
+    firstValue: '',
+    firstDate: new Date().toISOString().split('T')[0]
+  });
+  
+  // États pour l'entrée rapide de données
+  const [quickEntryIndicator, setQuickEntryIndicator] = useState<string | null>(null);
   const [newDataPoint, setNewDataPoint] = useState({
     date: new Date().toISOString().split('T')[0],
     value: '',
@@ -100,16 +187,69 @@ export const IndicatorsEditor: React.FC<{ module: A3Module; onClose: () => void 
   // Initialisation des données
   const initializeContent = (): IndicatorsContent => {
     if (module.content?.indicators) {
-      return module.content as IndicatorsContent;
+      return {
+        ...module.content as IndicatorsContent,
+        viewMode: 'dashboard',
+        isQuickSetupOpen: false
+      };
     }
     return {
       indicators: [],
-      selectedIndicatorId: null
+      selectedIndicatorId: null,
+      viewMode: 'dashboard',
+      isQuickSetupOpen: false
     };
   };
 
   const [content, setContent] = useState<IndicatorsContent>(initializeContent());
   const selectedIndicator = content.indicators.find(i => i.id === content.selectedIndicatorId);
+  
+  // Fonctions utilitaires pour les indicateurs
+  const getIndicatorStatus = (indicator: Indicator) => {
+    if (indicator.dataPoints.length === 0) return 'no-data';
+    
+    const latestPoint = indicator.dataPoints[indicator.dataPoints.length - 1];
+    const controlLimits = indicator.controlLimits;
+    
+    if (!controlLimits) return 'neutral';
+    
+    if (latestPoint.value > controlLimits.upperControl || latestPoint.value < controlLimits.lowerControl) {
+      return 'alert';
+    }
+    
+    // Logique de tendance simple
+    if (indicator.dataPoints.length >= 2) {
+      const previousPoint = indicator.dataPoints[indicator.dataPoints.length - 2];
+      const template = INDICATOR_TEMPLATES.find(t => t.defaultType === indicator.type);
+      const isImproving = template?.targetDirection === 'increase' 
+        ? latestPoint.value > previousPoint.value 
+        : latestPoint.value < previousPoint.value;
+        
+      return isImproving ? 'good' : 'warning';
+    }
+    
+    return 'neutral';
+  };
+  
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'good': return 'bg-green-100 border-green-300 text-green-800';
+      case 'warning': return 'bg-yellow-100 border-yellow-300 text-yellow-800';
+      case 'alert': return 'bg-red-100 border-red-300 text-red-800';
+      case 'no-data': return 'bg-gray-100 border-gray-300 text-gray-600';
+      default: return 'bg-blue-100 border-blue-300 text-blue-800';
+    }
+  };
+  
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'good': return <CheckCircle2 className="w-4 h-4" />;
+      case 'warning': return <AlertTriangle className="w-4 h-4" />;
+      case 'alert': return <XCircle className="w-4 h-4" />;
+      case 'no-data': return <Clock className="w-4 h-4" />;
+      default: return <Activity className="w-4 h-4" />;
+    }
+  };
 
   // Récupérer les actions du module Plan d'action
   const availableActions = useMemo(() => {
@@ -130,43 +270,56 @@ export const IndicatorsEditor: React.FC<{ module: A3Module; onClose: () => void 
     await updateA3Module(module.id, { content: newContent });
   };
 
-  // Ajouter un nouvel indicateur
-  const addIndicator = () => {
+  // Quick Setup : Créer un indicateur avec template
+  const createIndicatorFromTemplate = () => {
+    if (!selectedTemplate || !quickSetupData.name) return;
+    
     const newIndicator: Indicator = {
       id: `ind-${Date.now()}`,
-      name: 'Nouvel indicateur',
-      description: '',
-      type: 'line',
-      unit: '',
+      name: quickSetupData.name,
+      description: `Indicateur ${selectedTemplate.name}`,
+      type: selectedTemplate.defaultType,
+      unit: selectedTemplate.defaultUnit,
       frequency: 'weekly',
-      dataPoints: [],
+      dataPoints: quickSetupData.firstValue ? [{
+        id: `dp-${Date.now()}`,
+        date: quickSetupData.firstDate,
+        value: parseFloat(quickSetupData.firstValue),
+        comment: 'Première mesure'
+      }] : [],
       linkedActions: [],
       status: 'active',
       createdAt: new Date(),
       updatedAt: new Date(),
-      color: CHART_COLORS[content.indicators.length % CHART_COLORS.length],
+      color: selectedTemplate.color,
       showTrend: true,
-      showAverage: true
+      showAverage: true,
+      controlLimits: quickSetupData.target ? {
+        target: parseFloat(quickSetupData.target),
+        upperControl: parseFloat(quickSetupData.target) * 1.1,
+        lowerControl: parseFloat(quickSetupData.target) * 0.9
+      } : undefined
     };
     
-    setEditingIndicator(newIndicator);
-  };
-
-  // Sauvegarder un indicateur
-  const saveIndicator = (indicator: Indicator) => {
-    const updatedIndicators = editingIndicator && 
-      content.indicators.find(i => i.id === editingIndicator.id)
-      ? content.indicators.map(i => i.id === indicator.id ? indicator : i)
-      : [...content.indicators, indicator];
-    
-    saveContent({
+    const newContent = {
       ...content,
-      indicators: updatedIndicators
-    });
+      indicators: [...content.indicators, newIndicator]
+    };
     
-    setEditingIndicator(null);
+    saveContent(newContent);
+    
+    // Reset du Quick Setup
+    setIsQuickSetupOpen(false);
+    setCurrentCreateStep('template');
+    setSelectedTemplate(null);
+    setQuickSetupData({
+      name: '',
+      target: '',
+      firstValue: '',
+      firstDate: new Date().toISOString().split('T')[0]
+    });
   };
-
+  
   // Supprimer un indicateur
   const deleteIndicator = (id: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer cet indicateur ?')) {
@@ -176,6 +329,42 @@ export const IndicatorsEditor: React.FC<{ module: A3Module; onClose: () => void 
         selectedIndicatorId: content.selectedIndicatorId === id ? null : content.selectedIndicatorId
       });
     }
+  };
+  
+  // Entrée rapide de données
+  const addQuickDataPoint = (indicatorId: string) => {
+    if (!newDataPoint.value) return;
+    
+    const indicator = content.indicators.find(i => i.id === indicatorId);
+    if (!indicator) return;
+    
+    const dataPoint: DataPoint = {
+      id: `dp-${Date.now()}`,
+      date: newDataPoint.date,
+      value: parseFloat(newDataPoint.value),
+      comment: newDataPoint.comment || undefined
+    };
+    
+    const updatedIndicator = {
+      ...indicator,
+      dataPoints: [...indicator.dataPoints, dataPoint],
+      updatedAt: new Date()
+    };
+    
+    const newContent = {
+      ...content,
+      indicators: content.indicators.map(i => i.id === indicatorId ? updatedIndicator : i)
+    };
+    
+    saveContent(newContent);
+    
+    // Reset du formulaire
+    setNewDataPoint({
+      date: new Date().toISOString().split('T')[0],
+      value: '',
+      comment: ''
+    });
+    setQuickEntryIndicator(null);
   };
 
   // Ajouter un point de données

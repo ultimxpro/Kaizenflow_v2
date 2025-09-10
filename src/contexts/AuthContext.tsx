@@ -28,6 +28,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<void>;
+  refreshAvatarUrls: () => Promise<void>;
   isAdmin: boolean;
 }
 
@@ -44,6 +45,27 @@ export const useAuth = () => {
 const generateSignedUrls = async (profiles: Profile[]): Promise<Profile[]> => {
   console.log('🖼️ GÉNÉRATION URLs SIGNÉES - Début');
   console.log('Profils à traiter:', profiles.length);
+  
+  // Test si le bucket fonctionne maintenant
+  try {
+    const { data: bucketData, error: bucketError } = await supabase.storage.getBucket('avatars');
+    if (bucketError) {
+      console.error('🗂️ Bucket toujours inaccessible:', bucketError.message);
+      console.log('🌐 Utilisation des URLs publiques en fallback');
+    } else {
+      console.log('✅ Bucket avatars maintenant accessible !', bucketData?.name);
+    }
+  } catch (e) {
+    console.error('🗂️ Erreur API:', e);
+  }
+  
+  // Dans tous les cas, utiliser les URLs publiques pour l'instant
+  return profiles.map(profile => ({
+    ...profile,
+    signedAvatarUrl: profile.avatar_url ? 
+      supabase.storage.from('avatars').getPublicUrl(profile.avatar_url).data.publicUrl : 
+      undefined
+  }));
   
   const profilesWithUrls = await Promise.all(
     profiles.map(async (profile, index) => {
@@ -62,13 +84,39 @@ const generateSignedUrls = async (profiles: Profile[]): Promise<Profile[]> => {
           
           console.log('Chemin nettoyé:', avatarPath);
           
-          // Générer l'URL signée
+          // Test si le fichier existe
+          try {
+            const { data: fileExists, error: existsError } = await supabase.storage
+              .from('avatars')
+              .list('', { search: avatarPath });
+            console.log('📁 Fichier existe?', fileExists?.length ? 'OUI' : 'NON', existsError);
+          } catch (e) {
+            console.error('📁 Erreur test existence:', e);
+          }
+          
+          // Générer l'URL signée avec durée plus longue (24h)
           const { data, error } = await supabase.storage
             .from('avatars')
-            .createSignedUrl(avatarPath, 3600);
+            .createSignedUrl(avatarPath, 86400); // 24 heures au lieu de 1h
           
           if (error) {
             console.error('❌ Erreur génération URL signée:', error);
+            console.log('🔄 Tentative avec URL publique...');
+            
+            // Fallback: tenter avec URL publique
+            try {
+              const { data: publicData } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(avatarPath);
+              
+              if (publicData.publicUrl) {
+                console.log('🌐 URL publique générée:', publicData.publicUrl.substring(0, 50) + '...');
+                return { ...profile, signedAvatarUrl: publicData.publicUrl };
+              }
+            } catch (publicError) {
+              console.error('❌ Erreur URL publique:', publicError);
+            }
+            
             return profile; // Retourner le profil sans URL signée
           }
           
@@ -101,6 +149,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   console.log('🔍 DEBUG: AuthProvider initial state - loading:', loading);
+
+  // Régénération automatique des URLs signées toutes les 20 heures
+  useEffect(() => {
+    if (users.length === 0) return;
+
+    const regenerateUrls = async () => {
+      console.log('🔄 Régénération automatique des URLs signées...');
+      const refreshedUsers = await generateSignedUrls(users);
+      setUsers(refreshedUsers);
+      
+      if (profile) {
+        const [refreshedProfile] = await generateSignedUrls([profile]);
+        setProfile(refreshedProfile);
+      }
+    };
+
+    // Régénérer toutes les 20 heures (en millisecondes)
+    const interval = setInterval(regenerateUrls, 20 * 60 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [users, profile]);
 
 useEffect(() => {
   const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -156,6 +225,10 @@ useEffect(() => {
 
       if (profileError) console.error("Error fetching profile:", profileError);
       if (usersError) console.error("Error fetching all users:", usersError);
+
+      // Debug: afficher les données brutes
+      console.log('🔍 DEBUG Profiles bruts:', { profileData, allUsersData: allUsersData?.slice(0, 3) });
+      console.log('🔍 Exemple avatar_url:', allUsersData?.find(u => u.avatar_url)?.avatar_url);
 
       if (profileData) {
           // Enrichir et définir le profil de l'utilisateur courant
@@ -255,6 +328,25 @@ useEffect(() => {
     await fetchProfileAndUsers(data.id);
   };
 
+  const refreshAvatarUrls = async () => {
+    console.log('🔄 Régénération manuelle des URLs signées...');
+    try {
+      if (users.length > 0) {
+        const refreshedUsers = await generateSignedUrls(users);
+        setUsers(refreshedUsers);
+      }
+      
+      if (profile) {
+        const [refreshedProfile] = await generateSignedUrls([profile]);
+        setProfile(refreshedProfile);
+      }
+      
+      console.log('✅ URLs signées régénérées avec succès');
+    } catch (error) {
+      console.error('❌ Erreur lors de la régénération des URLs:', error);
+    }
+  };
+
   const value = {
     user,
     profile,
@@ -267,6 +359,7 @@ useEffect(() => {
     signOut,
     logout: signOut,
     updateProfile,
+    refreshAvatarUrls,
     isAdmin: profile?.role === 'admin',
   };
 

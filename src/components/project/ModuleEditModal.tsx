@@ -5,7 +5,7 @@ import { FiveWhyEditor } from './editors/FiveWhyEditor';
 import { IshikawaEditor } from './editors/IshikawaEditor';
 // MODIFICATION ICI : L'import de FiveWOneHEditor a été supprimé
 import { OplEditor } from './editors/OplEditor';
-import { FiveSEditorNew } from './editors/FiveSEditorNew';
+import { FiveSEditorSimple } from './editors/FiveSEditorSimple';
 import { VSMEditor } from './editors/VSMEditor';
 import { IframeEditor } from './editors/IframeEditor';
 import { CroquisEditor } from './editors/CroquisEditor';
@@ -27,7 +27,7 @@ export const ModuleEditModal: React.FC<ModuleEditModalProps> = ({ module, onClos
       case 'OPL':
         return <OplEditor module={module} onClose={onClose}/>;
       case '5S':
-        return <FiveSEditorNew module={module} onClose={onClose}/>;
+        return <FiveSEditorSimple module={module} onClose={onClose}/>;
       case 'VSM':
         return <VSMEditor module={module} onClose={onClose}/>;
       case 'Iframe':
