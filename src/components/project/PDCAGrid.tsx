@@ -20,7 +20,7 @@ const quadrants = [
     bgGradient: 'bg-gradient-to-br from-white via-sky-50/30 to-indigo-100/50',
     headerGradient: 'bg-gradient-to-r from-indigo-800/90 via-blue-600/90 to-sky-400/90',
     hoverShadow: 'hover:shadow-[0_8px_30px_rgb(59,130,246,0.15)]',
-    allowedTools: ['5Pourquoi', '4M', 'VSM', 'Croquis', 'Iframe']
+    allowedTools: ['SMART', '5Pourquoi', '4M', '3G5G', 'TWTTP', 'Iframe']
   },
   { 
     id: 'DO', 
@@ -29,7 +29,7 @@ const quadrants = [
     bgGradient: 'bg-gradient-to-br from-white via-lime-50/30 to-emerald-100/50',
     headerGradient: 'bg-gradient-to-r from-emerald-700/90 via-green-500/90 to-lime-400/90',
     hoverShadow: 'hover:shadow-[0_8px_30px_rgb(16,185,129,0.15)]',
-    allowedTools: ['5S', 'PlanActions', 'Croquis', 'Iframe']
+    allowedTools: ['5S', 'PlanActions', 'VSM', 'Spaghetti', 'Iframe']
   },
   { 
     id: 'CHECK', 
@@ -38,7 +38,7 @@ const quadrants = [
     bgGradient: 'bg-gradient-to-br from-white via-orange-50/30 to-pink-100/50',
     headerGradient: 'bg-gradient-to-r from-pink-600/90 via-orange-500/90 to-orange-300/90',
     hoverShadow: 'hover:shadow-[0_8px_30px_rgb(249,115,22,0.15)]',
-    allowedTools: ['Indicateurs', 'Croquis', 'Iframe']
+    allowedTools: ['Indicateurs', 'Satisfaction', 'Spaghetti', 'Iframe']
   },
   { 
     id: 'ACT', 
@@ -47,11 +47,11 @@ const quadrants = [
     bgGradient: 'bg-gradient-to-br from-white via-violet-50/30 to-indigo-100/50',
     headerGradient: 'bg-gradient-to-r from-indigo-900/90 via-purple-600/90 to-violet-400/90',
     hoverShadow: 'hover:shadow-[0_8px_30px_rgb(139,92,246,0.15)]',
-    allowedTools: ['OPL', 'SOP', 'Croquis', 'Iframe']
+    allowedTools: ['OPL', 'SOP', 'Spaghetti', 'Iframe']
   }
 ];
 
-const uniqueTools = ['5Pourquoi', '4M', 'VSM', '5S', 'PlanActions', 'SOP'];
+const uniqueTools = ['SMART', '5Pourquoi', '4M', 'VSM', '5S', 'PlanActions', 'SOP', '3G5G', 'TWTTP'];
 
 export const PDCAGrid: React.FC<PDCAGridProps> = ({ projectId, modules, onEditModule, onMoveModule }) => {
   const [showModuleSelection, setShowModuleSelection] = useState<string | null>(null);

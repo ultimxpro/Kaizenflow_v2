@@ -1,6 +1,6 @@
 // src/components/project/ModuleSelectionModal.tsx
 import React from 'react';
-import { X, HelpCircle, MessageSquare, Image, GitBranch, BookOpen, CheckSquare, Workflow, Monitor, PenTool, Activity, FileText } from 'lucide-react';
+import { X, HelpCircle, MessageSquare, Image, GitBranch, BookOpen, CheckSquare, Workflow, Monitor, PenTool, Activity, FileText, Heart, Target, ArrowUpRight, Route, Search, Shield } from 'lucide-react';
 
 interface ModuleSelectionModalProps {
   quadrant: string;
@@ -10,6 +10,18 @@ interface ModuleSelectionModalProps {
 }
 
 const toolsConfig = {
+  'SMART': {
+    name: 'Objectif SMART',
+    icon: (
+      <div className="relative w-6 h-6">
+        <Target className="w-6 h-6" />
+        <ArrowUpRight className="w-3.5 h-3.5 absolute right-0 top-0" />
+      </div>
+    ),
+    description: 'Définir un objectif SMART (LEAN)',
+    gradient: 'bg-gradient-to-br from-blue-500 to-indigo-600',
+    lightBg: 'from-blue-50 to-indigo-100'
+  },
   '5Pourquoi': {
     name: '5 Pourquoi',
     icon: <MessageSquare className="w-6 h-6" />,
@@ -30,6 +42,13 @@ const toolsConfig = {
     description: 'Value Stream Mapping',
     gradient: 'bg-gradient-to-br from-emerald-500 to-emerald-600',
     lightBg: 'from-emerald-50 to-emerald-100'
+  },
+  '3G5G': {
+    name: '3G / 5G',
+    icon: <Search className="w-6 h-6" />,
+    description: 'Aller au fait: Gemba, Genbutsu, Genjitsu, Genri, Gensoku',
+    gradient: 'bg-gradient-to-br from-red-500 to-pink-600',
+    lightBg: 'from-red-50 to-pink-50'
   },
   'OPL': {
     name: 'OPL',
@@ -52,6 +71,13 @@ const toolsConfig = {
     gradient: 'bg-gradient-to-br from-green-500 to-green-600',
     lightBg: 'from-green-50 to-green-100'
   },
+  'Spaghetti': {
+    name: 'Spaghetti Chart',
+    icon: <Route className="w-6 h-6" />,
+    description: 'Tracer le flux sur une image (LEAN)',
+    gradient: 'bg-gradient-to-br from-red-500 to-pink-600',
+    lightBg: 'from-red-50 to-pink-50'
+  },
   'Croquis': {
     name: 'Croquis',
     icon: <PenTool className="w-6 h-6" />,
@@ -66,12 +92,19 @@ const toolsConfig = {
     gradient: 'bg-gradient-to-br from-gray-500 to-gray-600',
     lightBg: 'from-gray-50 to-gray-100'
   },
-  'Kamishibai': {
+  'Indicateurs': {
     name: 'Kamishibai',
     icon: <Activity className="w-6 h-6" />,
     description: 'Tableaux de bord visuels pour le suivi des performances',
     gradient: 'bg-gradient-to-br from-cyan-500 to-cyan-600',
     lightBg: 'from-cyan-50 to-cyan-100'
+  },
+  'Satisfaction': {
+    name: 'Satisfaction',
+    icon: <Heart className="w-6 h-6" />,
+    description: 'Baromètre de satisfaction pour l\'amélioration continue',
+    gradient: 'bg-gradient-to-br from-emerald-500 to-emerald-600',
+    lightBg: 'from-emerald-50 to-emerald-100'
   },
   'SOP': {
     name: 'SOP',
@@ -79,6 +112,13 @@ const toolsConfig = {
     description: 'Standard Operating Procedure',
     gradient: 'bg-gradient-to-br from-indigo-500 to-indigo-600',
     lightBg: 'from-indigo-50 to-indigo-100'
+  },
+  'TWTTP': {
+    name: 'TWTTP - HERCA',
+    icon: <Shield className="w-6 h-6" />,
+    description: 'Zéro erreur humaine (HERCA / Poka‑Yoke)',
+    gradient: 'bg-gradient-to-br from-sky-500 to-blue-600',
+    lightBg: 'from-sky-50 to-blue-100'
   }
 };
 

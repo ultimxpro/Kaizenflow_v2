@@ -9,9 +9,14 @@ import { FiveSEditorSimple } from './editors/FiveSEditorSimple';
 import { VSMEditor } from './editors/VSMEditor';
 import { IframeEditor } from './editors/IframeEditor';
 import { CroquisEditor } from './editors/CroquisEditor';
+import { SpaghettiEditor } from './editors/SpaghettiEditor';
+import { ThreeGFiveGEditor } from './editors/ThreeGFiveGEditor';
 import { PlanActionsEditor } from './editors/PlanActionsEditor';
 import { IndicatorsEditor } from './editors/IndicatorsEditor';
+import { SatisfactionEditor } from './editors/SatisfactionEditor';
 import { SOPEditor } from './editors/SOPEditor';
+import { SmartEditor } from './editors/SmartEditor';
+import { TWTTPEditor } from './editors/TWTTPEditor';
 interface ModuleEditModalProps {
   module: A3Module;
   onClose: () => void;
@@ -19,6 +24,8 @@ interface ModuleEditModalProps {
 export const ModuleEditModal: React.FC<ModuleEditModalProps> = ({ module, onClose }) => {
   const renderEditor = () => {
     switch (module.tool_type) {
+      case 'SMART':
+        return <SmartEditor module={module} onClose={onClose} />;
       case '5Pourquoi':
         return <FiveWhyEditor module={module} onClose={onClose} />;
       case '4M':
@@ -33,13 +40,22 @@ export const ModuleEditModal: React.FC<ModuleEditModalProps> = ({ module, onClos
       case 'Iframe':
         return <IframeEditor module={module} onClose={onClose}/>;
       case 'Croquis':
+        // Conserver l'ancien éditeur pour rétrocompatibilité
         return <CroquisEditor module={module} onClose={onClose}/>;
+      case 'Spaghetti':
+        return <SpaghettiEditor module={module} onClose={onClose}/>;
       case 'PlanActions':
         return <PlanActionsEditor module={module} onClose={onClose}/>;
       case 'Indicateurs':
         return <IndicatorsEditor module={module} onClose={onClose} />;
+      case 'Satisfaction':
+        return <SatisfactionEditor module={module} onClose={onClose} />;
       case 'SOP':
         return <SOPEditor module={module} onClose={onClose} />;
+      case '3G5G':
+        return <ThreeGFiveGEditor module={module} onClose={onClose} />;
+      case 'TWTTP':
+        return <TWTTPEditor module={module} onClose={onClose} />;
       default:
         return (
           <div className="h-full flex items-center justify-center">

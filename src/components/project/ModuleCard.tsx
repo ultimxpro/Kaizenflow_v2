@@ -4,7 +4,7 @@ import { A3Module } from '../../types/database';
 import { 
   MessageSquare, GitBranch, BookOpen, CheckSquare, 
   Workflow, Monitor, PenTool, Activity, FileText, 
-  Trash2, Move 
+  Trash2, Move, Heart, Target, ArrowUpRight, Route, Search, Shield
 } from 'lucide-react';
 
 interface ModuleCardProps {
@@ -16,6 +16,13 @@ interface ModuleCardProps {
 
 const getToolIcon = (toolType: string) => {
   switch (toolType) {
+    case 'SMART':
+      return (
+        <div className="relative w-4 h-4">
+          <Target className="w-4 h-4" />
+          <ArrowUpRight className="w-2.5 h-2.5 absolute right-0 top-0" />
+        </div>
+      );
     case '5Pourquoi': return <MessageSquare className="w-4 h-4" />;
     case '4M': return <GitBranch className="w-4 h-4" />;
     case 'VSM': return <Workflow className="w-4 h-4" />;
@@ -23,15 +30,20 @@ const getToolIcon = (toolType: string) => {
     case '5S': return <CheckSquare className="w-4 h-4" />;
     case 'PlanActions': return <CheckSquare className="w-4 h-4" />;
     case 'Croquis': return <PenTool className="w-4 h-4" />;
+    case 'Spaghetti': return <Route className="w-4 h-4" />;
+    case '3G5G': return <Search className="w-4 h-4" />;
     case 'Iframe': return <Monitor className="w-4 h-4" />;
-    case 'Kamishibai': return <Activity className="w-4 h-4" />;
+    case 'Indicateurs': return <Activity className="w-4 h-4" />;
+    case 'Satisfaction': return <Heart className="w-4 h-4" />;
     case 'SOP': return <FileText className="w-4 h-4" />;
+    case 'TWTTP': return <Shield className="w-4 h-4" />;
     default: return <FileText className="w-4 h-4" />;
   }
 };
 
 const getToolColor = (toolType: string) => {
   switch (toolType) {
+    case 'SMART': return 'from-blue-500 to-indigo-600';
     case '5Pourquoi': return 'from-purple-500 to-purple-600';
     case '4M': return 'from-red-500 to-red-600';
     case 'VSM': return 'from-emerald-500 to-emerald-600';
@@ -39,15 +51,20 @@ const getToolColor = (toolType: string) => {
     case '5S': return 'from-teal-500 to-teal-600';
     case 'PlanActions': return 'from-green-500 to-green-600';
     case 'Croquis': return 'from-yellow-500 to-yellow-600';
+    case 'Spaghetti': return 'from-red-500 to-pink-600';
     case 'Iframe': return 'from-gray-500 to-gray-600';
-    case 'Kamishibai': return 'from-cyan-500 to-cyan-600';
+    case 'Indicateurs': return 'from-cyan-500 to-cyan-600';
+    case 'Satisfaction': return 'from-emerald-500 to-emerald-600';
     case 'SOP': return 'from-indigo-500 to-indigo-600';
+    case '3G5G': return 'from-red-500 to-pink-600';
+    case 'TWTTP': return 'from-sky-500 to-blue-600';
     default: return 'from-gray-500 to-gray-600';
   }
 };
 
 const getToolName = (toolType: string) => {
   switch (toolType) {
+    case 'SMART': return 'Objectif SMART';
     case '5Pourquoi': return '5 Pourquoi';
     case '4M': return '4M (Ishikawa)';
     case 'VSM': return 'VSM';
@@ -55,9 +72,13 @@ const getToolName = (toolType: string) => {
     case '5S': return '5S';
     case 'PlanActions': return 'Plan d\'Actions';
     case 'Croquis': return 'Croquis';
+    case 'Spaghetti': return 'Spaghetti Chart';
     case 'Iframe': return 'Iframe';
-    case 'Kamishibai': return 'Kamishibai';
+    case 'Indicateurs': return 'Kamishibai';
+    case 'Satisfaction': return 'Satisfaction';
     case 'SOP': return 'SOP';
+    case '3G5G': return '3G / 5G';
+    case 'TWTTP': return 'TWTTP - HERCA';
     default: return toolType;
   }
 };
